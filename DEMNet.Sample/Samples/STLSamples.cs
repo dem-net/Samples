@@ -24,42 +24,47 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-using AssetGenerator;
-using AssetGenerator.Runtime;
+using DEM.Net.Core;
 using DEM.Net.glTF;
 using DEM.Net.glTF.Export;
-using DEM.Net.Core;
-using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using System;
-using System.Collections.Generic;
-using System.Globalization;
+using System.Diagnostics;
 using System.IO;
-using System.Linq;
-using System.Numerics;
-using System.Text;
-using System.Threading.Tasks;
-using DEM.Net.Core.Services.Mesh;
 
 namespace DEMNet.Sample
 {
-    class STLSamples
+    public class STLSamples
     {
-        public static void Run(ServiceProvider serviceProvider, DEMDataSet dataset)
+        private readonly IElevationService _elevationService;
+        private readonly IglTFService _glTFService;
+        private readonly ISTLExportService _stlService;
+        private readonly ILogger<STLSamples> _logger;
+
+        public STLSamples(ILogger<STLSamples> logger
+                , IElevationService elevationService
+                , IglTFService glTFService
+                , ISTLExportService stlService)
+        {
+            _elevationService = elevationService;
+            _glTFService = glTFService;
+            _stlService = stlService;
+            _logger = logger;
+        }
+        public void Run(DEMDataSet dataset)
         {
             string modelName = "Montagne Sainte Victoire" + dataset.Name;
 
             // You can get your boox from https://geojson.net/ (save as WKT)
             string bboxWKT = "POLYGON((5.54888 43.519525, 5.61209 43.519525, 5.61209 43.565225, 5.54888 43.565225, 5.54888 43.519525))";
-           
-            Logger.Info($"Processing model {modelName}...");
-            Logger.RestartPerf("STL");
-        
-            IElevationService elevationService = serviceProvider.GetService<IElevationService>();
-            IglTFService glTFService = serviceProvider.GetService<IglTFService>();
 
-            var bbox = GeometryService.GetBoundingBox( bboxWKT);
-            
-            var heightMap = elevationService.GetHeightMap(bbox, dataset);
+            _logger.LogInformation($"{nameof(STLSamples)} Processing model {modelName}...");
+            Stopwatch sw = Stopwatch.StartNew();
+
+
+            var bbox = GeometryService.GetBoundingBox(bboxWKT);
+
+            var heightMap = _elevationService.GetHeightMap(bbox, dataset);
 
             heightMap = heightMap
                                     .ReprojectGeodeticToCartesian()
@@ -70,14 +75,15 @@ namespace DEMNet.Sample
 
             // Triangulate height map
             // and add base and sides
-            var mesh = glTFService.GenerateTriangleMesh_Boxed(heightMap, BoxBaseThickness.FromMinimumPoint, 5);
+            var mesh = _glTFService.GenerateTriangleMesh_Boxed(heightMap, BoxBaseThickness.FromMinimumPoint, 5);
 
             // STL axis differ from glTF 
             mesh.RotateX((float)Math.PI / 2f);
 
             var stlFileName = $"{modelName}.stl";
-            STLExportService stlService = new STLExportService();
-            stlService.STLExport(mesh, Path.Combine(Directory.GetCurrentDirectory(), stlFileName), false);
+            _stlService.STLExport(mesh, Path.Combine(Directory.GetCurrentDirectory(), stlFileName), false);
+
+            _logger.LogInformation($"{nameof(STLSamples)} Done in {sw.Elapsed:g}");
 
         }
 

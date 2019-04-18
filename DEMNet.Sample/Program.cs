@@ -30,6 +30,9 @@ using System;
 using System.Diagnostics;
 using Microsoft.Extensions.DependencyInjection;
 using DEM.Net.glTF;
+using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Logging.Debug;
+using Microsoft.Extensions.Logging.Console;
 
 namespace DEMNet.Sample
 {
@@ -42,12 +45,53 @@ namespace DEMNet.Sample
         {
             RegisterServices();
 
+            var app = _serviceProvider.GetService<SampleApplication>();
+            app.Run(_serviceProvider);
 
+            Console.Write("Press any key to exit...");
+            Console.ReadLine();
+        }
+
+        private static void RegisterServices()
+        {
+            var services = new ServiceCollection();
+            services.AddLogging(config =>
+            {
+                config.AddDebug(); // Log to debug (debug window in Visual Studio or any debugger attached)
+                config.AddConsole(); // Log to console (colored !)
+            })
+           .Configure<LoggerFilterOptions>(options =>
+           {
+               options.AddFilter<DebugLoggerProvider>(null /* category*/ , LogLevel.Information /* min level */);
+               options.AddFilter<ConsoleLoggerProvider>(null  /* category*/ , LogLevel.Information /* min level */);
+           })
+           .AddDemNetCore()
+           .AddDemNetglTF()
+           .AddTransient<SampleApplication>()
+           .AddTransient<STLSamples>();
+
+            _serviceProvider = services.BuildServiceProvider();
+        }
+    }
+
+    public class SampleApplication
+    {
+        private readonly ILogger<SampleApplication> _logger;
+
+        public SampleApplication(ILogger<SampleApplication> logger)
+        {
+            _logger = logger;
+        }
+
+        internal void Run(IServiceProvider serviceProvider)
+        {
             //Trace.Listeners.Add(new TextWriterTraceListener(Console.Out));
 
-            Logger.StartPerf("Main cold start");
+            Stopwatch sw = Stopwatch.StartNew();
+            _logger.LogInformation("Application started");
 
-            STLSamples.Run(_serviceProvider, DEMDataSet.AW3D30);
+            STLSamples stlSamples = serviceProvider.GetRequiredService<STLSamples>();
+            stlSamples.Run(DEMDataSet.AW3D30);
 
             //GpxSamples gpxSamples = new GpxSamples(_OutputDataDirectory, Path.Combine(_OutputDataDirectory, "GPX", "venturiers.gpx"));
             //gpxSamples.Run(_serviceProvider);
@@ -69,18 +113,7 @@ namespace DEMNet.Sample
             ////oldSamples.Run();
 
 
-            Logger.StopPerf("Main cold start", true);
-            Console.Write("Press any key to exit...");
-            Console.ReadLine();
-        }
-
-        private static void RegisterServices()
-        {
-            var collection = new ServiceCollection();
-            collection.AddSingleton<IRasterService, RasterService>();
-            collection.AddSingleton<IElevationService, ElevationService>();
-            collection.AddSingleton<IglTFService, glTFService>();
-            _serviceProvider = collection.BuildServiceProvider();
+            _logger.LogTrace($"Application ran in : {sw.Elapsed:g}");
         }
     }
 }

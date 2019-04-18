@@ -6,9 +6,22 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <PackageReference Include="DEM.Net.glTF" Version="0.1.0-beta0005" />
+    <Compile Remove="Samples\DatasetSamples.cs" />
+    <Compile Remove="Samples\ElevationSamples.cs" />
+    <Compile Remove="Samples\GpxSamples.cs" />
+    <Compile Remove="Samples\OldSamples.cs" />
+    <Compile Remove="Samples\ReprojectionSamples.cs" />
+    <Compile Remove="Samples\TextureSamples.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="DEM.Net.Core" Version="0.1.0-beta0007" />
+    <PackageReference Include="DEM.Net.glTF" Version="0.1.0-beta0007" />
     <PackageReference Include="Microsoft.Extensions.Configuration.CommandLine" Version="2.2.0" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="2.2.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging" Version="2.2.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="2.2.0" />
+    <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="2.2.0" />
   </ItemGroup>
 
   <ItemGroup>
