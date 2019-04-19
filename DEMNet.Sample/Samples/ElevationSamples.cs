@@ -25,88 +25,85 @@
 // THE SOFTWARE.
 
 using DEM.Net.Core;
-using Microsoft.Extensions.DependencyInjection;
-using System;
-using System.Collections.Generic;
+using DEM.Net.glTF;
+using DEM.Net.glTF.Export;
+using Microsoft.Extensions.Logging;
+using System.Diagnostics;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
-namespace DEMNet.Sample
+namespace SampleApp
 {
-    public static class ElevationSamples
+    public class ElevationSamples
     {
-        public static void Run(ServiceProvider serviceProvider)
-        {
-            IRasterService rasterService = serviceProvider.GetService<IRasterService>();
-            IElevationService elevationService = serviceProvider.GetService<IElevationService>();
+        private readonly IElevationService _elevationService;
+        private readonly IglTFService _glTFService;
+        private readonly ISTLExportService _stlService;
+        private readonly ILogger<ElevationSamples> _logger;
 
+        public ElevationSamples(ILogger<ElevationSamples> logger
+                , IElevationService elevationService
+                , IglTFService glTFService
+                , ISTLExportService stlService)
+        {
+            _elevationService = elevationService;
+            _glTFService = glTFService;
+            _stlService = stlService;
+            _logger = logger;
+        }
+        public void Run()
+        {
             string sampleName = nameof(ElevationSamples);
 
-            Logger.Info("============================");
-            Logger.Info($"= {sampleName}");
-            Logger.Info("============================");
 
 
-
-            Logger.RestartPerf(sampleName);
-
-            Logger.Info("============================");
-            Logger.Info($"= {sampleName} : Point elevation");
 
             double lat1 = 45.179337;
             double lon1 = 5.721421;
             double lat2 = 45.212278;
             double lont2 = 5.468857;
 
-
+            _logger.LogInformation($"Getting location elevation for each dataset (location lat: {lat1:N2}, lon: {lon1:N2})");
+            Stopwatch sw = new Stopwatch();
             foreach (var dataSet in DEMDataSet.RegisteredDatasets)
             {
-                elevationService.DownloadMissingFiles(dataSet, lat1, lon1);
-                var elevation = elevationService.GetPointElevation(lat1, lon1, dataSet);
-                Logger.Info($"{dataSet.Name} elevation: {elevation.Elevation}");
+                sw.Restart();
+
+                _elevationService.DownloadMissingFiles(dataSet, lat1, lon1);
+                GeoPoint geoPoint = _elevationService.GetPointElevation(lat1, lon1, dataSet);
+
+                _logger.LogInformation($"{dataSet.Name} elevation: {geoPoint.Elevation:N2} (time taken: {sw.Elapsed:g})");
             }
-            Logger.StopPerf(sampleName);
 
-            Logger.Info("============================");
 
-            Logger.Info("============================");
-            Logger.Info($"= {sampleName} : Multiple point elevation");
-            Logger.RestartPerf(sampleName);
+            _logger.LogInformation($"Multiple point elevation");
+
+            sw.Restart();
 
             GeoPoint pt1 = new GeoPoint(lat1, lon1);
             GeoPoint pt2 = new GeoPoint(lat2, lont2);
             GeoPoint[] points = { pt1, pt2 };
             foreach (var dataSet in DEMDataSet.RegisteredDatasets)
             {
-                var elevations = elevationService.GetPointsElevation(points, dataSet);
-                Logger.Info($"{dataSet.Name} elevation: {string.Join(" / ", elevations.Select(e => e.Elevation))}");
+                sw.Restart();
+                var geoPoints = _elevationService.GetPointsElevation(points, dataSet);
+                _logger.LogInformation($"{dataSet.Name} elevation: {string.Join(" / ", geoPoints.Select(e => e.Elevation.GetValueOrDefault().ToString("N2")))} (time taken: {sw.Elapsed:g})");
             }
-            Logger.StopPerf(sampleName);
-
-            Logger.Info("=");
-            Logger.Info("============================");
 
 
-            Logger.Info("============================");
-            Logger.Info($"= {sampleName} : Line elevation");
-            Logger.RestartPerf(sampleName);
-            var elevationLine = GeometryService.ParseGeoPointAsGeometryLine(new List<GeoPoint>
-            {  new GeoPoint(lat1,lon1)
-            , new GeoPoint(lat2,lont2)});
+            _logger.LogInformation($"= {sampleName} : Line elevation");
+            sw.Restart();
+            var elevationLine = GeometryService.ParseGeoPointAsGeometryLine(new GeoPoint(lat1, lon1), new GeoPoint(lat2, lont2));
             foreach (var dataSet in DEMDataSet.RegisteredDatasets)
             {
-                elevationService.DownloadMissingFiles(dataSet, elevationLine.GetBoundingBox());
-                var elevations = elevationService.GetLineGeometryElevation(elevationLine, dataSet);
-                var metrics = GeometryService.ComputeMetrics(elevations);
-                //Logger.Info($"{dataSet.Name} elevation: {string.Join(", ", elevations.Select(e => e.Elevation))}");
-                Logger.Info($"{dataSet.Name} metrics: {metrics}");
+                _elevationService.DownloadMissingFiles(dataSet, elevationLine.GetBoundingBox());
+                var geoPoints = _elevationService.GetLineGeometryElevation(elevationLine, dataSet);
+                var metrics = GeometryService.ComputeMetrics(geoPoints);
+                //_logger.LogInformation($"{dataSet.Name} elevation: {string.Join(", ", elevations.Select(e => e.Elevation))}");
+                _logger.LogInformation($"{dataSet.Name} metrics: {metrics.ToString()}");
             }
-            Logger.StopPerf(sampleName);
+            _logger.LogInformation($"Done in {sw.Elapsed:g}");
 
-            Logger.Info("=");
-            Logger.Info("============================");
-            
+
 
         }
 

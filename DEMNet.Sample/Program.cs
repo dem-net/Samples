@@ -84,7 +84,7 @@ namespace SampleApp
 
             // Add sample services here
             RegisterSamples(services);
-            
+
             _serviceProvider = services.BuildServiceProvider();
         }
 
@@ -92,10 +92,11 @@ namespace SampleApp
         /// Register additionnal samples here
         /// </summary>
         /// <param name="services"></param>
-        private static void RegisterSamples(ServiceCollection services) 
+        private static void RegisterSamples(ServiceCollection services)
         {
-            services.AddTransient<STLSamples>();
-
+            services.AddTransient<STLSamples>()
+                    .AddTransient<ElevationSamples>()
+                    .AddTransient<DatasetSamples>();
             // .. more samples here
         }
     }
@@ -119,10 +120,27 @@ namespace SampleApp
             Stopwatch sw = Stopwatch.StartNew();
             _logger.LogInformation("Application started");
 
+
             using (_logger.BeginScope($"Running {nameof(STLSamples)}.."))
             {
-                STLSamples stlSamples = serviceProvider.GetRequiredService<STLSamples>();
-                stlSamples.Run(DEMDataSet.AW3D30);
+                var sample = serviceProvider.GetRequiredService<STLSamples>();
+                sample.Run();
+                _logger.LogInformation($"Sample {sample.GetType().Name} done. Press any key to run the next sample...");
+                Console.ReadLine();
+            }
+            using (_logger.BeginScope($"Running {nameof(ElevationSamples)}.."))
+            {
+                var sample = serviceProvider.GetRequiredService<ElevationSamples>();
+                sample.Run();
+                _logger.LogInformation($"Sample {sample.GetType().Name} done. Press any key to run the next sample...");
+                Console.ReadLine();
+            }
+            using (_logger.BeginScope($"Running {nameof(DatasetSamples)}.."))
+            {
+                var sample = serviceProvider.GetRequiredService<DatasetSamples>();
+                sample.Run();
+                _logger.LogInformation($"Sample {sample.GetType().Name} done. Press any key to run the next sample...");
+                Console.ReadLine();
             }
 
             //GpxSamples gpxSamples = new GpxSamples(_OutputDataDirectory, Path.Combine(_OutputDataDirectory, "GPX", "venturiers.gpx"));
