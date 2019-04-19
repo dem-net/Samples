@@ -32,7 +32,7 @@ using System;
 using System.Diagnostics;
 using System.IO;
 
-namespace DEMNet.Sample
+namespace SampleApp
 {
     public class STLSamples
     {

@@ -35,7 +35,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace DEMNet.Sample
+namespace SampleApp
 {
     public static class TINGeneration
     {

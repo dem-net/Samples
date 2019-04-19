@@ -34,21 +34,34 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Debug;
 using Microsoft.Extensions.Logging.Console;
 
-namespace DEMNet.Sample
+namespace SampleApp
 {
 
+    /// <summary>
+    /// Console program entry point. This is boilerplate code for .Net Core Console logging and DI
+    /// except for the RegisterSamples() where samples are registered
+    /// 
+    /// Here we configure logging and services (via dependency injection)
+    /// And setup and run the main Application
+    /// </summary>
     class Program
     {
         private static ServiceProvider _serviceProvider;
 
         static void Main(string[] args)
         {
+            // Configure container
             RegisterServices();
 
+            // Get main ap
             var app = _serviceProvider.GetService<SampleApplication>();
+
+            // RUN
             app.Run(_serviceProvider);
 
-            Console.Write("Press any key to exit...");
+
+            System.Threading.Thread.Sleep(100);
+            Console.Write("End of DEM.Net Samples. Press any key to contine...");
             Console.ReadLine();
         }
 
@@ -67,13 +80,29 @@ namespace DEMNet.Sample
            })
            .AddDemNetCore()
            .AddDemNetglTF()
-           .AddTransient<SampleApplication>()
-           .AddTransient<STLSamples>();
+           .AddTransient<SampleApplication>();
 
+            // Add sample services here
+            RegisterSamples(services);
+            
             _serviceProvider = services.BuildServiceProvider();
+        }
+
+        /// <summary>
+        /// Register additionnal samples here
+        /// </summary>
+        /// <param name="services"></param>
+        private static void RegisterSamples(ServiceCollection services) 
+        {
+            services.AddTransient<STLSamples>();
+
+            // .. more samples here
         }
     }
 
+    /// <summary>
+    /// Main sample application
+    /// </summary>
     public class SampleApplication
     {
         private readonly ILogger<SampleApplication> _logger;
@@ -90,8 +119,11 @@ namespace DEMNet.Sample
             Stopwatch sw = Stopwatch.StartNew();
             _logger.LogInformation("Application started");
 
-            STLSamples stlSamples = serviceProvider.GetRequiredService<STLSamples>();
-            stlSamples.Run(DEMDataSet.AW3D30);
+            using (_logger.BeginScope($"Running {nameof(STLSamples)}.."))
+            {
+                STLSamples stlSamples = serviceProvider.GetRequiredService<STLSamples>();
+                stlSamples.Run(DEMDataSet.AW3D30);
+            }
 
             //GpxSamples gpxSamples = new GpxSamples(_OutputDataDirectory, Path.Combine(_OutputDataDirectory, "GPX", "venturiers.gpx"));
             //gpxSamples.Run(_serviceProvider);
