@@ -85,6 +85,9 @@ namespace SampleApp
            {
                options.AddFilter<DebugLoggerProvider>(null /* category*/ , LogLevel.Information /* min level */);
                options.AddFilter<ConsoleLoggerProvider>(null  /* category*/ , LogLevel.Information /* min level */);
+
+               // Uncomment this line to see DEM.Net logs only from warning level
+               options.AddFilter<ConsoleLoggerProvider>("DEM.Net", LogLevel.Warning );
            })
            .AddDemNetCore()
            .AddDemNetglTF();
