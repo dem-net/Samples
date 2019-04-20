@@ -54,37 +54,82 @@ using DEM.Net.Core;
 using DEM.Net.glTF;
 using DEM.Net.glTF.Export;
 using Microsoft.Extensions.Logging;
+using System;
 using System.Diagnostics;
 using System.Linq;
 
 namespace SampleApp
 {
-    public class DatasetSamples
+    /// <summary>
+    /// DatasetSamples: Show how to interact with the datasets
+    /// - Get report of local files
+    /// - Get remote raster file information for location
+    /// </summary>
+    public class DatasetSamples : SampleLogger
     {
         private readonly IRasterService _rasterService;
-        private readonly ILogger<DatasetSamples> _logger;
+        private readonly IElevationService _elevationService;
 
         public DatasetSamples(ILogger<DatasetSamples> logger
-                , IRasterService rasterService)
+                , IRasterService rasterService
+                , IElevationService elevationService) : base(logger)
         {
             _rasterService = rasterService;
-            _logger = logger;
+            _elevationService = elevationService;
         }
         public void Run()
         {
-
-            _logger.LogInformation($"Local data directory : {_rasterService.LocalDirectory}");
-            Stopwatch sw = new Stopwatch();
-
-            sw.Restart();
-
-            _logger.LogInformation($"Generating report...");
-            _logger.LogInformation(_rasterService.GenerateReportAsString());
-
-            _logger.LogInformation($"time taken: {sw.Elapsed:g}");
+            try
+            {
 
 
+                LogInfo("GenerateReportAsString() will generate a report of all local datasets.");
+                LogInfo($"Local data directory : {_rasterService.LocalDirectory}");
+                Stopwatch sw = new Stopwatch();
+
+                sw.Restart();
+
+                LogInfo($"Generating report...");
+                LogInfo(_rasterService.GenerateReportAsString());
+
+                LogInfo($"time taken: {sw.Elapsed:g}");
+
+
+                GeoPoint geoPoint = new GeoPoint(45.179337, 5.721421);
+                LogInfo($"Getting raster file for dataset at location {geoPoint}");
+
+                foreach (var dataset in DEMDataSet.RegisteredDatasets)
+                {
+                    LogInfo($"{dataset.Name}:");
+
+                    var report = _rasterService.GenerateReportForLocation(dataset, geoPoint.Latitude, geoPoint.Longitude);
+                    if (report.Any())
+                    {
+                        DemFileReport rasterFileReport = report.First().Value;
+
+                        LogInfo($"> Remote file URL: {rasterFileReport.URL}");
+
+                        if (rasterFileReport.IsExistingLocally)
+                        {
+                            LogInfo($"> Local file: {rasterFileReport.LocalName}");
+                        } else
+                        {
+                            LogInfo($"> Local file: <not dowloaded>");
+                        }
+                    }
+                    else
+                    {
+                        LogInfo($"> Location is not covered by dataset");
+                    }
+                }
+            }
+            catch (Exception e)
+            {
+                logger.LogError(e, e.Message);
+            }
         }
+
+       
 
 
     }

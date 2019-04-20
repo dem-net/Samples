@@ -34,22 +34,23 @@ using System.IO;
 
 namespace SampleApp
 {
-    public class STLSamples
+    /// <summary>
+    /// STLSamples: This sample will generate a STL file from a bounding box using SRTM_GL3 dataset
+    /// </summary>
+    public class STLSamples : SampleLogger
     {
         private readonly IElevationService _elevationService;
         private readonly IglTFService _glTFService;
         private readonly ISTLExportService _stlService;
-        private readonly ILogger<STLSamples> _logger;
 
         public STLSamples(ILogger<STLSamples> logger
                 , IElevationService elevationService
                 , IglTFService glTFService
-                , ISTLExportService stlService)
+                , ISTLExportService stlService) : base(logger)
         {
             _elevationService = elevationService;
             _glTFService = glTFService;
             _stlService = stlService;
-            _logger = logger;
         }
         public void Run()
         {
@@ -60,16 +61,16 @@ namespace SampleApp
             // You can get your boox from https://geojson.net/ (save as WKT)
             string bboxWKT = "POLYGON((5.54888 43.519525, 5.61209 43.519525, 5.61209 43.565225, 5.54888 43.565225, 5.54888 43.519525))";
             
-            _logger.LogInformation($"Processing model {modelName}...");
+            LogInfo($"Processing model {modelName}...");
             
 
-            _logger.LogInformation($"Getting bounding box geometry...");
+            LogInfo($"Getting bounding box geometry...");
             var bbox = GeometryService.GetBoundingBox(bboxWKT);
 
-            _logger.LogInformation($"Getting height map data...");
+            LogInfo($"Getting height map data...");
             var heightMap = _elevationService.GetHeightMap(bbox, dataset);
 
-            _logger.LogInformation($"Processing height map data ({heightMap.Count} coordinates)...");
+            LogInfo($"Processing height map data ({heightMap.Count} coordinates)...");
             heightMap = heightMap
                                     .ReprojectGeodeticToCartesian() // Reproject to 3857 (useful to get coordinates in meters)
                                     .ZScale(2f)                     // Elevation exageration
@@ -81,21 +82,21 @@ namespace SampleApp
 
             // Triangulate height map
             // and add base and sides
-            _logger.LogInformation($"Triangulating height map and generating box (5mm thick)...");
+            LogInfo($"Triangulating height map and generating box (5mm thick)...");
             var mesh = _glTFService.GenerateTriangleMesh_Boxed(heightMap, BoxBaseThickness.FromMinimumPoint, 5);
 
             
             // STL axis differ from glTF 
-            _logger.LogInformation($"Rotating mesh...");
+            LogInfo($"Rotating mesh...");
             mesh.RotateX((float)Math.PI / 2f);
             
-            _logger.LogInformation($"Exporting STL model...");
+            LogInfo($"Exporting STL model...");
             var stlFilePath = Path.Combine(Directory.GetCurrentDirectory(), $"{modelName}.stl");
             _stlService.STLExport(mesh, stlFilePath, false);
 
-            _logger.LogInformation($"Model exported in {stlFilePath}.");
+            LogInfo($"Model exported in {stlFilePath}.");
 
-            _logger.LogInformation($"Done in {sw.Elapsed:g}");
+            LogInfo($"Done in {sw.Elapsed:g}");
 
         }
 

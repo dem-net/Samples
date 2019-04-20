@@ -46,32 +46,40 @@ namespace SampleApp
     /// </summary>
     class Program
     {
-        private static ServiceProvider _serviceProvider;
 
         static void Main(string[] args)
         {
+            var services = new ServiceCollection();
+
             // Configure container
-            RegisterServices();
+            RegisterServices(services);
+
+            // Configure samples
+            RegisterSamples(services);
+
+            ServiceProvider serviceProvider = services.BuildServiceProvider();
 
             // Get main ap
-            var app = _serviceProvider.GetService<SampleApplication>();
+            var app = serviceProvider.GetService<SampleApplication>();
 
             // RUN
-            app.Run(_serviceProvider);
-
+            app.Run(serviceProvider);
 
             System.Threading.Thread.Sleep(100);
             Console.Write("End of DEM.Net Samples. Press any key to contine...");
             Console.ReadLine();
         }
 
-        private static void RegisterServices()
+        private static void RegisterServices(ServiceCollection services)
         {
-            var services = new ServiceCollection();
             services.AddLogging(config =>
             {
                 config.AddDebug(); // Log to debug (debug window in Visual Studio or any debugger attached)
-                config.AddConsole(); // Log to console (colored !)
+                config.AddConsole(o =>
+                {
+                    o.IncludeScopes = false;
+                    o.DisableColors = false;
+                }); // Log to console (colored !)
             })
            .Configure<LoggerFilterOptions>(options =>
            {
@@ -79,13 +87,8 @@ namespace SampleApp
                options.AddFilter<ConsoleLoggerProvider>(null  /* category*/ , LogLevel.Information /* min level */);
            })
            .AddDemNetCore()
-           .AddDemNetglTF()
-           .AddTransient<SampleApplication>();
+           .AddDemNetglTF();
 
-            // Add sample services here
-            RegisterSamples(services);
-
-            _serviceProvider = services.BuildServiceProvider();
         }
 
         /// <summary>
@@ -94,8 +97,10 @@ namespace SampleApp
         /// <param name="services"></param>
         private static void RegisterSamples(ServiceCollection services)
         {
-            services.AddTransient<STLSamples>()
+            services.AddTransient<SampleApplication>()
+                    .AddTransient<STLSamples>()
                     .AddTransient<ElevationSamples>()
+                    .AddTransient<GpxSamples>()
                     .AddTransient<DatasetSamples>();
             // .. more samples here
         }
@@ -121,16 +126,9 @@ namespace SampleApp
             _logger.LogInformation("Application started");
 
 
-            using (_logger.BeginScope($"Running {nameof(STLSamples)}.."))
+            using (_logger.BeginScope($"Running {nameof(GpxSamples)}.."))
             {
-                var sample = serviceProvider.GetRequiredService<STLSamples>();
-                sample.Run();
-                _logger.LogInformation($"Sample {sample.GetType().Name} done. Press any key to run the next sample...");
-                Console.ReadLine();
-            }
-            using (_logger.BeginScope($"Running {nameof(ElevationSamples)}.."))
-            {
-                var sample = serviceProvider.GetRequiredService<ElevationSamples>();
+                var sample = serviceProvider.GetRequiredService<GpxSamples>();
                 sample.Run();
                 _logger.LogInformation($"Sample {sample.GetType().Name} done. Press any key to run the next sample...");
                 Console.ReadLine();
@@ -142,28 +140,24 @@ namespace SampleApp
                 _logger.LogInformation($"Sample {sample.GetType().Name} done. Press any key to run the next sample...");
                 Console.ReadLine();
             }
-
-            //GpxSamples gpxSamples = new GpxSamples(_OutputDataDirectory, Path.Combine(_OutputDataDirectory, "GPX", "venturiers.gpx"));
-            //gpxSamples.Run(_serviceProvider);
-
-            //DatasetSamples.Run(_serviceProvider);
-
-            //ElevationSamples.Run(_serviceProvider);
-
-            //TextureSamples textureSamples = new TextureSamples(_OutputDataDirectory);
-            //textureSamples.Run(_serviceProvider);
-
-
-
-            //ReprojectionSamples reprojSamples = new ReprojectionSamples("POLYGON ((-69.647827 -33.767732, -69.647827 -32.953368, -70.751202 -32.953368, -70.751202 -33.767732, -69.647827 -33.767732))");
-            //reprojSamples.Run(_serviceProvider);
-
-
-            ////OldSamples oldSamples = new OldSamples( _OutputDataDirectory);
-            ////oldSamples.Run();
-
+            using (_logger.BeginScope($"Running {nameof(ElevationSamples)}.."))
+            {
+                var sample = serviceProvider.GetRequiredService<ElevationSamples>();
+                sample.Run();
+                _logger.LogInformation($"Sample {sample.GetType().Name} done. Press any key to run the next sample...");
+                Console.ReadLine();
+            }
+            using (_logger.BeginScope($"Running {nameof(STLSamples)}.."))
+            {
+                var sample = serviceProvider.GetRequiredService<STLSamples>();
+                sample.Run();
+                _logger.LogInformation($"Sample {sample.GetType().Name} done. Press any key to run the next sample...");
+                Console.ReadLine();
+            }
 
             _logger.LogTrace($"Application ran in : {sw.Elapsed:g}");
         }
+
+
     }
 }

@@ -7,7 +7,6 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Samples\GpxSamples.cs" />
     <Compile Remove="Samples\OldSamples.cs" />
     <Compile Remove="Samples\ReprojectionSamples.cs" />
     <Compile Remove="Samples\TextureSamples.cs" />
