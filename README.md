@@ -15,7 +15,7 @@ GeoPoint point = ElevationService.GetPointElevation(lat, lon, DEMDataSet.SRTM_GL
 double? elevation = point.Elevation;
 ```
 
-- Get Elevation from multiple locations at one :
+- Get Elevation from multiple locations at once :
 
 ```csharp
 IEnumerable<GeoPoint> geoPoints = ElevationService.GetPointsElevation(points, dataSet);
@@ -49,10 +49,20 @@ var simplified = DouglasPeucker.DouglasPeuckerReduction(geoPoints.ToList(), 50 /
 
 ## Dataset samples
 
+*Docs coming soon...*
+
 ## glTF 3D samples
+
+*Docs coming soon...*
 
 ## GPX samples
 
+*Docs coming soon...*
+
 ## STL samples
 
+*Docs coming soon...*
+
 ## Imagery samples
+
+*Docs coming soon...*
