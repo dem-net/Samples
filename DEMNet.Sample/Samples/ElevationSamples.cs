@@ -27,7 +27,11 @@
 using DEM.Net.Core;
 using DEM.Net.glTF;
 using DEM.Net.glTF.Export;
+using GeoJSON.Net.Feature;
+using GeoJSON.Net.Geometry;
 using Microsoft.Extensions.Logging;
+using Newtonsoft.Json;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 
@@ -49,7 +53,7 @@ namespace SampleApp
             _stlService = stlService;
         }
         public void Run()
-        {        
+        {
             double lat1 = 45.179337;
             double lon1 = 5.721421;
             double lat2 = 45.212278;
@@ -86,18 +90,37 @@ namespace SampleApp
             LogInfo("Line elevation");
 
             sw.Restart();
-            var elevationLine = GeometryService.ParseGeoPointAsGeometryLine(new GeoPoint(lat1, lon1), new GeoPoint(lat2, lont2));
+            // Line passing by mont ventoux peak [5.144899, 44.078873], [5.351516, 44.225876]
+            var elevationLine = GeometryService.ParseGeoPointAsGeometryLine(new GeoPoint(44.078873, 5.144899), new GeoPoint(44.225876, 5.351516));
             foreach (var dataSet in DEMDataSet.RegisteredDatasets)
             {
                 _elevationService.DownloadMissingFiles(dataSet, elevationLine.GetBoundingBox());
                 var geoPoints = _elevationService.GetLineGeometryElevation(elevationLine, dataSet);
                 var metrics = GeometryService.ComputeMetrics(geoPoints);
+                var simplified = DouglasPeucker.DouglasPeuckerReduction(geoPoints.ToList(), 50 /* meters */);
+                var geoJson = ConvertLineElevationResultToGeoJson(simplified);
                 LogInfo($"{dataSet.Name} metrics: {metrics.ToString()}");
             }
             LogInfo($"Done in {sw.Elapsed:g}");
 
 
 
+        }
+
+        private string ConvertLineElevationResultToGeoJson(List<GeoPoint> linePoints)
+        {
+            FeatureCollection fc = new FeatureCollection(linePoints.Select(ConvertGeoPointToFeature).ToList());
+            
+            return JsonConvert.SerializeObject(fc);
+        }
+        private Feature ConvertGeoPointToFeature(GeoPoint point)
+        {
+            return new Feature(
+                    new Point(
+                            new Position(point.Latitude, point.Longitude, point.Elevation)
+                            )
+                    , point
+                    );
         }
 
     }

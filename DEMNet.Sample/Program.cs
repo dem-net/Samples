@@ -130,6 +130,13 @@ namespace SampleApp
             _logger.LogInformation("Application started");
 
 
+            using (_logger.BeginScope($"Running {nameof(ElevationSamples)}.."))
+            {
+                var sample = serviceProvider.GetRequiredService<ElevationSamples>();
+                sample.Run();
+                _logger.LogInformation($"Sample {sample.GetType().Name} done. Press any key to run the next sample...");
+                Console.ReadLine();
+            }
             using (_logger.BeginScope($"Running {nameof(glTF3DSamples)}.."))
             {
                 var sample = serviceProvider.GetRequiredService<glTF3DSamples>();
@@ -151,14 +158,7 @@ namespace SampleApp
                 _logger.LogInformation($"Sample {sample.GetType().Name} done. Press any key to run the next sample...");
                 Console.ReadLine();
             }
-            using (_logger.BeginScope($"Running {nameof(ElevationSamples)}.."))
-            {
-                var sample = serviceProvider.GetRequiredService<ElevationSamples>();
-                sample.Run();
-                _logger.LogInformation($"Sample {sample.GetType().Name} done. Press any key to run the next sample...");
-                Console.ReadLine();
-            }
-            using (_logger.BeginScope($"Running {nameof(STLSamples)}.."))
+           using (_logger.BeginScope($"Running {nameof(STLSamples)}.."))
             {
                 var sample = serviceProvider.GetRequiredService<STLSamples>();
                 sample.Run();
