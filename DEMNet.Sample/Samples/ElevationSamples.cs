@@ -97,9 +97,13 @@ namespace SampleApp
                 _elevationService.DownloadMissingFiles(dataSet, elevationLine.GetBoundingBox());
                 var geoPoints = _elevationService.GetLineGeometryElevation(elevationLine, dataSet);
                 var metrics = GeometryService.ComputeMetrics(geoPoints);
-                var simplified = DouglasPeucker.DouglasPeuckerReduction(geoPoints.ToList(), 50 /* meters */);
-                var geoJson = ConvertLineElevationResultToGeoJson(simplified);
                 LogInfo($"{dataSet.Name} metrics: {metrics.ToString()}");
+
+
+                var simplified = DouglasPeucker.DouglasPeuckerReduction(geoPoints.ToList(), 50 /* meters */);
+                LogInfo($"{dataSet.Name} after reduction : {simplified.Count} points");
+
+                var geoJson = ConvertLineElevationResultToGeoJson(simplified);
             }
             LogInfo($"Done in {sw.Elapsed:g}");
 
