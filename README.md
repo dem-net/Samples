@@ -1,6 +1,11 @@
 # DEM-Net Samples
 
-Functionnal samples for major use cases.
+## Summary
+
+*Please note that the DEM tiles will be downloaded on first run if they are not present on the local system.*
+
+- [Elevation samples](#elevation-samples)
+- [GPX Samples](#gpx-samples)
 
 ## [Elevation Samples](DEMNet.Sample/Samples/ElevationSamples.cs)
 
@@ -16,6 +21,10 @@ double? elevation = point.Elevation;
 ```
 
 - Get Elevation from multiple locations at once :
+
+*This sample get elevations for all line/DEM intersections (it can return a LOT of points).
+The line can be generalized and return only points where elevation change is relevant AND keeping the local maximas.*
+
 
 ```csharp
 IEnumerable<GeoPoint> geoPoints = ElevationService.GetPointsElevation(points, dataSet);
@@ -47,6 +56,22 @@ var simplified = DouglasPeucker.DouglasPeuckerReduction(geoPoints.ToList(), 50 /
 //
 ```
 
+## [GPX Samples](DEMNet.Sample/Samples/GpxSamples.cs)
+
+- Get elevations for a GPX track
+
+```csharp
+// Read GPX points and flatten the segments into a list of points
+var gpxFile = Path.Combine("SampleData", "lauzannier.gpx");
+var points = GpxImport.ReadGPX_Segments(gpxFile)
+                      .SelectMany(segment => segment);
+
+ // Retrieve elevation for each point on DEM
+List<GeoPoint> gpxPointsElevated = ElevationService.GetPointsElevation(points, DEMDataSet.AW3D30)
+                                        .ToList();
+
+```
+
 ## Dataset samples
 
 *Docs coming soon...*
@@ -55,9 +80,6 @@ var simplified = DouglasPeucker.DouglasPeuckerReduction(geoPoints.ToList(), 50 /
 
 *Docs coming soon...*
 
-## GPX samples
-
-*Docs coming soon...*
 
 ## STL samples
 

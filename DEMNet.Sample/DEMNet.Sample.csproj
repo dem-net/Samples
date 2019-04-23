@@ -13,7 +13,12 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="DEM.Net.glTF" Version="0.1.0-beta0008" />
+    <None Remove=".DS_Store" />
+    <None Remove="._.DS_Store" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="DEM.Net.glTF" Version="0.1.0-beta0009" />
     <PackageReference Include="GeoJSON.Net" Version="1.1.72" />
     <PackageReference Include="Microsoft.Extensions.Configuration.CommandLine" Version="2.2.0" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="2.2.0" />

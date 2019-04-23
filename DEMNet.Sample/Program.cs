@@ -137,16 +137,16 @@ namespace SampleApp
                 _logger.LogInformation($"Sample {sample.GetType().Name} done. Press any key to run the next sample...");
                 Console.ReadLine();
             }
-            using (_logger.BeginScope($"Running {nameof(glTF3DSamples)}.."))
+            using (_logger.BeginScope($"Running {nameof(GpxSamples)}.."))
             {
-                var sample = serviceProvider.GetRequiredService<glTF3DSamples>();
+                var sample = serviceProvider.GetRequiredService<GpxSamples>();
                 sample.Run();
                 _logger.LogInformation($"Sample {sample.GetType().Name} done. Press any key to run the next sample...");
                 Console.ReadLine();
             }
-            using (_logger.BeginScope($"Running {nameof(GpxSamples)}.."))
+            using (_logger.BeginScope($"Running {nameof(glTF3DSamples)}.."))
             {
-                var sample = serviceProvider.GetRequiredService<GpxSamples>();
+                var sample = serviceProvider.GetRequiredService<glTF3DSamples>();
                 sample.Run();
                 _logger.LogInformation($"Sample {sample.GetType().Name} done. Press any key to run the next sample...");
                 Console.ReadLine();

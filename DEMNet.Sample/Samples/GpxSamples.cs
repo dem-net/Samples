@@ -66,19 +66,20 @@ namespace SampleApp
             {
                 LogError($"Cannot run sample: {_gpxFile} is missing !");
             }
-            DEMDataSet _dataSet = DEMDataSet.SRTM_GL3;
+            DEMDataSet _dataSet = DEMDataSet.AW3D30;
 
-           
             // Read GPX points
             var segments = GpxImport.ReadGPX_Segments(_gpxFile);
-            IReadOnlyCollection<GeoPoint> points = segments.SelectMany(seg => seg).ToList();
+            var points = segments.SelectMany(seg => seg);
 
             // Retrieve elevation for each point on DEM
-            var gpxPointsElevated = _elevationService.GetPointsElevation(points, _dataSet).ToList();
+            var gpxPointsElevated = _elevationService.GetPointsElevation(points, DEMDataSet.AW3D30)
+                                    .ToList();
 
-            LogInfo("GPX points elevation calculated");
+            LogInfo($"{gpxPointsElevated.Count} GPX points elevation calculated");
+
             // TODO : pipeline processor to rewrite a GPX track with updated elevations
-
+           
         }
 
         // archived complex sample
