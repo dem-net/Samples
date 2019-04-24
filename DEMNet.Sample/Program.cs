@@ -86,8 +86,8 @@ namespace SampleApp
                options.AddFilter<DebugLoggerProvider>(null /* category*/ , LogLevel.Information /* min level */);
                options.AddFilter<ConsoleLoggerProvider>(null  /* category*/ , LogLevel.Information /* min level */);
 
-               // Uncomment this line to see DEM.Net logs only from warning level
-               options.AddFilter<ConsoleLoggerProvider>("DEM.Net", LogLevel.Warning );
+               // Comment this line to see all internal DEM.Net logs
+               //options.AddFilter<ConsoleLoggerProvider>("DEM.Net", LogLevel.Information);
            })
            .AddDemNetCore()
            .AddDemNetglTF();
@@ -129,41 +129,42 @@ namespace SampleApp
             Stopwatch sw = Stopwatch.StartNew();
             _logger.LogInformation("Application started");
 
+            bool pauseAfterEachSample = false;
 
+            using (_logger.BeginScope($"Running {nameof(DatasetSamples)}.."))
+            {
+                var sample = serviceProvider.GetRequiredService<DatasetSamples>();
+                sample.Run();
+                _logger.LogInformation($"Sample {sample.GetType().Name} done. Press any key to run the next sample...");
+                if (pauseAfterEachSample) Console.ReadLine();
+            }
             using (_logger.BeginScope($"Running {nameof(ElevationSamples)}.."))
             {
                 var sample = serviceProvider.GetRequiredService<ElevationSamples>();
                 sample.Run();
                 _logger.LogInformation($"Sample {sample.GetType().Name} done. Press any key to run the next sample...");
-                Console.ReadLine();
+                if (pauseAfterEachSample) Console.ReadLine();
             }
             using (_logger.BeginScope($"Running {nameof(GpxSamples)}.."))
             {
                 var sample = serviceProvider.GetRequiredService<GpxSamples>();
                 sample.Run();
                 _logger.LogInformation($"Sample {sample.GetType().Name} done. Press any key to run the next sample...");
-                Console.ReadLine();
+                if (pauseAfterEachSample) Console.ReadLine();
             }
             using (_logger.BeginScope($"Running {nameof(glTF3DSamples)}.."))
             {
                 var sample = serviceProvider.GetRequiredService<glTF3DSamples>();
                 sample.Run();
                 _logger.LogInformation($"Sample {sample.GetType().Name} done. Press any key to run the next sample...");
-                Console.ReadLine();
+                if (pauseAfterEachSample) Console.ReadLine();
             }
-            using (_logger.BeginScope($"Running {nameof(DatasetSamples)}.."))
-            {
-                var sample = serviceProvider.GetRequiredService<DatasetSamples>();
-                sample.Run();
-                _logger.LogInformation($"Sample {sample.GetType().Name} done. Press any key to run the next sample...");
-                Console.ReadLine();
-            }
-           using (_logger.BeginScope($"Running {nameof(STLSamples)}.."))
+            using (_logger.BeginScope($"Running {nameof(STLSamples)}.."))
             {
                 var sample = serviceProvider.GetRequiredService<STLSamples>();
                 sample.Run();
                 _logger.LogInformation($"Sample {sample.GetType().Name} done. Press any key to run the next sample...");
-                Console.ReadLine();
+                if (pauseAfterEachSample) Console.ReadLine();
             }
 
             _logger.LogTrace($"Application ran in : {sw.Elapsed:g}");

@@ -68,14 +68,11 @@ namespace SampleApp
     public class DatasetSamples : SampleLogger
     {
         private readonly IRasterService _rasterService;
-        private readonly IElevationService _elevationService;
 
         public DatasetSamples(ILogger<DatasetSamples> logger
-                , IRasterService rasterService
-                , IElevationService elevationService) : base(logger)
+                , IRasterService rasterService) : base(logger)
         {
             _rasterService = rasterService;
-            _elevationService = elevationService;
         }
         public void Run()
         {
@@ -102,24 +99,22 @@ namespace SampleApp
                 {
                     LogInfo($"{dataset.Name}:");
 
-                    var report = _rasterService.GenerateReportForLocation(dataset, geoPoint.Latitude, geoPoint.Longitude);
-                    if (report.Any())
+                    DemFileReport report = _rasterService.GenerateReportForLocation(dataset, geoPoint.Latitude, geoPoint.Longitude);
+                    if (report == null)
                     {
-                        DemFileReport rasterFileReport = report.First().Value;
+                        LogInfo($"> Location is not covered by dataset");
+                    }
+                     else
+                    { 
+                        LogInfo($"> Remote file URL: {report.URL}");
 
-                        LogInfo($"> Remote file URL: {rasterFileReport.URL}");
-
-                        if (rasterFileReport.IsExistingLocally)
+                        if (report.IsExistingLocally)
                         {
-                            LogInfo($"> Local file: {rasterFileReport.LocalName}");
+                            LogInfo($"> Local file: {report.LocalName}");
                         } else
                         {
                             LogInfo($"> Local file: <not dowloaded>");
                         }
-                    }
-                    else
-                    {
-                        LogInfo($"> Location is not covered by dataset");
                     }
                 }
             }
