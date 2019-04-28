@@ -85,7 +85,7 @@ IRasterService.GenerateReportAsString();
 
 This will produce this nice output : 
 
-
+![GenerateReportAsString](https://github.com/dem-net/Resources/blob/master/images/docs/GenerateReportAsString.png?raw=true)
 
 
 ## glTF 3D samples
