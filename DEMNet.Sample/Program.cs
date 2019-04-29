@@ -104,6 +104,7 @@ namespace SampleApp
                     .AddTransient<STLSamples>()
                     .AddTransient<ElevationSamples>()
                     .AddTransient<GpxSamples>()
+                    .AddTransient<Gpx3DSamples>()
                     .AddTransient<DatasetSamples>()
                     .AddTransient<glTF3DSamples>();
             // .. more samples here
@@ -129,8 +130,15 @@ namespace SampleApp
             Stopwatch sw = Stopwatch.StartNew();
             _logger.LogInformation("Application started");
 
-            bool pauseAfterEachSample = false;
+            bool pauseAfterEachSample = true;
 
+            using (_logger.BeginScope($"Running {nameof(Gpx3DSamples)}.."))
+            {
+                var sample = serviceProvider.GetRequiredService<Gpx3DSamples>();
+                sample.Run();
+                _logger.LogInformation($"Sample {sample.GetType().Name} done. Press any key to run the next sample...");
+                if (pauseAfterEachSample) Console.ReadLine();
+            }
             using (_logger.BeginScope($"Running {nameof(DatasetSamples)}.."))
             {
                 var sample = serviceProvider.GetRequiredService<DatasetSamples>();
