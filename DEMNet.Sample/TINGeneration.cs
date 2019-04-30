@@ -41,15 +41,16 @@ namespace SampleApp
     {
         public static MeshPrimitive GenerateTIN(HeightMap hMap, double precision, IglTFService gltf, PBRTexture textures, int srid)
         {
+            hMap = hMap.ReprojectTo(4326, srid);
             var v_pointsToTest = GetGeoPointsByHMap(hMap, srid);
 
 
             var _paramTin = FLabServices.createCalculMedium().GetParametresDuTinParDefaut();
             _paramTin.p11_initialisation_determinationFrontieres = enumModeDelimitationFrontiere.pointsProchesDuMbo;
-            _paramTin.p12_extensionSupplementaireMboEnM = 1000;
+            _paramTin.p12_extensionSupplementaireMboEnM = 0;
             _paramTin.p13_modeCalculZParDefaut = enumModeCalculZ.alti_0;
             _paramTin.p14_altitudeParDefaut = -200;
-            _paramTin.p15_nbrePointsSupplMultiples4 = 4;
+            _paramTin.p15_nbrePointsSupplMultiples4 = 0;
             _paramTin.p16_initialisation_modeChoixDuPointCentral.p01_excentrationMinimum = 0;
             _paramTin.p21_enrichissement_modeChoixDuPointCentral.p01_excentrationMinimum = precision;
 
