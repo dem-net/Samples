@@ -48,43 +48,52 @@ namespace SampleApp
     /// <summary>
     /// GpxSamples : GPX draping onto a DEM (get elevation from raster files)
     /// </summary>
-    public class GpxSamples : SampleLogger
+    public class GpxSamples
     {
-
+        private readonly ILogger<GpxSamples> _logger;
         private readonly IRasterService _rasterService;
         private readonly IElevationService _elevationService;
 
         public GpxSamples(ILogger<GpxSamples> logger
                 , IRasterService rasterService
-                , IElevationService elevationService) : base(logger)
+                , IElevationService elevationService)
         {
+            _logger = logger;
             _rasterService = rasterService;
             _elevationService = elevationService;
         }
 
         internal void Run()
         {
-            string _gpxFile = Path.Combine("SampleData", "lauzannier.gpx");
-            if (!File.Exists(_gpxFile))
+            try
             {
-                LogError($"Cannot run sample: {_gpxFile} is missing !");
+
+
+                string _gpxFile = Path.Combine("SampleData", "lauzannier.gpx");
+                if (!File.Exists(_gpxFile))
+                {
+                    _logger.LogError($"Cannot run sample: {_gpxFile} is missing !");
+                }
+                DEMDataSet _dataSet = DEMDataSet.AW3D30;
+
+                // Read GPX points
+                var segments = GpxImport.ReadGPX_Segments(_gpxFile);
+                var points = segments.SelectMany(seg => seg);
+
+                // Retrieve elevation for each point on DEM
+                var gpxPointsElevated = _elevationService.GetPointsElevation(points, DEMDataSet.AW3D30)
+                                        .ToList();
+
+                _logger.LogInformation($"{gpxPointsElevated.Count} GPX points elevation calculated");
+
+                // TODO : pipeline processor to rewrite a GPX track with updated elevations
             }
-            DEMDataSet _dataSet = DEMDataSet.AW3D30;
-
-            // Read GPX points
-            var segments = GpxImport.ReadGPX_Segments(_gpxFile);
-            var points = segments.SelectMany(seg => seg);
-
-            // Retrieve elevation for each point on DEM
-            var gpxPointsElevated = _elevationService.GetPointsElevation(points, DEMDataSet.AW3D30)
-                                    .ToList();
-
-            LogInfo($"{gpxPointsElevated.Count} GPX points elevation calculated");
-
-            // TODO : pipeline processor to rewrite a GPX track with updated elevations
-
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, ex.Message);
+            }
         }
 
-      
+
     }
 }

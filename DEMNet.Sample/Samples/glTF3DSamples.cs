@@ -37,57 +37,68 @@ namespace SampleApp
     /// <summary>
     /// Extracts a DEM from a bbox and generates a 3D export in glTF format
     /// </summary>
-    public class glTF3DSamples : SampleLogger
+    public class glTF3DSamples
     {
+        private readonly ILogger<glTF3DSamples> _logger;
         private readonly IElevationService _elevationService;
         private readonly IglTFService _glTFService;
 
         public glTF3DSamples(ILogger<glTF3DSamples> logger
                 , IElevationService elevationService
-                , IglTFService glTFService) : base(logger)
+                , IglTFService glTFService)
         {
+            _logger = logger;
             _elevationService = elevationService;
             _glTFService = glTFService;
         }
         public void Run()
         {
-            DEMDataSet dataset = DEMDataSet.AW3D30;
-            Stopwatch sw = Stopwatch.StartNew();
-            string modelName = $"Montagne Sainte Victoire {dataset.Name}";
-
-            // You can get your boox from https://geojson.net/ (save as WKT)
-            string bboxWKT = "POLYGON((5.54888 43.519525, 5.61209 43.519525, 5.61209 43.565225, 5.54888 43.565225, 5.54888 43.519525))";
-
-            LogInfo($"Processing model {modelName}...");
+            try
+            {
 
 
-            LogInfo($"Getting bounding box geometry...");
-            var bbox = GeometryService.GetBoundingBox(bboxWKT);
+                DEMDataSet dataset = DEMDataSet.AW3D30;
+                Stopwatch sw = Stopwatch.StartNew();
+                string modelName = $"Montagne Sainte Victoire {dataset.Name}";
 
-            LogInfo($"Getting height map data...");
-            var heightMap = _elevationService.GetHeightMap(bbox, dataset);
+                // You can get your boox from https://geojson.net/ (save as WKT)
+                string bboxWKT = "POLYGON((5.54888 43.519525, 5.61209 43.519525, 5.61209 43.565225, 5.54888 43.565225, 5.54888 43.519525))";
 
-            LogInfo($"Processing height map data ({heightMap.Count} coordinates)...");
-            heightMap = heightMap
-                                    .ReprojectGeodeticToCartesian() // Reproject to 3857 (useful to get coordinates in meters)
-                                    .ZScale(2f)                     // Elevation exageration
-                                    .CenterOnOrigin();
+                _logger.LogInformation($"Processing model {modelName}...");
 
-            // Triangulate height map
-            // and add base and sides
-            LogInfo($"Triangulating height map and generating 3D mesh...");
-            var mesh = _glTFService.GenerateTriangleMesh(heightMap);
 
-            LogInfo($"Creating glTF model...");
-            var model = _glTFService.GenerateModel(mesh, modelName);
-            var gltfFilePath = Path.Combine(Directory.GetCurrentDirectory(), $"{modelName}.stl");
+                _logger.LogInformation($"Getting bounding box geometry...");
+                var bbox = GeometryService.GetBoundingBox(bboxWKT);
 
-            LogInfo($"Exporting glTF model...");
-            _glTFService.Export(model, Directory.GetCurrentDirectory(), modelName, true, true);
+                _logger.LogInformation($"Getting height map data...");
+                var heightMap = _elevationService.GetHeightMap(bbox, dataset);
 
-            LogInfo($"Model exported as {Path.Combine(Directory.GetCurrentDirectory(), modelName + ".gltf")} and .glb");
+                _logger.LogInformation($"Processing height map data ({heightMap.Count} coordinates)...");
+                heightMap = heightMap
+                                        .ReprojectGeodeticToCartesian() // Reproject to 3857 (useful to get coordinates in meters)
+                                        .ZScale(2f)                     // Elevation exageration
+                                        .CenterOnOrigin();
 
-            LogInfo($"Done in {sw.Elapsed:g}");
+                // Triangulate height map
+                // and add base and sides
+                _logger.LogInformation($"Triangulating height map and generating 3D mesh...");
+                var mesh = _glTFService.GenerateTriangleMesh(heightMap);
+
+                _logger.LogInformation($"Creating glTF model...");
+                var model = _glTFService.GenerateModel(mesh, modelName);
+                var gltfFilePath = Path.Combine(Directory.GetCurrentDirectory(), $"{modelName}.stl");
+
+                _logger.LogInformation($"Exporting glTF model...");
+                _glTFService.Export(model, Directory.GetCurrentDirectory(), modelName, true, true);
+
+                _logger.LogInformation($"Model exported as {Path.Combine(Directory.GetCurrentDirectory(), modelName + ".gltf")} and .glb");
+
+                _logger.LogInformation($"Done in {sw.Elapsed:g}");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, ex.Message);
+            }
         }
     }
 }

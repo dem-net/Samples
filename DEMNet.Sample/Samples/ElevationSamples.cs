@@ -31,14 +31,16 @@ using GeoJSON.Net.Feature;
 using GeoJSON.Net.Geometry;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 
 namespace SampleApp
 {
-    public class ElevationSamples : SampleLogger
+    public class ElevationSamples
     {
+        private readonly ILogger<ElevationSamples> _logger;
         private readonly IElevationService _elevationService;
         private readonly IglTFService _glTFService;
         private readonly ISTLExportService _stlService;
@@ -46,75 +48,82 @@ namespace SampleApp
         public ElevationSamples(ILogger<ElevationSamples> logger
                 , IElevationService elevationService
                 , IglTFService glTFService
-                , ISTLExportService stlService) : base(logger)
+                , ISTLExportService stlService)
         {
+            _logger = logger;
             _elevationService = elevationService;
             _glTFService = glTFService;
             _stlService = stlService;
         }
         public void Run()
         {
-            double lat1 = 45.179337;
-            double lon1 = 5.721421;
-            double lat2 = 45.212278;
-            double lont2 = 5.468857;
-
-            LogInfo($"Getting location elevation for each dataset (location lat: {lat1:N2}, lon: {lon1:N2})");
-            Stopwatch sw = new Stopwatch();
-            foreach (var dataSet in DEMDataSet.RegisteredDatasets)
+            try
             {
+
+
+                double lat1 = 45.179337;
+                double lon1 = 5.721421;
+                double lat2 = 45.212278;
+                double lont2 = 5.468857;
+
+                _logger.LogInformation($"Getting location elevation for each dataset (location lat: {lat1:N2}, lon: {lon1:N2})");
+                Stopwatch sw = new Stopwatch();
+                foreach (var dataSet in DEMDataSet.RegisteredDatasets)
+                {
+                    sw.Restart();
+
+                    _elevationService.DownloadMissingFiles(dataSet, lat1, lon1);
+                    GeoPoint geoPoint = _elevationService.GetPointElevation(lat1, lon1, dataSet);
+
+                    _logger.LogInformation($"{dataSet.Name} elevation: {geoPoint.Elevation:N2} (time taken: {sw.Elapsed:g})");
+                }
+
+
+                _logger.LogInformation("Multiple point elevation");
+
                 sw.Restart();
 
-                _elevationService.DownloadMissingFiles(dataSet, lat1, lon1);
-                GeoPoint geoPoint = _elevationService.GetPointElevation(lat1, lon1, dataSet);
+                GeoPoint pt1 = new GeoPoint(lat1, lon1);
+                GeoPoint pt2 = new GeoPoint(lat2, lont2);
+                GeoPoint[] points = { pt1, pt2 };
+                foreach (var dataSet in DEMDataSet.RegisteredDatasets)
+                {
+                    sw.Restart();
+                    var geoPoints = _elevationService.GetPointsElevation(points, dataSet);
+                    _logger.LogInformation($"{dataSet.Name} elevation: {string.Join(" / ", geoPoints.Select(e => e.Elevation.GetValueOrDefault().ToString("N2")))} (time taken: {sw.Elapsed:g})");
+                }
 
-                LogInfo($"{dataSet.Name} elevation: {geoPoint.Elevation:N2} (time taken: {sw.Elapsed:g})");
-            }
 
+                _logger.LogInformation("Line elevation");
 
-            LogInfo("Multiple point elevation");
-
-            sw.Restart();
-
-            GeoPoint pt1 = new GeoPoint(lat1, lon1);
-            GeoPoint pt2 = new GeoPoint(lat2, lont2);
-            GeoPoint[] points = { pt1, pt2 };
-            foreach (var dataSet in DEMDataSet.RegisteredDatasets)
-            {
                 sw.Restart();
-                var geoPoints = _elevationService.GetPointsElevation(points, dataSet);
-                LogInfo($"{dataSet.Name} elevation: {string.Join(" / ", geoPoints.Select(e => e.Elevation.GetValueOrDefault().ToString("N2")))} (time taken: {sw.Elapsed:g})");
+                // Line passing by mont ventoux peak [5.144899, 44.078873], [5.351516, 44.225876]
+                var elevationLine = GeometryService.ParseGeoPointAsGeometryLine(new GeoPoint(44.078873, 5.144899), new GeoPoint(44.225876, 5.351516));
+                foreach (var dataSet in DEMDataSet.RegisteredDatasets)
+                {
+                    _elevationService.DownloadMissingFiles(dataSet, elevationLine.GetBoundingBox());
+                    var geoPoints = _elevationService.GetLineGeometryElevation(elevationLine, dataSet);
+                    var metrics = GeometryService.ComputeMetrics(geoPoints);
+                    _logger.LogInformation($"{dataSet.Name} metrics: {metrics.ToString()}");
+
+
+                    var simplified = DouglasPeucker.DouglasPeuckerReduction(geoPoints.ToList(), 50 /* meters */);
+                    _logger.LogInformation($"{dataSet.Name} after reduction : {simplified.Count} points");
+
+                    var geoJson = ConvertLineElevationResultToGeoJson(simplified);
+                }
+                _logger.LogInformation($"Done in {sw.Elapsed:g}");
             }
-
-
-            LogInfo("Line elevation");
-
-            sw.Restart();
-            // Line passing by mont ventoux peak [5.144899, 44.078873], [5.351516, 44.225876]
-            var elevationLine = GeometryService.ParseGeoPointAsGeometryLine(new GeoPoint(44.078873, 5.144899), new GeoPoint(44.225876, 5.351516));
-            foreach (var dataSet in DEMDataSet.RegisteredDatasets)
+            catch (Exception ex)
             {
-                _elevationService.DownloadMissingFiles(dataSet, elevationLine.GetBoundingBox());
-                var geoPoints = _elevationService.GetLineGeometryElevation(elevationLine, dataSet);
-                var metrics = GeometryService.ComputeMetrics(geoPoints);
-                LogInfo($"{dataSet.Name} metrics: {metrics.ToString()}");
-
-
-                var simplified = DouglasPeucker.DouglasPeuckerReduction(geoPoints.ToList(), 50 /* meters */);
-                LogInfo($"{dataSet.Name} after reduction : {simplified.Count} points");
-
-                var geoJson = ConvertLineElevationResultToGeoJson(simplified);
+                _logger.LogError(ex, ex.Message);
             }
-            LogInfo($"Done in {sw.Elapsed:g}");
-
-
-
         }
 
         private string ConvertLineElevationResultToGeoJson(List<GeoPoint> linePoints)
         {
             FeatureCollection fc = new FeatureCollection(linePoints.Select(ConvertGeoPointToFeature).ToList());
-            
+
             return JsonConvert.SerializeObject(fc);
         }
         private Feature ConvertGeoPointToFeature(GeoPoint point)

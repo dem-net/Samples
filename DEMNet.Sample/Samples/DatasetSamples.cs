@@ -65,13 +65,15 @@ namespace SampleApp
     /// - Get report of local files
     /// - Get remote raster file information for location
     /// </summary>
-    public class DatasetSamples : SampleLogger
+    public class DatasetSamples 
     {
+        private readonly ILogger<DatasetSamples> _logger;
         private readonly IRasterService _rasterService;
 
         public DatasetSamples(ILogger<DatasetSamples> logger
-                , IRasterService rasterService) : base(logger)
+                , IRasterService rasterService) 
         {
+            _logger = logger;
             _rasterService = rasterService;
         }
         public void Run()
@@ -80,47 +82,47 @@ namespace SampleApp
             {
 
 
-                LogInfo("GenerateReportAsString() will generate a report of all local datasets.");
-                LogInfo($"Local data directory : {_rasterService.LocalDirectory}");
+                _logger.LogInformation("GenerateReportAsString() will generate a report of all local datasets.");
+                _logger.LogInformation($"Local data directory : {_rasterService.LocalDirectory}");
                 Stopwatch sw = new Stopwatch();
 
                 sw.Restart();
 
-                LogInfo($"Generating report...");
-                LogInfo(_rasterService.GenerateReportAsString());
+                _logger.LogInformation($"Generating report...");
+                _logger.LogInformation(_rasterService.GenerateReportAsString());
 
-                LogInfo($"time taken: {sw.Elapsed:g}");
+                _logger.LogInformation($"time taken: {sw.Elapsed:g}");
 
 
                 GeoPoint geoPoint = new GeoPoint(45.179337, 5.721421);
-                LogInfo($"Getting raster file for dataset at location {geoPoint}");
+                _logger.LogInformation($"Getting raster file for dataset at location {geoPoint}");
 
                 foreach (var dataset in DEMDataSet.RegisteredDatasets)
                 {
-                    LogInfo($"{dataset.Name}:");
+                    _logger.LogInformation($"{dataset.Name}:");
 
                     DemFileReport report = _rasterService.GenerateReportForLocation(dataset, geoPoint.Latitude, geoPoint.Longitude);
                     if (report == null)
                     {
-                        LogInfo($"> Location is not covered by dataset");
+                        _logger.LogInformation($"> Location is not covered by dataset");
                     }
                      else
                     { 
-                        LogInfo($"> Remote file URL: {report.URL}");
+                        _logger.LogInformation($"> Remote file URL: {report.URL}");
 
                         if (report.IsExistingLocally)
                         {
-                            LogInfo($"> Local file: {report.LocalName}");
+                            _logger.LogInformation($"> Local file: {report.LocalName}");
                         } else
                         {
-                            LogInfo($"> Local file: <not dowloaded>");
+                            _logger.LogInformation($"> Local file: <not dowloaded>");
                         }
                     }
                 }
             }
             catch (Exception e)
             {
-                logger.LogError(e, e.Message);
+                _logger.LogError(e, e.Message);
             }
         }
 

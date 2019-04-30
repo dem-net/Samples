@@ -37,8 +37,9 @@ namespace SampleApp
     /// <summary>
     /// STLSamples: This sample will generate a STL file from a bounding box using SRTM_GL3 dataset
     /// </summary>
-    public class STLSamples : SampleLogger
+    public class STLSamples
     {
+        private readonly ILogger<STLSamples> _logger;
         private readonly IElevationService _elevationService;
         private readonly IglTFService _glTFService;
         private readonly ISTLExportService _stlService;
@@ -46,58 +47,67 @@ namespace SampleApp
         public STLSamples(ILogger<STLSamples> logger
                 , IElevationService elevationService
                 , IglTFService glTFService
-                , ISTLExportService stlService) : base(logger)
+                , ISTLExportService stlService)
         {
+            _logger = logger;
             _elevationService = elevationService;
             _glTFService = glTFService;
             _stlService = stlService;
         }
         public void Run()
         {
-            DEMDataSet dataset = DEMDataSet.SRTM_GL3;
-            Stopwatch sw = Stopwatch.StartNew();
-            string modelName = $"Montagne Sainte Victoire {dataset.Name}";
+            try
+            {
 
-            // You can get your boox from https://geojson.net/ (save as WKT)
-            string bboxWKT = "POLYGON((5.54888 43.519525, 5.61209 43.519525, 5.61209 43.565225, 5.54888 43.565225, 5.54888 43.519525))";
-            
-            LogInfo($"Processing model {modelName}...");
-            
 
-            LogInfo($"Getting bounding box geometry...");
-            var bbox = GeometryService.GetBoundingBox(bboxWKT);
+                DEMDataSet dataset = DEMDataSet.SRTM_GL3;
+                Stopwatch sw = Stopwatch.StartNew();
+                string modelName = $"Montagne Sainte Victoire {dataset.Name}";
 
-            LogInfo($"Getting height map data...");
-            var heightMap = _elevationService.GetHeightMap(bbox, dataset);
+                // You can get your boox from https://geojson.net/ (save as WKT)
+                string bboxWKT = "POLYGON((5.54888 43.519525, 5.61209 43.519525, 5.61209 43.565225, 5.54888 43.565225, 5.54888 43.519525))";
 
-            LogInfo($"Processing height map data ({heightMap.Count} coordinates)...");
-            heightMap = heightMap
-                                    .ReprojectGeodeticToCartesian() // Reproject to 3857 (useful to get coordinates in meters)
-                                    .ZScale(2f)                     // Elevation exageration
-                                    .CenterOnOrigin()               //
-                                    .FitInto(250f);                 // Make sure model fits into 250 coordinates units (3D printer size was 30x30cm)
+                _logger.LogInformation($"Processing model {modelName}...");
 
-            // Triangule Irregular Network (not implemented to STL yet)
-            //var TINmesh =TINGeneration.GenerateTIN(heightMap, 2, _glTFService, null, 3857);
 
-            // Triangulate height map
-            // and add base and sides
-            LogInfo($"Triangulating height map and generating box (5mm thick)...");
-            var mesh = _glTFService.GenerateTriangleMesh_Boxed(heightMap, BoxBaseThickness.FromMinimumPoint, 5);
+                _logger.LogInformation($"Getting bounding box geometry...");
+                var bbox = GeometryService.GetBoundingBox(bboxWKT);
 
-            
-            // STL axis differ from glTF 
-            LogInfo($"Rotating mesh...");
-            mesh.RotateX((float)Math.PI / 2f);
-            
-            LogInfo($"Exporting STL model...");
-            var stlFilePath = Path.Combine(Directory.GetCurrentDirectory(), $"{modelName}.stl");
-            _stlService.STLExport(mesh, stlFilePath, false);
+                _logger.LogInformation($"Getting height map data...");
+                var heightMap = _elevationService.GetHeightMap(bbox, dataset);
 
-            LogInfo($"Model exported in {stlFilePath}.");
+                _logger.LogInformation($"Processing height map data ({heightMap.Count} coordinates)...");
+                heightMap = heightMap
+                                        .ReprojectGeodeticToCartesian() // Reproject to 3857 (useful to get coordinates in meters)
+                                        .ZScale(2f)                     // Elevation exageration
+                                        .CenterOnOrigin()               //
+                                        .FitInto(250f);                 // Make sure model fits into 250 coordinates units (3D printer size was 30x30cm)
 
-            LogInfo($"Done in {sw.Elapsed:g}");
+                // Triangule Irregular Network (not implemented to STL yet)
+                //var TINmesh =TINGeneration.GenerateTIN(heightMap, 2, _glTFService, null, 3857);
 
+                // Triangulate height map
+                // and add base and sides
+                _logger.LogInformation($"Triangulating height map and generating box (5mm thick)...");
+                var mesh = _glTFService.GenerateTriangleMesh_Boxed(heightMap, BoxBaseThickness.FromMinimumPoint, 5);
+
+
+                // STL axis differ from glTF 
+                _logger.LogInformation($"Rotating mesh...");
+                mesh.RotateX((float)Math.PI / 2f);
+
+                _logger.LogInformation($"Exporting STL model...");
+                var stlFilePath = Path.Combine(Directory.GetCurrentDirectory(), $"{modelName}.stl");
+                _stlService.STLExport(mesh, stlFilePath, false);
+
+                _logger.LogInformation($"Model exported in {stlFilePath}.");
+
+                _logger.LogInformation($"Done in {sw.Elapsed:g}");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, ex.Message);
+            }
         }
 
     }

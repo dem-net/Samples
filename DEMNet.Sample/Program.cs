@@ -106,6 +106,7 @@ namespace SampleApp
                     .AddTransient<GpxSamples>()
                     .AddTransient<Gpx3DSamples>()
                     .AddTransient<DatasetSamples>()
+                    .AddTransient<TINSamples>()
                     .AddTransient<glTF3DSamples>();
             // .. more samples here
         }
@@ -117,7 +118,7 @@ namespace SampleApp
     public class SampleApplication
     {
         private readonly ILogger<SampleApplication> _logger;
-
+        
         public SampleApplication(ILogger<SampleApplication> logger)
         {
             _logger = logger;
@@ -126,12 +127,21 @@ namespace SampleApp
         internal void Run(IServiceProvider serviceProvider)
         {
             //Trace.Listeners.Add(new TextWriterTraceListener(Console.Out));
-
+            
             Stopwatch sw = Stopwatch.StartNew();
             _logger.LogInformation("Application started");
 
             bool pauseAfterEachSample = true;
 
+            using (_logger.BeginScope($"Running {nameof(TINSamples)}.."))
+            {
+                var sample = serviceProvider.GetRequiredService<TINSamples>();
+                sample.Run(TINSamples.WKT_STE_VICTOIRE, nameof(TINSamples.WKT_STE_VICTOIRE), DEMDataSet.AW3D30);
+                sample.Run(TINSamples.WKT_EIGER, nameof(TINSamples.WKT_EIGER), DEMDataSet.AW3D30);
+                sample.Run(TINSamples.WKT_GORGES_VERDON, nameof(TINSamples.WKT_GORGES_VERDON), DEMDataSet.AW3D30);
+                _logger.LogInformation($"Sample {sample.GetType().Name} done. Press any key to run the next sample...");
+                if (pauseAfterEachSample) Console.ReadLine();
+            }
             using (_logger.BeginScope($"Running {nameof(Gpx3DSamples)}.."))
             {
                 var sample = serviceProvider.GetRequiredService<Gpx3DSamples>();
