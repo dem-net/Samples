@@ -71,11 +71,11 @@ namespace SampleApp
             {
 
 
-                string _gpxFile = Path.Combine("SampleData", "lauzannier.gpx");
-                DEMDataSet dataSet = DEMDataSet.SRTM_GL1;
+                string _gpxFile = Path.Combine("SampleData", "BikeRide.gpx");
+                DEMDataSet dataSet = DEMDataSet.AW3D30;
                 bool withTexture = true;
                 bool generateTIN = true;
-                int outputSrid = Reprojection.SRID_PROJECTED_LAMBERT_93;
+                int outputSrid = Reprojection.SRID_PROJECTED_MERCATOR;
                 float Z_FACTOR = 2f;
                 float Z_TRANSLATE_GPX_TRACK_METERS = 5;
                 float trailWidthMeters = 5f;
@@ -90,7 +90,7 @@ namespace SampleApp
                 // Get GPX points
                 var segments = GpxImport.ReadGPX_Segments(_gpxFile);
                 var points = segments.SelectMany(seg => seg);
-                var bbox = points.GetBoundingBox().Scale(1, 2);
+                var bbox = points.GetBoundingBox().Scale(1.3, 1.3);
 
                 var gpxPointsElevated = _elevationService.GetPointsElevation(points, dataSet);
 
@@ -149,7 +149,7 @@ namespace SampleApp
                 if (generateTIN)
                 {
 
-                    triangleMesh = TINGeneration.GenerateTIN(hMap, 100d, _glTFService, pbrTexture, outputSrid);
+                    triangleMesh = TINGeneration.GenerateTIN(hMap, 10d, _glTFService, pbrTexture, outputSrid);
 
                 }
                 else

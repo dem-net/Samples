@@ -83,8 +83,8 @@ namespace SampleApp
             })
            .Configure<LoggerFilterOptions>(options =>
            {
-               options.AddFilter<DebugLoggerProvider>(null /* category*/ , LogLevel.Information /* min level */);
-               options.AddFilter<ConsoleLoggerProvider>(null  /* category*/ , LogLevel.Information /* min level */);
+               options.AddFilter<DebugLoggerProvider>(null /* category*/ , LogLevel.Trace /* min level */);
+               options.AddFilter<ConsoleLoggerProvider>(null  /* category*/ , LogLevel.Trace /* min level */);
 
                // Comment this line to see all internal DEM.Net logs
                //options.AddFilter<ConsoleLoggerProvider>("DEM.Net", LogLevel.Information);
@@ -133,19 +133,20 @@ namespace SampleApp
 
             bool pauseAfterEachSample = true;
 
-            using (_logger.BeginScope($"Running {nameof(TINSamples)}.."))
-            {
-                var sample = serviceProvider.GetRequiredService<TINSamples>();
-                sample.Run(TINSamples.WKT_STE_VICTOIRE, nameof(TINSamples.WKT_STE_VICTOIRE), DEMDataSet.AW3D30);
-                sample.Run(TINSamples.WKT_EIGER, nameof(TINSamples.WKT_EIGER), DEMDataSet.AW3D30);
-                sample.Run(TINSamples.WKT_GORGES_VERDON, nameof(TINSamples.WKT_GORGES_VERDON), DEMDataSet.AW3D30);
-                _logger.LogInformation($"Sample {sample.GetType().Name} done. Press any key to run the next sample...");
-                if (pauseAfterEachSample) Console.ReadLine();
-            }
+            
             using (_logger.BeginScope($"Running {nameof(Gpx3DSamples)}.."))
             {
                 var sample = serviceProvider.GetRequiredService<Gpx3DSamples>();
                 sample.Run();
+                _logger.LogInformation($"Sample {sample.GetType().Name} done. Press any key to run the next sample...");
+                if (pauseAfterEachSample) Console.ReadLine();
+            }
+            using (_logger.BeginScope($"Running {nameof(TINSamples)}.."))
+            {
+                var sample = serviceProvider.GetRequiredService<TINSamples>();
+                sample.Run(TINSamples.WKT_STE_VICTOIRE, nameof(TINSamples.WKT_STE_VICTOIRE), DEMDataSet.AW3D30);
+                sample.Run(TINSamples.WKT_EIGER, nameof(TINSamples.WKT_EIGER), DEMDataSet.SRTM_GL3, 25);
+                sample.Run(TINSamples.WKT_GORGES_VERDON, nameof(TINSamples.WKT_GORGES_VERDON), DEMDataSet.AW3D30);
                 _logger.LogInformation($"Sample {sample.GetType().Name} done. Press any key to run the next sample...");
                 if (pauseAfterEachSample) Console.ReadLine();
             }

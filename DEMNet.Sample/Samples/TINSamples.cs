@@ -56,7 +56,7 @@ namespace SampleApp
             _glTFService = glTFService;
         }
 
-        internal void Run(string wkt, string name, DEMDataSet dataSet)
+        internal void Run(string wkt, string name, DEMDataSet dataSet, int precisionMeters = 10)
         {
             try
             {
@@ -69,8 +69,8 @@ namespace SampleApp
                 hMap = hMap.ZScale(2);
 
 
-                int precisionMeters = 10;
                 _logger.LogInformation($"Generating TIN with {precisionMeters}m precision...");
+                hMap = hMap.ReprojectTo(4326, outputSrid);
                 var mesh = TINGeneration.GenerateTIN(hMap, (double)precisionMeters, _glTFService, null, outputSrid);
 
                 _logger.LogInformation($"Generating model...");
