@@ -1,3 +1,4 @@
+[![Board Status](https://dev.azure.com/dem-net/0c1af62a-8ff1-4922-86da-d4e92c665a06/d2c48cdc-bc33-40ac-bef9-e674288c5be0/_apis/work/boardbadge/f7942cdf-e24a-49c0-96e2-6a8e4643e76d)](https://dev.azure.com/dem-net/0c1af62a-8ff1-4922-86da-d4e92c665a06/_boards/board/t/d2c48cdc-bc33-40ac-bef9-e674288c5be0/Microsoft.RequirementCategory)
 # DEM-Net Samples
 
 ## Summary
