@@ -137,7 +137,7 @@ namespace SampleApp
             using (_logger.BeginScope($"Running {nameof(Gpx3DSamples)}.."))
             {
                 var sample = serviceProvider.GetRequiredService<Gpx3DSamples>();
-                sample.Run();
+                sample.Run(DEMDataSet.AW3D30,false,true,Reprojection.SRID_PROJECTED_MERCATOR);
                 _logger.LogInformation($"Sample {sample.GetType().Name} done. Press any key to run the next sample...");
                 if (pauseAfterEachSample) Console.ReadLine();
             }

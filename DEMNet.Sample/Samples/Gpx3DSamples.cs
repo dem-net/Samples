@@ -65,17 +65,14 @@ namespace SampleApp
         }
 
 
-        internal void Run()
+        internal void Run(DEMDataSet dataSet, bool trackIn3D = true, bool generateTIN = false, int outputSrid = Reprojection.SRID_PROJECTED_LAMBERT_93)
         {
             try
             {
 
 
                 string _gpxFile = Path.Combine("SampleData", "BikeRide.gpx");
-                DEMDataSet dataSet = DEMDataSet.AW3D30;
                 bool withTexture = true;
-                bool generateTIN = true;
-                int outputSrid = Reprojection.SRID_PROJECTED_MERCATOR;
                 float Z_FACTOR = 2f;
                 float Z_TRANSLATE_GPX_TRACK_METERS = 5;
                 float trailWidthMeters = 5f;
@@ -101,6 +98,8 @@ namespace SampleApp
                 /// Height map (get dem elevation for bbox)
                 ///
                 HeightMap hMap = _elevationService.GetHeightMap(bbox, dataSet);
+
+               
                 hMap = hMap.ReprojectTo(4326, outputSrid).CenterOnOrigin().ZScale(Z_FACTOR).BakeCoordinates();
                 //
                 //=======================
@@ -118,7 +117,7 @@ namespace SampleApp
                     string fileName = Path.Combine(outputDir, "Texture.jpg");
 
                     Console.WriteLine("Construct texture...");
-                    TextureInfo texInfo = _imageryService.ConstructTexture(tiles, bbox, fileName, TextureImageFormat.image_jpeg);
+                    TextureInfo texInfo = _imageryService.ConstructTextureWithGpxTrack(tiles, bbox, fileName, TextureImageFormat.image_jpeg, gpxPointsElevated);
 
                     //
                     //=======================
@@ -160,30 +159,31 @@ namespace SampleApp
                 }
                 meshes.Add(triangleMesh);
 
-                // take 1 point evert nth
+                if (trackIn3D)
+                {
+                    // take 1 point evert nth
+                    gpxPointsElevated = gpxPointsElevated.Where((x, i) => (i + 1) % skipGpxPointsEvery == 0);
+                    gpxPointsElevated = gpxPointsElevated.ZTranslate(Z_TRANSLATE_GPX_TRACK_METERS)
+                                                            .ReprojectTo(4326, outputSrid)
+                                                            .CenterOnOrigin()
+                                                            .CenterOnOrigin(hMap.BoundingBox)
+                                                            .ZScale(Z_FACTOR);
 
-                gpxPointsElevated = gpxPointsElevated.Where((x, i) => (i + 1) % skipGpxPointsEvery == 0);
-                gpxPointsElevated = gpxPointsElevated.ZTranslate(Z_TRANSLATE_GPX_TRACK_METERS)
-                                                        .ReprojectTo(4326, outputSrid)
-                                                        .CenterOnOrigin()
-                                                        .CenterOnOrigin(hMap.BoundingBox)
-                                                        .ZScale(Z_FACTOR);
 
-
-                MeshPrimitive gpxLine = _glTFService.GenerateLine(gpxPointsElevated, new Vector4(1, 0, 0, 0.5f), trailWidthMeters);
-                meshes.Add(gpxLine);
+                    MeshPrimitive gpxLine = _glTFService.GenerateLine(gpxPointsElevated, new Vector4(1, 0, 0, 0.5f), trailWidthMeters);
+                    meshes.Add(gpxLine);
+                }
 
                 // model export
                 Console.WriteLine("GenerateModel...");
                 Model model = _glTFService.GenerateModel(meshes, this.GetType().Name);
-                _glTFService.Export(model, ".", $"{GetType().Name} TIN{generateTIN}", false, true);
+                _glTFService.Export(model, ".", $"{GetType().Name} TIN{generateTIN} Srid{outputSrid}", false, true);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, ex.Message);
             }
         }
-
 
     }
 
