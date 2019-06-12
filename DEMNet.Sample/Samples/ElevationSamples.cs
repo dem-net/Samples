@@ -75,7 +75,7 @@ namespace SampleApp
                     _elevationService.DownloadMissingFiles(dataSet, lat1, lon1);
                     GeoPoint geoPoint = _elevationService.GetPointElevation(lat1, lon1, dataSet);
 
-                    _logger.LogInformation($"{dataSet.Name} elevation: {geoPoint.Elevation:N2} (time taken: {sw.Elapsed:g})");
+                    _logger.LogInformation($"{dataSet.Name} elevation: {geoPoint.Elevation:N2} (time taken: {sw.Elapsed.TotalMilliseconds:N1}ms)");
                 }
 
 
@@ -90,7 +90,7 @@ namespace SampleApp
                 {
                     sw.Restart();
                     var geoPoints = _elevationService.GetPointsElevation(points, dataSet);
-                    _logger.LogInformation($"{dataSet.Name} elevation: {string.Join(" / ", geoPoints.Select(e => e.Elevation.GetValueOrDefault().ToString("N2")))} (time taken: {sw.Elapsed:g})");
+                    _logger.LogInformation($"{dataSet.Name} elevation: {string.Join(" / ", geoPoints.Select(e => e.Elevation.GetValueOrDefault().ToString("N2")))} (time taken: {sw.Elapsed.TotalMilliseconds:N1}ms)");
                 }
 
 
@@ -112,7 +112,7 @@ namespace SampleApp
 
                     var geoJson = ConvertLineElevationResultToGeoJson(simplified);
                 }
-                _logger.LogInformation($"Done in {sw.Elapsed:g}");
+                _logger.LogInformation($"Done in {sw.Elapsed.TotalMilliseconds:N1}ms");
             }
             catch (Exception ex)
             {
