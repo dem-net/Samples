@@ -99,16 +99,18 @@ var modelName = $"Montagne Sainte Victoire {dataset.Name}";
 string bboxWKT = "POLYGON((5.54888 43.519525, 5.61209 43.519525, 5.61209 43.565225, 5.54888 43.565225, 5.54888 43.519525))";
 var bbox = GeometryService.GetBoundingBox(bboxWKT);
 var heightMap = _elevationService.GetHeightMap(bbox, dataset);
-heightMap = heightMap.ReprojectGeodeticToCartesian() // Reproject to 3857 (useful to get coordinates in meters)
-                    .ZScale(2f)                     // Elevation exageration
-					.CenterOnOrigin();
+
+heightMap = heightMap
+	.ReprojectGeodeticToCartesian() // Reproject to 3857 (useful to get coordinates in meters)
+	.ZScale(2f)                     // Elevation exageration
+	.CenterOnOrigin();
 
 // Triangulate height map
 var mesh = _glTFService.GenerateTriangleMesh(heightMap);
 var model = _glTFService.GenerateModel(mesh, modelName);
-var gltfFilePath = Path.Combine(Directory.GetCurrentDirectory(), $"{modelName}.stl");
 
-_glTFService.Export(model, Directory.GetCurrentDirectory(), modelName, true, true);
+// Export Binary model file
+_glTFService.Export(model, Directory.GetCurrentDirectory(), modelName, exportglTF: false, exportGLB: true);
 ```
 
 ![gltf3D_SteVictoire.png](gltf3D_SteVictoire.png)
