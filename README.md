@@ -91,7 +91,7 @@ This will produce this nice output :
 
 ## glTF 3D samples
 
-![gltf3D_SteVictoire.png]({{site.baseurl}}/gltf3D_SteVictoire.png)
+![gltf3D_SteVictoire.png](gltf3D_SteVictoire.png)
 
 *Docs coming soon...*
 
