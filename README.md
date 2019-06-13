@@ -98,12 +98,10 @@ var modelName = $"Montagne Sainte Victoire {dataset.Name}";
 // You can get your boox from https://geojson.net/ (save as WKT)
 string bboxWKT = "POLYGON((5.54888 43.519525, 5.61209 43.519525, 5.61209 43.565225, 5.54888 43.565225, 5.54888 43.519525))";
 var bbox = GeometryService.GetBoundingBox(bboxWKT);
-var heightMap = _elevationService.GetHeightMap(bbox, dataset);
-
-heightMap = heightMap
-	.ReprojectGeodeticToCartesian() // Reproject to 3857 (useful to get coordinates in meters)
-	.ZScale(2f)                     // Elevation exageration
-	.CenterOnOrigin();
+var heightMap = _elevationService.GetHeightMap(bbox, dataset)
+		.ReprojectGeodeticToCartesian() // Reproject to 3857 (useful to get coordinates in meters)
+		.ZScale(2f)                     // Elevation exageration
+		.CenterOnOrigin();
 
 // Triangulate height map
 var mesh = _glTFService.GenerateTriangleMesh(heightMap);
@@ -113,10 +111,8 @@ var model = _glTFService.GenerateModel(mesh, modelName);
 _glTFService.Export(model, Directory.GetCurrentDirectory(), modelName, exportglTF: false, exportGLB: true);
 ```
 
+This will run in less than 500ms and produce this nice model (you can natively open it in Windows 10's 3D viewer) : 
 ![gltf3D_SteVictoire.png](gltf3D_SteVictoire.png)
-
-*Docs coming soon...*
-
 
 ## STL samples
 
