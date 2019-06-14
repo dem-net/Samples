@@ -54,13 +54,13 @@ namespace SampleApp
             bool pauseAfterEachSample = true;
 
 
-            //using (_logger.BeginScope($"Running {nameof(ElevationSamples)}.."))
-            //{
-            //    var sample = serviceProvider.GetRequiredService<ElevationSamples>();
-            //    sample.Run();
-            //    _logger.LogInformation($"Sample {sample.GetType().Name} done. Press any key to run the next sample...");
-            //    if (pauseAfterEachSample) Console.ReadLine();
-            //}
+            using (_logger.BeginScope($"Running {nameof(ElevationSamples)}.."))
+            {
+                var sample = serviceProvider.GetRequiredService<ElevationSamples>();
+                sample.Run();
+                _logger.LogInformation($"Sample {sample.GetType().Name} done. Press any key to run the next sample...");
+                if (pauseAfterEachSample) Console.ReadLine();
+            }
 
             using (_logger.BeginScope($"Running {nameof(GpxSamples)}.."))
             {
@@ -70,7 +70,20 @@ namespace SampleApp
                 if (pauseAfterEachSample) Console.ReadLine();
             }
 
-
+            using (_logger.BeginScope($"Running {nameof(DatasetSamples)}.."))
+            {
+                var sample = serviceProvider.GetRequiredService<DatasetSamples>();
+                sample.Run();
+                _logger.LogInformation($"Sample {sample.GetType().Name} done. Press any key to run the next sample...");
+                if (pauseAfterEachSample) Console.ReadLine();
+            }
+            using (_logger.BeginScope($"Running {nameof(glTF3DSamples)}.."))
+            {
+                var sample = serviceProvider.GetRequiredService<glTF3DSamples>();
+                sample.Run();
+                _logger.LogInformation($"Sample {sample.GetType().Name} done. Press any key to run the next sample...");
+                if (pauseAfterEachSample) Console.ReadLine();
+            }
             using (_logger.BeginScope($"Running {nameof(Gpx3DSamples)}.."))
             {
                 var sample = serviceProvider.GetRequiredService<Gpx3DSamples>();
@@ -96,13 +109,7 @@ namespace SampleApp
             }
             
             
-            using (_logger.BeginScope($"Running {nameof(glTF3DSamples)}.."))
-            {
-                var sample = serviceProvider.GetRequiredService<glTF3DSamples>();
-                sample.Run();
-                _logger.LogInformation($"Sample {sample.GetType().Name} done. Press any key to run the next sample...");
-                if (pauseAfterEachSample) Console.ReadLine();
-            }
+            
             using (_logger.BeginScope($"Running {nameof(STLSamples)}.."))
             {
                 var sample = serviceProvider.GetRequiredService<STLSamples>();

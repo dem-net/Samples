@@ -86,10 +86,9 @@ namespace SampleApp
 
                 _logger.LogInformation($"Creating glTF model...");
                 var model = _glTFService.GenerateModel(mesh, modelName);
-                var gltfFilePath = Path.Combine(Directory.GetCurrentDirectory(), $"{modelName}.stl");
 
                 _logger.LogInformation($"Exporting glTF model...");
-                _glTFService.Export(model, Directory.GetCurrentDirectory(), modelName, true, true);
+                _glTFService.Export(model, Directory.GetCurrentDirectory(), modelName, exportglTF: false, exportGLB: true);
 
                 _logger.LogInformation($"Model exported as {Path.Combine(Directory.GetCurrentDirectory(), modelName + ".gltf")} and .glb");
 
