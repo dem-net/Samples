@@ -111,8 +111,11 @@ var model = _glTFService.GenerateModel(mesh, modelName);
 _glTFService.Export(model, Directory.GetCurrentDirectory(), modelName, exportglTF: false, exportGLB: true);
 ```
 
-This will run in less than 500ms and produce this nice model (you can natively open it in Windows 10's 3D viewer) : 
+This will run in less than 500ms and produce this nice model (you can natively open it in Windows 10's 3D viewer): 
+
 ![ste.gif](https://github.com/dem-net/Resources/blob/master/images/steVictore3DNoTIN.gif)
+
+All elevations are linked together as a triangle mesh.
 
 ## STL samples
 
