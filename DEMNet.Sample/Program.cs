@@ -27,7 +27,6 @@
 using DEM.Net.Core;
 using System.IO;
 using System;
-using System.Diagnostics;
 using Microsoft.Extensions.DependencyInjection;
 using DEM.Net.glTF;
 using Microsoft.Extensions.Logging;
@@ -110,85 +109,5 @@ namespace SampleApp
                     .AddTransient<glTF3DSamples>();
             // .. more samples here
         }
-    }
-
-    /// <summary>
-    /// Main sample application
-    /// </summary>
-    public class SampleApplication
-    {
-        private readonly ILogger<SampleApplication> _logger;
-        
-        public SampleApplication(ILogger<SampleApplication> logger)
-        {
-            _logger = logger;
-        }
-
-        internal void Run(IServiceProvider serviceProvider)
-        {
-            //Trace.Listeners.Add(new TextWriterTraceListener(Console.Out));
-            
-            Stopwatch sw = Stopwatch.StartNew();
-            _logger.LogInformation("Application started");
-
-            bool pauseAfterEachSample = true;
-
-            
-            using (_logger.BeginScope($"Running {nameof(Gpx3DSamples)}.."))
-            {
-                var sample = serviceProvider.GetRequiredService<Gpx3DSamples>();
-                sample.Run(DEMDataSet.AW3D30,false,true,Reprojection.SRID_PROJECTED_MERCATOR);
-                _logger.LogInformation($"Sample {sample.GetType().Name} done. Press any key to run the next sample...");
-                if (pauseAfterEachSample) Console.ReadLine();
-            }
-            using (_logger.BeginScope($"Running {nameof(TINSamples)}.."))
-            {
-                var sample = serviceProvider.GetRequiredService<TINSamples>();
-                sample.Run(TINSamples.WKT_STE_VICTOIRE, nameof(TINSamples.WKT_STE_VICTOIRE), DEMDataSet.AW3D30);
-                sample.Run(TINSamples.WKT_EIGER, nameof(TINSamples.WKT_EIGER), DEMDataSet.SRTM_GL3, 25);
-                sample.Run(TINSamples.WKT_GORGES_VERDON, nameof(TINSamples.WKT_GORGES_VERDON), DEMDataSet.AW3D30);
-                _logger.LogInformation($"Sample {sample.GetType().Name} done. Press any key to run the next sample...");
-                if (pauseAfterEachSample) Console.ReadLine();
-            }
-            using (_logger.BeginScope($"Running {nameof(DatasetSamples)}.."))
-            {
-                var sample = serviceProvider.GetRequiredService<DatasetSamples>();
-                sample.Run();
-                _logger.LogInformation($"Sample {sample.GetType().Name} done. Press any key to run the next sample...");
-                if (pauseAfterEachSample) Console.ReadLine();
-            }
-            using (_logger.BeginScope($"Running {nameof(ElevationSamples)}.."))
-            {
-                var sample = serviceProvider.GetRequiredService<ElevationSamples>();
-                sample.Run();
-                _logger.LogInformation($"Sample {sample.GetType().Name} done. Press any key to run the next sample...");
-                if (pauseAfterEachSample) Console.ReadLine();
-            }
-            using (_logger.BeginScope($"Running {nameof(GpxSamples)}.."))
-            {
-                var sample = serviceProvider.GetRequiredService<GpxSamples>();
-                sample.Run();
-                _logger.LogInformation($"Sample {sample.GetType().Name} done. Press any key to run the next sample...");
-                if (pauseAfterEachSample) Console.ReadLine();
-            }
-            using (_logger.BeginScope($"Running {nameof(glTF3DSamples)}.."))
-            {
-                var sample = serviceProvider.GetRequiredService<glTF3DSamples>();
-                sample.Run();
-                _logger.LogInformation($"Sample {sample.GetType().Name} done. Press any key to run the next sample...");
-                if (pauseAfterEachSample) Console.ReadLine();
-            }
-            using (_logger.BeginScope($"Running {nameof(STLSamples)}.."))
-            {
-                var sample = serviceProvider.GetRequiredService<STLSamples>();
-                sample.Run();
-                _logger.LogInformation($"Sample {sample.GetType().Name} done. Press any key to run the next sample...");
-                if (pauseAfterEachSample) Console.ReadLine();
-            }
-
-            _logger.LogTrace($"Application ran in : {sw.Elapsed:g}");
-        }
-
-
     }
 }

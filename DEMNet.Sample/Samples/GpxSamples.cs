@@ -39,6 +39,9 @@ using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
 using Microsoft.Extensions.Logging;
+using GeoJSON.Net.Feature;
+using Newtonsoft.Json;
+using GeoJSON.Net.Geometry;
 
 namespace SampleApp
 {
@@ -69,29 +72,58 @@ namespace SampleApp
             {
 
 
-                string _gpxFile = Path.Combine("SampleData", "lauzannier.gpx");
+                string _gpxFile = Path.Combine("SampleData", "trail.gpx");
                 if (!File.Exists(_gpxFile))
                 {
                     _logger.LogError($"Cannot run sample: {_gpxFile} is missing !");
                 }
-                DEMDataSet _dataSet = DEMDataSet.AW3D30;
+                DEMDataSet _dataSet = DEMDataSet.SRTM_GL1;
 
                 // Read GPX points
                 var segments = GpxImport.ReadGPX_Segments(_gpxFile);
                 var points = segments.SelectMany(seg => seg);
 
                 // Retrieve elevation for each point on DEM
-                var gpxPointsElevated = _elevationService.GetPointsElevation(points, DEMDataSet.AW3D30)
+                var gpxPointsElevated = _elevationService.GetPointsElevation(points, _dataSet)
                                         .ToList();
 
                 _logger.LogInformation($"{gpxPointsElevated.Count} GPX points elevation calculated");
 
-                // TODO : pipeline processor to rewrite a GPX track with updated elevations
+
+                // Get metrics (stats)
+                var metrics = gpxPointsElevated.ComputeMetrics();
+
+                _logger.LogInformation($"GPX points stats: {metrics}");
+
+
+                var gpxPointsSimplified = gpxPointsElevated.Simplify(50);
+                _logger.LogInformation($"GPX track is reduced with 50m tolerance.");
+                var metricsWithReducedPoints = gpxPointsSimplified.ComputeMetrics();
+
+                _logger.LogInformation($"GPX points stats after reduction: {metricsWithReducedPoints}");
+
+                var geoJson = ConvertLineElevationResultToGeoJson(gpxPointsSimplified);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, ex.Message);
             }
+        }
+
+        private string ConvertLineElevationResultToGeoJson(List<GeoPoint> linePoints)
+        {
+            FeatureCollection fc = new FeatureCollection(linePoints.Select(ConvertGeoPointToFeature).ToList());
+
+            return JsonConvert.SerializeObject(fc);
+        }
+        private Feature ConvertGeoPointToFeature(GeoPoint point)
+        {
+            return new Feature(
+                    new Point(
+                            new Position(point.Latitude, point.Longitude, point.Elevation)
+                            )
+                    , point
+                    );
         }
 
 

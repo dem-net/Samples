@@ -75,7 +75,7 @@ namespace SampleApp
                     _elevationService.DownloadMissingFiles(dataSet, lat1, lon1);
                     GeoPoint geoPoint = _elevationService.GetPointElevation(lat1, lon1, dataSet);
 
-                    _logger.LogInformation($"{dataSet.Name} elevation: {geoPoint.Elevation:N2} (time taken: {sw.Elapsed:g})");
+                    _logger.LogInformation($"{dataSet.Name} elevation: {geoPoint.Elevation:N2} (time taken: {sw.Elapsed.TotalMilliseconds:N1}ms)");
                 }
 
 
@@ -90,7 +90,7 @@ namespace SampleApp
                 {
                     sw.Restart();
                     var geoPoints = _elevationService.GetPointsElevation(points, dataSet);
-                    _logger.LogInformation($"{dataSet.Name} elevation: {string.Join(" / ", geoPoints.Select(e => e.Elevation.GetValueOrDefault().ToString("N2")))} (time taken: {sw.Elapsed:g})");
+                    _logger.LogInformation($"{dataSet.Name} elevation: {string.Join(" / ", geoPoints.Select(e => e.Elevation.GetValueOrDefault().ToString("N2")))} (time taken: {sw.Elapsed.TotalMilliseconds:N1}ms)");
                 }
 
 
@@ -103,16 +103,16 @@ namespace SampleApp
                 {
                     _elevationService.DownloadMissingFiles(dataSet, elevationLine.GetBoundingBox());
                     var geoPoints = _elevationService.GetLineGeometryElevation(elevationLine, dataSet);
-                    var metrics = GeometryService.ComputeMetrics(geoPoints);
+                    var metrics = geoPoints.ComputeMetrics();
                     _logger.LogInformation($"{dataSet.Name} metrics: {metrics.ToString()}");
 
 
-                    var simplified = DouglasPeucker.DouglasPeuckerReduction(geoPoints.ToList(), 50 /* meters */);
+                    var simplified = geoPoints.Simplify(50 /* meters */);
                     _logger.LogInformation($"{dataSet.Name} after reduction : {simplified.Count} points");
 
                     var geoJson = ConvertLineElevationResultToGeoJson(simplified);
                 }
-                _logger.LogInformation($"Done in {sw.Elapsed:g}");
+                _logger.LogInformation($"Done in {sw.Elapsed.TotalMilliseconds:N1}ms");
             }
             catch (Exception ex)
             {
