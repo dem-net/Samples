@@ -112,7 +112,7 @@ _glTFService.Export(model, Directory.GetCurrentDirectory(), modelName, exportglT
 ```
 
 This will run in less than 500ms and produce this nice model (you can natively open it in Windows 10's 3D viewer) : 
-![gltf3D_SteVictoire.png](gltf3D_SteVictoire.png)
+![gltf3D_SteVictoire.png](https://github.com/dem-net/Resources/blob/master/images/ste.gif)
 
 ## STL samples
 
