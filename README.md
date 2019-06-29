@@ -48,7 +48,7 @@ IElevationService.DownloadMissingFiles(DEMDataSet.AW3D30, elevationLine.GetBound
 var geoPoints = IElevationService.GetLineGeometryElevation(elevationLine, dataSet);
 
 // Compute metrics (to get distance from origin)
-var metrics = GeometryService.ComputeMetrics(geoPoints);
+var metrics = geoPoints.ComputeMetrics();
 
 // Simplify line with 50m resolution
 var simplified = DouglasPeucker.DouglasPeuckerReduction(geoPoints.ToList(), 50 /* meters */);
