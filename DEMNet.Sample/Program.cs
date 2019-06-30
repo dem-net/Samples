@@ -58,7 +58,7 @@ namespace SampleApp
 
             ServiceProvider serviceProvider = services.BuildServiceProvider();
 
-            // Get main ap
+            // Get main app
             var app = serviceProvider.GetService<SampleApplication>();
 
             // RUN
