@@ -66,7 +66,7 @@ namespace SampleApp
 
             foreach (BeanPoint_internal v_point in _topolFacettes.p11_pointsFacettesByIdPoint.Values)
             {
-                v_geoPoint = new GeoPoint(v_point.p10_coord[1], v_point.p10_coord[0], (float)v_point.p10_coord[2], 0, 0);
+                v_geoPoint = new GeoPoint(v_point.p10_coord[1], v_point.p10_coord[0], (float)v_point.p10_coord[2]);
                 p00_geoPoint.Add(v_geoPoint);
                 v_indiceParIdPoint.Add(v_point.p00_id, v_indice);
                 v_indice++;
@@ -129,7 +129,7 @@ namespace SampleApp
 
             foreach (BeanPoint_internal v_point in _topolFacettes.p11_pointsFacettesByIdPoint.Values)
             {
-                v_geoPoint = new GeoPoint(v_point.p10_coord[1], v_point.p10_coord[0], (float)v_point.p10_coord[2], 0, 0);
+                v_geoPoint = new GeoPoint(v_point.p10_coord[1], v_point.p10_coord[0], (float)v_point.p10_coord[2]);
                 p00_geoPoint.Add(v_geoPoint);
                 v_indiceParIdPoint.Add(v_point.p00_id, v_indice);
                 v_indice++;
