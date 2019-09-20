@@ -38,8 +38,11 @@ namespace SampleApp
     public class SampleApplication
     {
         private readonly ILogger<SampleApplication> _logger;
+        private const string DATA_FILES_PATH = @"C:\Users\ElevationAPI\AppData\Local"; // Leave to null for default location (Environment.SpecialFolder.LocalApplicationData)
+              
 
-        public SampleApplication(ILogger<SampleApplication> logger)
+
+    public SampleApplication(ILogger<SampleApplication> logger)
         {
             _logger = logger;
         }
@@ -53,7 +56,19 @@ namespace SampleApp
 
             bool pauseAfterEachSample = true;
 
+            // Change data dir if not null
+            if (!string.IsNullOrWhiteSpace(DATA_FILES_PATH))
+            {
+                serviceProvider.GetRequiredService<IRasterService>().SetLocalDirectory(DATA_FILES_PATH);
+            }
 
+            using (_logger.BeginScope($"Running {nameof(DownloaderSample)}.."))
+            {
+                var sample = serviceProvider.GetRequiredService<DownloaderSample>();
+                sample.Run();
+                _logger.LogInformation($"Sample {sample.GetType().Name} done. Press any key to run the next sample...");
+                if (pauseAfterEachSample) Console.ReadLine();
+            }
             using (_logger.BeginScope($"Running {nameof(ElevationSamples)}.."))
             {
                 var sample = serviceProvider.GetRequiredService<ElevationSamples>();

@@ -106,7 +106,8 @@ namespace SampleApp
                     .AddTransient<Gpx3DSamples>()
                     .AddTransient<DatasetSamples>()
                     .AddTransient<TINSamples>()
-                    .AddTransient<glTF3DSamples>();
+                    .AddTransient<glTF3DSamples>()
+                    .AddTransient<DownloaderSample>();
             // .. more samples here
         }
     }
