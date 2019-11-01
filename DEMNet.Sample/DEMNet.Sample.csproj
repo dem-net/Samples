@@ -2,7 +2,7 @@
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
-    <TargetFramework>netcoreapp2.1</TargetFramework>
+    <TargetFramework>netcoreapp3.0</TargetFramework>
     <RootNamespace>SampleApp</RootNamespace>
   </PropertyGroup>
 
@@ -24,7 +24,6 @@
     <PackageReference Include="Microsoft.Extensions.Logging" Version="2.2.0" />
     <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="2.2.0" />
     <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="2.2.0" />
-    <PackageReference Include="DEM.Net.glTF" Version="0.1.4" />
   </ItemGroup>
 
   <ItemGroup>
@@ -50,6 +49,11 @@
 
   <ItemGroup>
     <Folder Include="Config\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\..\DEM.Net\DEM.Net.Core\DEM.Net.Core.csproj" />
+    <ProjectReference Include="..\..\..\DEM.Net\DEM.Net.glTF\DEM.Net.glTF.csproj" />
   </ItemGroup>
   <ItemGroup>
     <Compile Condition=" '$(EnableDefaultCompileItems)' == 'true' " Update="Samples\Gpx3DSamples.cs">

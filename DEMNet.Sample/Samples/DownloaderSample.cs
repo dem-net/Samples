@@ -79,15 +79,21 @@ namespace SampleApp
             _rasterService = rasterService;
             _elevationService = elevationService;
         }
-        public void Run()
+        public void Run(DEMDataSet specificDataset = null)
         {
             try
             {
                 _logger.LogInformation($"Downloading all files to {_rasterService.LocalDirectory}");
                 Stopwatch sw = new Stopwatch();
 
-                foreach (var dataset in DEMDataSet.RegisteredDatasets.Where(d=>d.DataSource.IsGlobalFile == false))
-                 //Parallel.ForEach(DEMDataSet.RegisteredDatasets.Where(d=>d.DataSource.IsGlobalFile == false), dataset =>
+                var datasetsQuery = DEMDataSet.RegisteredDatasets;
+                if (specificDataset != null)
+                    datasetsQuery = datasetsQuery.Where(d => d.Name == specificDataset.Name);
+                else
+                    datasetsQuery = datasetsQuery.Where(d => d.DataSource.IsGlobalFile == false);
+
+                foreach (var dataset in datasetsQuery)
+                //Parallel.ForEach(datasetsQuery, dataset =>
                 {
                     _logger.LogInformation($"{dataset.Name}:");
 

@@ -38,7 +38,7 @@ namespace SampleApp
     public class SampleApplication
     {
         private readonly ILogger<SampleApplication> _logger;
-        private const string DATA_FILES_PATH = @"C:\Users\ElevationAPI\AppData\Local"; // Leave to null for default location (Environment.SpecialFolder.LocalApplicationData)
+        private const string DATA_FILES_PATH = null; //@"C:\Users\ElevationAPI\AppData\Local"; // Leave to null for default location (Environment.SpecialFolder.LocalApplicationData)
               
 
 
@@ -65,7 +65,7 @@ namespace SampleApp
             using (_logger.BeginScope($"Running {nameof(DownloaderSample)}.."))
             {
                 var sample = serviceProvider.GetRequiredService<DownloaderSample>();
-                sample.Run();
+                sample.Run(DEMDataSet.ASTER_GDEMV3);
                 _logger.LogInformation($"Sample {sample.GetType().Name} done. Press any key to run the next sample...");
                 if (pauseAfterEachSample) Console.ReadLine();
             }
