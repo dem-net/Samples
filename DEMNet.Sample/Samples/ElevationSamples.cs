@@ -68,7 +68,7 @@ namespace SampleApp
 
                 _logger.LogInformation($"Getting location elevation for each dataset (location lat: {lat1:N2}, lon: {lon1:N2})");
                 Stopwatch sw = new Stopwatch();
-                foreach (var dataSet in DEMDataSet.RegisteredDatasets)
+                foreach (var dataSet in DEMDataSet.RegisteredNonSingleFileDatasets)
                 {
                     sw.Restart();
 
@@ -86,7 +86,7 @@ namespace SampleApp
                 GeoPoint pt1 = new GeoPoint(lat1, lon1);
                 GeoPoint pt2 = new GeoPoint(lat2, lont2);
                 GeoPoint[] points = { pt1, pt2 };
-                foreach (var dataSet in DEMDataSet.RegisteredDatasets)
+                foreach (var dataSet in DEMDataSet.RegisteredNonSingleFileDatasets)
                 {
                     sw.Restart();
                     var geoPoints = _elevationService.GetPointsElevation(points, dataSet);
@@ -99,7 +99,7 @@ namespace SampleApp
                 sw.Restart();
                 // Line passing by mont ventoux peak [5.144899, 44.078873], [5.351516, 44.225876]
                 var elevationLine = GeometryService.ParseGeoPointAsGeometryLine(new GeoPoint(44.078873, 5.144899), new GeoPoint(44.225876, 5.351516));
-                foreach (var dataSet in DEMDataSet.RegisteredDatasets)
+                foreach (var dataSet in DEMDataSet.RegisteredNonSingleFileDatasets)
                 {
                     _elevationService.DownloadMissingFiles(dataSet, elevationLine.GetBoundingBox());
                     var geoPoints = _elevationService.GetLineGeometryElevation(elevationLine, dataSet);

@@ -97,7 +97,7 @@ namespace SampleApp
                 GeoPoint geoPoint = new GeoPoint(45.179337, 5.721421);
                 _logger.LogInformation($"Getting raster file for dataset at location {geoPoint}");
 
-                foreach (var dataset in DEMDataSet.RegisteredDatasets)
+                foreach (var dataset in DEMDataSet.RegisteredNonSingleFileDatasets)
                 {
                     _logger.LogInformation($"{dataset.Name}:");
 

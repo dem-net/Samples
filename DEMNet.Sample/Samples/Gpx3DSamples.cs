@@ -82,15 +82,6 @@ namespace SampleApp
                 List<MeshPrimitive> meshes = new List<MeshPrimitive>();
                 string outputDir = Path.GetFullPath(".");
 
-                /// Check if tokens are OK
-                ///
-                var tokens = _imageryService.GetConfiguredTokens();
-                if (!tokens.Any() || tokens.Any(t => string.IsNullOrWhiteSpace(t.Value)))
-                {
-                    _logger.LogError("No tokens found. Please ensure you have set your imagery provider tokens in file config/tokens.json.");
-                    return;
-                }
-
                 //=======================
                 /// Line strip from GPX
                 ///
