@@ -10,6 +10,10 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Docs", "Docs", "{BC338F65-6
 		README.md = README.md
 	EndProjectSection
 EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DEM.Net.Core", "..\..\DEM.Net\DEM.Net.Core\DEM.Net.Core.csproj", "{5986BFCD-E36A-49FC-BFAE-2E04B239052A}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DEM.Net.glTF", "..\..\DEM.Net\DEM.Net.glTF\DEM.Net.glTF.csproj", "{4FDE9A95-15EE-41CC-A8CB-710343EA79B7}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -20,6 +24,14 @@ Global
 		{704CAEEC-5880-41D9-9CA4-667C64AA7628}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{704CAEEC-5880-41D9-9CA4-667C64AA7628}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{704CAEEC-5880-41D9-9CA4-667C64AA7628}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5986BFCD-E36A-49FC-BFAE-2E04B239052A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5986BFCD-E36A-49FC-BFAE-2E04B239052A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5986BFCD-E36A-49FC-BFAE-2E04B239052A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5986BFCD-E36A-49FC-BFAE-2E04B239052A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{4FDE9A95-15EE-41CC-A8CB-710343EA79B7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{4FDE9A95-15EE-41CC-A8CB-710343EA79B7}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{4FDE9A95-15EE-41CC-A8CB-710343EA79B7}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{4FDE9A95-15EE-41CC-A8CB-710343EA79B7}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

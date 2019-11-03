@@ -32,6 +32,8 @@ using DEM.Net.glTF;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Debug;
 using Microsoft.Extensions.Logging.Console;
+using Microsoft.Extensions.Configuration;
+using DEM.Net.Core.Configuration;
 
 namespace SampleApp
 {
@@ -45,10 +47,20 @@ namespace SampleApp
     /// </summary>
     class Program
     {
+        public static IConfigurationRoot Configuration { get; set; }
 
         static void Main(string[] args)
         {
-            var services = new ServiceCollection();
+            var builder = new ConfigurationBuilder()
+           .SetBasePath(Directory.GetCurrentDirectory())
+           .AddJsonFile("secrets.json", optional: false, reloadOnChange: false);
+
+            Configuration = builder.Build();
+
+            IServiceCollection services = new ServiceCollection();
+
+            // map secrets, then can be injected via IOptions<AppSecrets>
+            services.Configure<AppSecrets>(Configuration.GetSection(nameof(AppSecrets)));
 
             // Configure container
             RegisterServices(services);
@@ -69,8 +81,10 @@ namespace SampleApp
             Console.ReadLine();
         }
 
-        private static void RegisterServices(ServiceCollection services)
+        private static void RegisterServices(IServiceCollection services)
         {
+
+            services.AddSingleton<IConfiguration>(Configuration);
             services.AddLogging(config =>
             {
                 config.AddDebug(); // Log to debug (debug window in Visual Studio or any debugger attached)
@@ -97,7 +111,7 @@ namespace SampleApp
         /// Register additionnal samples here
         /// </summary>
         /// <param name="services"></param>
-        private static void RegisterSamples(ServiceCollection services)
+        private static void RegisterSamples(IServiceCollection services)
         {
             services.AddTransient<SampleApplication>()
                     .AddTransient<STLSamples>()

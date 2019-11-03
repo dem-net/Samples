@@ -29,6 +29,8 @@ using System;
 using System.Diagnostics;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Options;
+using DEM.Net.Core.Configuration;
 
 namespace SampleApp
 {
@@ -38,7 +40,7 @@ namespace SampleApp
     public class SampleApplication
     {
         private readonly ILogger<SampleApplication> _logger;
-        private const string DATA_FILES_PATH = @"C:\Users\ElevationAPI\AppData\Local"; // Leave to null for default location (Environment.SpecialFolder.LocalApplicationData)
+        private const string DATA_FILES_PATH = null; //@"C:\Users\ElevationAPI\AppData\Local"; // Leave to null for default location (Environment.SpecialFolder.LocalApplicationData)
               
 
 
@@ -62,13 +64,13 @@ namespace SampleApp
                 serviceProvider.GetRequiredService<IRasterService>().SetLocalDirectory(DATA_FILES_PATH);
             }
 
-            using (_logger.BeginScope($"Running {nameof(DownloaderSample)}.."))
-            {
-                var sample = serviceProvider.GetRequiredService<DownloaderSample>();
-                sample.Run();
-                _logger.LogInformation($"Sample {sample.GetType().Name} done. Press any key to run the next sample...");
-                if (pauseAfterEachSample) Console.ReadLine();
-            }
+            //using (_logger.BeginScope($"Running {nameof(DownloaderSample)}.."))
+            //{
+            //    var sample = serviceProvider.GetRequiredService<DownloaderSample>();
+            //    sample.Run(DEMDataSet.ASTER_GDEMV3);
+            //    _logger.LogInformation($"Sample {sample.GetType().Name} done. Press any key to run the next sample...");
+            //    if (pauseAfterEachSample) Console.ReadLine();
+            //}
             using (_logger.BeginScope($"Running {nameof(ElevationSamples)}.."))
             {
                 var sample = serviceProvider.GetRequiredService<ElevationSamples>();
@@ -122,9 +124,6 @@ namespace SampleApp
                 _logger.LogInformation($"Sample {sample.GetType().Name} done. Press any key to run the next sample...");
                 if (pauseAfterEachSample) Console.ReadLine();
             }
-            
-            
-            
             using (_logger.BeginScope($"Running {nameof(STLSamples)}.."))
             {
                 var sample = serviceProvider.GetRequiredService<STLSamples>();
