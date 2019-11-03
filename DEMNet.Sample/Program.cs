@@ -51,21 +51,16 @@ namespace SampleApp
 
         static void Main(string[] args)
         {
-            var builder = new ConfigurationBuilder();
-            // tell the builder to look for the appsettings.json file
-            builder.AddJsonFile("appsettings.json", optional: true, reloadOnChange: true);
-
-            builder.AddUserSecrets<AppSecrets>();
-            //builder.AddUserSecrets(typeof(AppSecrets).Assembly);
+            var builder = new ConfigurationBuilder()
+           .SetBasePath(Directory.GetCurrentDirectory())
+           .AddJsonFile("secrets.json", optional: false, reloadOnChange: false);
 
             Configuration = builder.Build();
 
             IServiceCollection services = new ServiceCollection();
 
-            //Map the implementations of your classes here ready for DI
-            services
-                .Configure<AppSecrets>(Configuration.GetSection(nameof(AppSecrets)))
-                .AddOptions();
+            // map secrets, then can be injected via IOptions<AppSecrets>
+            services.Configure<AppSecrets>(Configuration.GetSection(nameof(AppSecrets)));
 
             // Configure container
             RegisterServices(services);
