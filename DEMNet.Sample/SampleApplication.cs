@@ -31,25 +31,54 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using DEM.Net.Core.Configuration;
+using Microsoft.Extensions.Hosting;
+using System.Threading;
+using System.Threading.Tasks;
 
 namespace SampleApp
 {
     /// <summary>
     /// Main sample application
     /// </summary>
-    public class SampleApplication
+    public class SampleApplication : IHostedService
     {
         private readonly ILogger<SampleApplication> _logger;
+        private readonly IRasterService rasterService;
+        private readonly DownloaderSample downloaderSample;
+        private readonly STLSamples stLSamples;
+        private readonly ElevationSamples elevationSamples;
+        private readonly GpxSamples gpxSamples;
+        private readonly Gpx3DSamples gpx3DSamples;
+        private readonly DatasetSamples datasetSamples;
+        private readonly TINSamples tinSamples;
+        private readonly glTF3DSamples glTF3DSamples;
         private const string DATA_FILES_PATH = null; //@"C:\Users\ElevationAPI\AppData\Local"; // Leave to null for default location (Environment.SpecialFolder.LocalApplicationData)
-              
 
-
-    public SampleApplication(ILogger<SampleApplication> logger)
+        public SampleApplication(ILogger<SampleApplication> logger,
+            IRasterService rasterService,
+            DownloaderSample downloaderSample,
+            STLSamples stLSamples,
+            ElevationSamples elevationSamples,
+            GpxSamples gpxSamples,
+            Gpx3DSamples gpx3DSamples,
+            DatasetSamples datasetSamples,
+            TINSamples tinSamples,
+            glTF3DSamples glTF3DSamples)
         {
             _logger = logger;
+            this.rasterService = rasterService;
+            this.downloaderSample = downloaderSample;
+            this.stLSamples = stLSamples;
+            this.elevationSamples = elevationSamples;
+            this.gpxSamples = gpxSamples;
+            this.gpx3DSamples = gpx3DSamples;
+            this.datasetSamples = datasetSamples;
+            this.tinSamples = tinSamples;
+            this.glTF3DSamples = glTF3DSamples;
         }
 
-        internal void Run(IServiceProvider serviceProvider)
+
+        public Task StartAsync(CancellationToken cancellationToken)
         {
             //Trace.Listeners.Add(new TextWriterTraceListener(Console.Out));
 
@@ -61,7 +90,7 @@ namespace SampleApp
             // Change data dir if not null
             if (!string.IsNullOrWhiteSpace(DATA_FILES_PATH))
             {
-                serviceProvider.GetRequiredService<IRasterService>().SetLocalDirectory(DATA_FILES_PATH);
+                rasterService.SetLocalDirectory(DATA_FILES_PATH);
             }
 
             //using (_logger.BeginScope($"Running {nameof(DownloaderSample)}.."))
@@ -73,68 +102,74 @@ namespace SampleApp
             //}
             using (_logger.BeginScope($"Running {nameof(ElevationSamples)}.."))
             {
-                var sample = serviceProvider.GetRequiredService<ElevationSamples>();
-                sample.Run();
-                _logger.LogInformation($"Sample {sample.GetType().Name} done. Press any key to run the next sample...");
+                elevationSamples.Run( cancellationToken);
+                _logger.LogInformation($"Sample {elevationSamples.GetType().Name} done. Press any key to run the next sample...");
                 if (pauseAfterEachSample) Console.ReadLine();
+                if (cancellationToken.IsCancellationRequested) return Task.FromCanceled(cancellationToken);
             }
 
             using (_logger.BeginScope($"Running {nameof(GpxSamples)}.."))
             {
-                var sample = serviceProvider.GetRequiredService<GpxSamples>();
-                sample.Run();
-                _logger.LogInformation($"Sample {sample.GetType().Name} done. Press any key to run the next sample...");
+                gpxSamples.Run();
+                _logger.LogInformation($"Sample {gpxSamples.GetType().Name} done. Press any key to run the next sample...");
                 if (pauseAfterEachSample) Console.ReadLine();
+                if (cancellationToken.IsCancellationRequested) return Task.FromCanceled(cancellationToken);
             }
 
             using (_logger.BeginScope($"Running {nameof(DatasetSamples)}.."))
             {
-                var sample = serviceProvider.GetRequiredService<DatasetSamples>();
-                sample.Run();
-                _logger.LogInformation($"Sample {sample.GetType().Name} done. Press any key to run the next sample...");
+                datasetSamples.Run();
+                _logger.LogInformation($"Sample {datasetSamples.GetType().Name} done. Press any key to run the next sample...");
                 if (pauseAfterEachSample) Console.ReadLine();
+                if (cancellationToken.IsCancellationRequested) return Task.FromCanceled(cancellationToken);
             }
             using (_logger.BeginScope($"Running {nameof(glTF3DSamples)}.."))
             {
-                var sample = serviceProvider.GetRequiredService<glTF3DSamples>();
-                sample.Run();
-                _logger.LogInformation($"Sample {sample.GetType().Name} done. Press any key to run the next sample...");
+                glTF3DSamples.Run();
+                _logger.LogInformation($"Sample {glTF3DSamples.GetType().Name} done. Press any key to run the next sample...");
                 if (pauseAfterEachSample) Console.ReadLine();
+                if (cancellationToken.IsCancellationRequested) return Task.FromCanceled(cancellationToken);
             }
             using (_logger.BeginScope($"Running {nameof(Gpx3DSamples)}.."))
             {
-                var sample = serviceProvider.GetRequiredService<Gpx3DSamples>();
-                sample.Run(DEMDataSet.AW3D30, false, true, Reprojection.SRID_PROJECTED_MERCATOR);
-                _logger.LogInformation($"Sample {sample.GetType().Name} done. Press any key to run the next sample...");
+               gpx3DSamples.Run(DEMDataSet.AW3D30, false, true, Reprojection.SRID_PROJECTED_MERCATOR);
+                _logger.LogInformation($"Sample {gpx3DSamples.GetType().Name} done. Press any key to run the next sample...");
                 if (pauseAfterEachSample) Console.ReadLine();
+                if (cancellationToken.IsCancellationRequested) return Task.FromCanceled(cancellationToken);
             }
             using (_logger.BeginScope($"Running {nameof(TINSamples)}.."))
             {
-                var sample = serviceProvider.GetRequiredService<TINSamples>();
-                sample.Run(TINSamples.WKT_STE_VICTOIRE, nameof(TINSamples.WKT_STE_VICTOIRE), DEMDataSet.AW3D30);
-                sample.Run(TINSamples.WKT_EIGER, nameof(TINSamples.WKT_EIGER), DEMDataSet.SRTM_GL3, 25);
-                sample.Run(TINSamples.WKT_GORGES_VERDON, nameof(TINSamples.WKT_GORGES_VERDON), DEMDataSet.AW3D30);
-                _logger.LogInformation($"Sample {sample.GetType().Name} done. Press any key to run the next sample...");
+                tinSamples.Run(TINSamples.WKT_STE_VICTOIRE, nameof(TINSamples.WKT_STE_VICTOIRE), DEMDataSet.AW3D30);
+                tinSamples.Run(TINSamples.WKT_EIGER, nameof(TINSamples.WKT_EIGER), DEMDataSet.SRTM_GL3, 25);
+                tinSamples.Run(TINSamples.WKT_GORGES_VERDON, nameof(TINSamples.WKT_GORGES_VERDON), DEMDataSet.AW3D30);
+                _logger.LogInformation($"Sample {tinSamples.GetType().Name} done. Press any key to run the next sample...");
                 if (pauseAfterEachSample) Console.ReadLine();
+                if (cancellationToken.IsCancellationRequested) return Task.FromCanceled(cancellationToken);
             }
             using (_logger.BeginScope($"Running {nameof(DatasetSamples)}.."))
             {
-                var sample = serviceProvider.GetRequiredService<DatasetSamples>();
-                sample.Run();
-                _logger.LogInformation($"Sample {sample.GetType().Name} done. Press any key to run the next sample...");
+                datasetSamples.Run();
+                _logger.LogInformation($"Sample {datasetSamples.GetType().Name} done. Press any key to run the next sample...");
                 if (pauseAfterEachSample) Console.ReadLine();
+                if (cancellationToken.IsCancellationRequested) return Task.FromCanceled(cancellationToken);
             }
             using (_logger.BeginScope($"Running {nameof(STLSamples)}.."))
             {
-                var sample = serviceProvider.GetRequiredService<STLSamples>();
-                sample.Run();
-                _logger.LogInformation($"Sample {sample.GetType().Name} done. Press any key to run the next sample...");
+                stLSamples.Run();
+                _logger.LogInformation($"Sample {stLSamples.GetType().Name} done. Press any key to run the next sample...");
                 if (pauseAfterEachSample) Console.ReadLine();
+                if (cancellationToken.IsCancellationRequested) return Task.FromCanceled(cancellationToken);
             }
 
             _logger.LogTrace($"Application ran in : {sw.Elapsed:g}");
+
+            return Task.CompletedTask;
         }
 
-
+        public Task StopAsync(CancellationToken cancellationToken)
+        {
+            _logger.LogTrace($"Application stopping...");
+            return Task.CompletedTask;
+        }
     }
 }

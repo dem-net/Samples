@@ -35,6 +35,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 
 namespace SampleApp
@@ -56,7 +57,7 @@ namespace SampleApp
             _glTFService = glTFService;
             _stlService = stlService;
         }
-        public void Run()
+        public void Run(CancellationToken cancellationToken)
         {
             try
             {
@@ -69,9 +70,10 @@ namespace SampleApp
 
                 _logger.LogInformation($"Getting location elevation for each dataset (location lat: {lat1:N2}, lon: {lon1:N2})");
                 Stopwatch sw = new Stopwatch();
-                Parallel.ForEach(DEMDataSet.RegisteredNonSingleFileDatasets, dataSet =>
+                Parallel.ForEach(DEMDataSet.RegisteredNonSingleFileDatasets, (dataSet, loopState) =>
                 //foreach (var dataSet in DEMDataSet.RegisteredNonSingleFileDatasets)
                 {
+                    if (cancellationToken.IsCancellationRequested) loopState.Stop();
                     sw.Restart();
 
                     _elevationService.DownloadMissingFiles(dataSet, lat1, lon1);
@@ -81,7 +83,7 @@ namespace SampleApp
                 }
                 );
 
-
+                if (cancellationToken.IsCancellationRequested) return;
                 _logger.LogInformation("Multiple point elevation");
 
                 sw.Restart();
@@ -89,24 +91,26 @@ namespace SampleApp
                 GeoPoint pt1 = new GeoPoint(lat1, lon1);
                 GeoPoint pt2 = new GeoPoint(lat2, lont2);
                 GeoPoint[] points = { pt1, pt2 };
-                Parallel.ForEach(DEMDataSet.RegisteredNonSingleFileDatasets, dataSet =>
+                Parallel.ForEach(DEMDataSet.RegisteredNonSingleFileDatasets, (dataSet, loopState) =>
                 //foreach (var dataSet in DEMDataSet.RegisteredNonSingleFileDatasets)
                 {
+                    if (cancellationToken.IsCancellationRequested) loopState.Stop();
                     sw.Restart();
                     var geoPoints = _elevationService.GetPointsElevation(points, dataSet);
                     _logger.LogInformation($"{dataSet.Name} elevation: {string.Join(" / ", geoPoints.Select(e => e.Elevation.GetValueOrDefault().ToString("N2")))} (time taken: {sw.Elapsed.TotalMilliseconds:N1}ms)");
                 }
                 );
 
-
+                if (cancellationToken.IsCancellationRequested) return;
                 _logger.LogInformation("Line elevation");
 
                 sw.Restart();
                 // Line passing by mont ventoux peak [5.144899, 44.078873], [5.351516, 44.225876]
                 var elevationLine = GeometryService.ParseGeoPointAsGeometryLine(new GeoPoint(44.078873, 5.144899), new GeoPoint(44.225876, 5.351516));
-                Parallel.ForEach(DEMDataSet.RegisteredNonSingleFileDatasets, dataSet =>
+                Parallel.ForEach(DEMDataSet.RegisteredNonSingleFileDatasets, (dataSet, loopState) =>
                 //foreach (var dataSet in DEMDataSet.RegisteredNonSingleFileDatasets)
                 {
+                    if (cancellationToken.IsCancellationRequested) loopState.Stop();
                     _elevationService.DownloadMissingFiles(dataSet, elevationLine.GetBoundingBox());
                     var geoPoints = _elevationService.GetLineGeometryElevation(elevationLine, dataSet);
                     var metrics = geoPoints.ComputeMetrics();

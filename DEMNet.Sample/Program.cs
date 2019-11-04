@@ -34,6 +34,8 @@ using Microsoft.Extensions.Logging.Debug;
 using Microsoft.Extensions.Logging.Console;
 using Microsoft.Extensions.Configuration;
 using DEM.Net.Core.Configuration;
+using Microsoft.Extensions.Hosting;
+using System.Threading.Tasks;
 
 namespace SampleApp
 {
@@ -47,44 +49,45 @@ namespace SampleApp
     /// </summary>
     class Program
     {
-        public static IConfigurationRoot Configuration { get; set; }
 
-        static void Main(string[] args)
+        static async Task Main(string[] args)
         {
-            var builder = new ConfigurationBuilder()
-           .SetBasePath(Directory.GetCurrentDirectory())
-           .AddJsonFile("secrets.json", optional: false, reloadOnChange: false);
+            var hostBuilder = Host.CreateDefaultBuilder(args)
+                .ConfigureAppConfiguration((context, builder) =>
+                {
+                    builder.SetBasePath(AppContext.BaseDirectory)
+                        .AddJsonFile("appsettings.json", optional: false)
+                        .AddJsonFile($"appsettings.{context.HostingEnvironment.EnvironmentName}.json", optional: true)
+                        .AddJsonFile("secrets.json", optional: false, reloadOnChange: false);
+                })
+                .ConfigureServices((context, builder) =>
+                {
+                    RegisterServices(context.Configuration, builder);
+                });
 
-            Configuration = builder.Build();
+            try
+            {
+                await hostBuilder.RunConsoleAsync();
+            }
+            catch (TaskCanceledException)
+            {
+                Console.Write("End of DEM.Net Samples after cancelation.");
+            }
+            catch (Exception ex)
+            {
+                Console.Write(ex.ToString());
+            }
+            finally
+            {
+                Console.Write("Press any key to contine...");
+                Console.ReadLine();
+            }
+           
 
-            IServiceCollection services = new ServiceCollection();
-
-            // map secrets, then can be injected via IOptions<AppSecrets>
-            services.Configure<AppSecrets>(Configuration.GetSection(nameof(AppSecrets)));
-
-            // Configure container
-            RegisterServices(services);
-
-            // Configure samples
-            RegisterSamples(services);
-
-            ServiceProvider serviceProvider = services.BuildServiceProvider();
-
-            // Get main app
-            var app = serviceProvider.GetService<SampleApplication>();
-
-            // RUN
-            app.Run(serviceProvider);
-
-            System.Threading.Thread.Sleep(100);
-            Console.Write("End of DEM.Net Samples. Press any key to contine...");
-            Console.ReadLine();
         }
 
-        private static void RegisterServices(IServiceCollection services)
+        private static void RegisterServices(IConfiguration config, IServiceCollection services)
         {
-
-            services.AddSingleton<IConfiguration>(Configuration);
             services.AddLogging(config =>
             {
                 config.AddDebug(); // Log to debug (debug window in Visual Studio or any debugger attached)
@@ -102,8 +105,11 @@ namespace SampleApp
                // Comment this line to see all internal DEM.Net logs
                //options.AddFilter<ConsoleLoggerProvider>("DEM.Net", LogLevel.Information);
            })
+           .Configure<AppSecrets>(config.GetSection(nameof(AppSecrets)))
            .AddDemNetCore()
            .AddDemNetglTF();
+
+            RegisterSamples(services);
 
         }
 
@@ -113,8 +119,7 @@ namespace SampleApp
         /// <param name="services"></param>
         private static void RegisterSamples(IServiceCollection services)
         {
-            services.AddTransient<SampleApplication>()
-                    .AddTransient<STLSamples>()
+            services.AddTransient<STLSamples>()
                     .AddTransient<ElevationSamples>()
                     .AddTransient<GpxSamples>()
                     .AddTransient<Gpx3DSamples>()
@@ -122,6 +127,9 @@ namespace SampleApp
                     .AddTransient<TINSamples>()
                     .AddTransient<glTF3DSamples>()
                     .AddTransient<DownloaderSample>();
+
+
+            services.AddHostedService<SampleApplication>();
             // .. more samples here
         }
     }
