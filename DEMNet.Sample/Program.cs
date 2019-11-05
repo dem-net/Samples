@@ -58,7 +58,7 @@ namespace SampleApp
                     builder.SetBasePath(AppContext.BaseDirectory)
                         .AddJsonFile("appsettings.json", optional: false)
                         .AddJsonFile($"appsettings.{context.HostingEnvironment.EnvironmentName}.json", optional: true)
-                        .AddJsonFile("secrets.json", optional: false, reloadOnChange: false);
+                        .AddJsonFile("secrets.json", optional: true, reloadOnChange: false);
                 })
                 .ConfigureServices((context, builder) =>
                 {
@@ -106,6 +106,7 @@ namespace SampleApp
                //options.AddFilter<ConsoleLoggerProvider>("DEM.Net", LogLevel.Information);
            })
            .Configure<AppSecrets>(config.GetSection(nameof(AppSecrets)))
+           .Configure<DEMNetOptions>(config.GetSection(nameof(DEMNetOptions)))
            .AddDemNetCore()
            .AddDemNetglTF();
 
