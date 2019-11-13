@@ -3,16 +3,24 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 16
 VisualStudioVersion = 16.0.28803.156
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DEMNet.Sample", "DEMNet.Sample\DEMNet.Sample.csproj", "{704CAEEC-5880-41D9-9CA4-667C64AA7628}"
-EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Docs", "Docs", "{BC338F65-6837-4911-A970-63F31C5B8F73}"
 	ProjectSection(SolutionItems) = preProject
 		README.md = README.md
 	EndProjectSection
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DEM.Net.Core", "..\..\DEM.Net\DEM.Net.Core\DEM.Net.Core.csproj", "{5986BFCD-E36A-49FC-BFAE-2E04B239052A}"
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Dem.Net submodule", "Dem.Net submodule", "{8CCD6B02-86A2-4704-B1B6-6566864473BE}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DEM.Net.glTF", "..\..\DEM.Net\DEM.Net.glTF\DEM.Net.glTF.csproj", "{4FDE9A95-15EE-41CC-A8CB-710343EA79B7}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DEM.Net.glTF", "DEM.Net\DEM.Net.glTF\DEM.Net.glTF.csproj", "{E8381EFB-9264-40D7-B9B2-3C72F039A1F5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DEM.Net.Core", "DEM.Net\DEM.Net.Core\DEM.Net.Core.csproj", "{A3BB17D5-D793-4977-9907-00E90F4C4C91}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DEMNet.Sample", "DEMNet.Sample\DEMNet.Sample.csproj", "{3E719AA3-6920-4566-AB99-9735D048D042}"
+EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Dem.Net Core", "Dem.Net Core", "{6FD310F1-3AE4-465D-8745-A39615517CC9}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DEM.Net.Core", "..\DEM.Net\DEM.Net.Core\DEM.Net.Core.csproj", "{35DD2E37-42A7-461A-BC07-85EDA4F44698}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DEM.Net.glTF", "..\DEM.Net\DEM.Net.glTF\DEM.Net.glTF.csproj", "{C25BE33E-61AA-46C9-AB48-0108EC784E7E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -20,23 +28,37 @@ Global
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{704CAEEC-5880-41D9-9CA4-667C64AA7628}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{704CAEEC-5880-41D9-9CA4-667C64AA7628}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{704CAEEC-5880-41D9-9CA4-667C64AA7628}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{704CAEEC-5880-41D9-9CA4-667C64AA7628}.Release|Any CPU.Build.0 = Release|Any CPU
-		{5986BFCD-E36A-49FC-BFAE-2E04B239052A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{5986BFCD-E36A-49FC-BFAE-2E04B239052A}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{5986BFCD-E36A-49FC-BFAE-2E04B239052A}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{5986BFCD-E36A-49FC-BFAE-2E04B239052A}.Release|Any CPU.Build.0 = Release|Any CPU
-		{4FDE9A95-15EE-41CC-A8CB-710343EA79B7}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{4FDE9A95-15EE-41CC-A8CB-710343EA79B7}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{4FDE9A95-15EE-41CC-A8CB-710343EA79B7}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{4FDE9A95-15EE-41CC-A8CB-710343EA79B7}.Release|Any CPU.Build.0 = Release|Any CPU
+		{E8381EFB-9264-40D7-B9B2-3C72F039A1F5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{E8381EFB-9264-40D7-B9B2-3C72F039A1F5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{E8381EFB-9264-40D7-B9B2-3C72F039A1F5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{E8381EFB-9264-40D7-B9B2-3C72F039A1F5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A3BB17D5-D793-4977-9907-00E90F4C4C91}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A3BB17D5-D793-4977-9907-00E90F4C4C91}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A3BB17D5-D793-4977-9907-00E90F4C4C91}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A3BB17D5-D793-4977-9907-00E90F4C4C91}.Release|Any CPU.Build.0 = Release|Any CPU
+		{3E719AA3-6920-4566-AB99-9735D048D042}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{3E719AA3-6920-4566-AB99-9735D048D042}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{3E719AA3-6920-4566-AB99-9735D048D042}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{3E719AA3-6920-4566-AB99-9735D048D042}.Release|Any CPU.Build.0 = Release|Any CPU
+		{35DD2E37-42A7-461A-BC07-85EDA4F44698}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{35DD2E37-42A7-461A-BC07-85EDA4F44698}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{35DD2E37-42A7-461A-BC07-85EDA4F44698}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{35DD2E37-42A7-461A-BC07-85EDA4F44698}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C25BE33E-61AA-46C9-AB48-0108EC784E7E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C25BE33E-61AA-46C9-AB48-0108EC784E7E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C25BE33E-61AA-46C9-AB48-0108EC784E7E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C25BE33E-61AA-46C9-AB48-0108EC784E7E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {1661BA82-EB48-448E-9940-DD9FEE6B67F5}
+	EndGlobalSection
+	GlobalSection(NestedProjects) = preSolution
+		{E8381EFB-9264-40D7-B9B2-3C72F039A1F5} = {8CCD6B02-86A2-4704-B1B6-6566864473BE}
+		{A3BB17D5-D793-4977-9907-00E90F4C4C91} = {8CCD6B02-86A2-4704-B1B6-6566864473BE}
+		{35DD2E37-42A7-461A-BC07-85EDA4F44698} = {6FD310F1-3AE4-465D-8745-A39615517CC9}
+		{C25BE33E-61AA-46C9-AB48-0108EC784E7E} = {6FD310F1-3AE4-465D-8745-A39615517CC9}
 	EndGlobalSection
 EndGlobal

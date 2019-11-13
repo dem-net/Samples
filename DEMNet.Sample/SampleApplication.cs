@@ -52,6 +52,7 @@ namespace SampleApp
         private readonly DatasetSamples datasetSamples;
         private readonly TINSamples tinSamples;
         private readonly glTF3DSamples glTF3DSamples;
+        private readonly CustomSamples customSamples;
         private const string DATA_FILES_PATH = null; //@"C:\Users\ElevationAPI\AppData\Local"; // Leave to null for default location (Environment.SpecialFolder.LocalApplicationData)
 
         public SampleApplication(ILogger<SampleApplication> logger,
@@ -63,7 +64,8 @@ namespace SampleApp
             Gpx3DSamples gpx3DSamples,
             DatasetSamples datasetSamples,
             TINSamples tinSamples,
-            glTF3DSamples glTF3DSamples)
+            glTF3DSamples glTF3DSamples,
+            CustomSamples customSamples)
         {
             _logger = logger;
             this.rasterService = rasterService;
@@ -75,6 +77,7 @@ namespace SampleApp
             this.datasetSamples = datasetSamples;
             this.tinSamples = tinSamples;
             this.glTF3DSamples = glTF3DSamples;
+            this.customSamples = customSamples;
         }
 
 
@@ -100,6 +103,13 @@ namespace SampleApp
             //    _logger.LogInformation($"Sample {sample.GetType().Name} done. Press any key to run the next sample...");
             //    if (pauseAfterEachSample) Console.ReadLine();
             //}
+            using (_logger.BeginScope($"Running {nameof(CustomSamples)}.."))
+            {
+                customSamples.Run(cancellationToken);
+                _logger.LogInformation($"Sample {customSamples.GetType().Name} done. Press any key to run the next sample...");
+                if (pauseAfterEachSample) Console.ReadLine();
+                if (cancellationToken.IsCancellationRequested) return Task.FromCanceled(cancellationToken);
+            }
             using (_logger.BeginScope($"Running {nameof(ElevationSamples)}.."))
             {
                 elevationSamples.Run( cancellationToken);

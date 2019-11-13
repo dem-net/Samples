@@ -127,7 +127,8 @@ namespace SampleApp
                     .AddTransient<DatasetSamples>()
                     .AddTransient<TINSamples>()
                     .AddTransient<glTF3DSamples>()
-                    .AddTransient<DownloaderSample>();
+                    .AddTransient<DownloaderSample>()
+                    .AddTransient<CustomSamples>();
 
 
             services.AddHostedService<SampleApplication>();

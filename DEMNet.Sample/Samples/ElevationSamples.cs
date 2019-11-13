@@ -63,8 +63,8 @@ namespace SampleApp
             {
 
 
-                double lat1 = 45.179337;
-                double lon1 = 5.721421;
+                double lat1 = 46.00000000000004;
+                double lon1 = 10.000000000000007;
                 double lat2 = 45.212278;
                 double lont2 = 5.468857;
 
