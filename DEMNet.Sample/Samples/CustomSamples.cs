@@ -46,16 +46,19 @@ namespace SampleApp
         private readonly IElevationService _elevationService;
         private readonly IglTFService _glTFService;
         private readonly ISTLExportService _stlService;
+        private readonly IRasterService _rasterService;
 
         public CustomSamples(ILogger<ElevationSamples> logger
                 , IElevationService elevationService
                 , IglTFService glTFService
-                , ISTLExportService stlService)
+                , ISTLExportService stlService
+                , IRasterService rasterService)
         {
             _logger = logger;
             _elevationService = elevationService;
             _glTFService = glTFService;
             _stlService = stlService;
+            _rasterService = rasterService;
         }
         public void Run(CancellationToken cancellationToken)
         {
@@ -66,9 +69,13 @@ namespace SampleApp
                 double lat = 46.00000000000004;
                 double lon = 10.000000000000007;
 
-                var dataSet = DEMDataSet.SRTM_GL3;
+                var dataSet = DEMDataSet.SRTM_GL1;
 
                 _elevationService.DownloadMissingFiles(dataSet, lat, lon);
+                foreach(var file in _rasterService.GenerateReportForLocation(dataSet, lat, lon))
+                {
+                    _rasterService.GenerateFileMetadata(file.LocalName, dataSet.FileFormat.Format, true);
+                }
                 GeoPoint geoPoint = _elevationService.GetPointElevation(lat, lon, dataSet);
 
                    
