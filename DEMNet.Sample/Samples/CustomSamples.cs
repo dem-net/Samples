@@ -74,7 +74,7 @@ namespace SampleApp
                 _elevationService.DownloadMissingFiles(dataSet, lat, lon);
                 foreach(var file in _rasterService.GenerateReportForLocation(dataSet, lat, lon))
                 {
-                    _rasterService.GenerateFileMetadata(file.LocalName, dataSet.FileFormat.Format, true);
+                    _rasterService.GenerateFileMetadata(file.LocalName, dataSet.FileFormat, true);
                 }
                 GeoPoint geoPoint = _elevationService.GetPointElevation(lat, lon, dataSet);
 
