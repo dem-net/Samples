@@ -69,16 +69,22 @@ namespace SampleApp
                 double lat = 46.00000000000004;
                 double lon = 10.000000000000007;
 
-                var dataSet = DEMDataSet.SRTM_GL1;
-
-                _elevationService.DownloadMissingFiles(dataSet, lat, lon);
-                foreach(var file in _rasterService.GenerateReportForLocation(dataSet, lat, lon))
+                //// Regenerates all metadata
+                //foreach (var dataset in DEMDataSet.RegisteredNonSingleFileDatasets)
+                //{
+                //    _rasterService.GenerateDirectoryMetadata(dataset, true);
+                //}
+                foreach (var dataset in DEMDataSet.RegisteredNonSingleFileDatasets)
                 {
-                    _rasterService.GenerateFileMetadata(file.LocalName, dataSet.FileFormat, true);
-                }
-                GeoPoint geoPoint = _elevationService.GetPointElevation(lat, lon, dataSet);
 
-                   
+                    _elevationService.DownloadMissingFiles(dataset, lat, lon);
+                    foreach (var file in _rasterService.GenerateReportForLocation(dataset, lat, lon))
+                    {
+                        _rasterService.GenerateFileMetadata(file.LocalName, dataset.FileFormat, true);
+                    }
+                    GeoPoint geoPoint = _elevationService.GetPointElevation(lat, lon, dataset);
+                }
+
             }
             catch (Exception ex)
             {
