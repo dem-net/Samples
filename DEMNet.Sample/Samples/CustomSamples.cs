@@ -75,7 +75,7 @@ namespace SampleApp
                 //    _rasterService.GenerateDirectoryMetadata(dataset, true);
                 //}
                 DEMDataSet dataSet = DEMDataSet.SRTM_GL1;
-                //_rasterService.GenerateDirectoryMetadata(dataSet, true);
+                _rasterService.GenerateDirectoryMetadata(dataSet, true, false, 1);
                 //_elevationService.DownloadMissingFiles(dataSet, lat, lon);
                 var tile = _rasterService.GenerateReportForLocation(dataSet, lat, lon);
                 _rasterService.GenerateFileMetadata(tile.LocalName, dataSet.FileFormat, true);
