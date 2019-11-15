@@ -74,14 +74,21 @@ namespace SampleApp
                 //{
                 //    _rasterService.GenerateDirectoryMetadata(dataset, true);
                 //}
+                DEMDataSet dataSet = DEMDataSet.SRTM_GL1;
+                //_rasterService.GenerateDirectoryMetadata(dataSet, true);
+                //_elevationService.DownloadMissingFiles(dataSet, lat, lon);
+                var tile = _rasterService.GenerateReportForLocation(dataSet, lat, lon);
+                _rasterService.GenerateFileMetadata(tile.LocalName, dataSet.FileFormat, true);
+                GeoPoint pt = _elevationService.GetPointElevation(lat, lon, dataSet);
+
                 foreach (var dataset in DEMDataSet.RegisteredNonSingleFileDatasets)
                 {
 
                     _elevationService.DownloadMissingFiles(dataset, lat, lon);
-                    foreach (var file in _rasterService.GenerateReportForLocation(dataset, lat, lon))
-                    {
-                        _rasterService.GenerateFileMetadata(file.LocalName, dataset.FileFormat, true);
-                    }
+                    //foreach (var file in _rasterService.GenerateReportForLocation(dataset, lat, lon))
+                    //{
+                    //    _rasterService.GenerateFileMetadata(file.LocalName, dataset.FileFormat, true);
+                    //}
                     GeoPoint geoPoint = _elevationService.GetPointElevation(lat, lon, dataset);
                 }
 
