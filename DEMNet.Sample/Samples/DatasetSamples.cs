@@ -102,21 +102,24 @@ namespace SampleApp
                     _logger.LogInformation($"{dataset.Name}:");
 
                     var report = _rasterService.GenerateReportForLocation(dataset, geoPoint.Latitude, geoPoint.Longitude);
-                    if (report == null)
+                    if (!report.Any())
                     {
                         _logger.LogInformation($"> Location is not covered by dataset");
                     }
                     else
                     {
-                        _logger.LogInformation($"> Remote file URL: {report.URL}");
+                        foreach (var reportFile in report)
+                        {
+                            _logger.LogInformation($"> Remote file URL: {reportFile.URL}");
 
-                        if (report.IsExistingLocally)
-                        {
-                            _logger.LogInformation($"> Local file: {report.LocalName}");
-                        }
-                        else
-                        {
-                            _logger.LogInformation($"> Local file: <not dowloaded>");
+                            if (reportFile.IsExistingLocally)
+                            {
+                                _logger.LogInformation($"> Local file: {reportFile.LocalName}");
+                            }
+                            else
+                            {
+                                _logger.LogInformation($"> Local file: <not dowloaded>");
+                            }
                         }
 
                     }
