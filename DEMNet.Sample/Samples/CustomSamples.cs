@@ -66,6 +66,7 @@ namespace SampleApp
         {
             try
             {
+                // Sample testing bad calculation on tile edges with tile registration modes (cell/grid)
 
                 double amountx = .00000000000004;
                 double amounty = .000000000000007;
@@ -75,18 +76,14 @@ namespace SampleApp
 
                 LineSample(DEMDataSet.ASTER_GDEMV3, latStart: 45.9993826389, lonStart: 9.9997211693, latEnd: 46.00002905, lonEnd: 10.00063093);
 
-                TestEdges(DEMDataSet.ASTER_GDEMV3, lat, lon, "ASTGTMV003_N45E009_dem.tif", "ASTGTMV003_N45E010_dem.tif", "ASTGTMV003_N46E009_dem.tif", "ASTGTMV003_N46E010_dem.tif"
-                    , fileType: DEMFileType.GEOTIFF, DEMDataSet.ASTER_GDEMV3.PointsPerDegree);
-                TestEdges(DEMDataSet.SRTM_GL3, lat, lon, "N45E009.hgt", "N45E010.hgt", "N46E009.hgt", "N46E010.hgt"
-                    , fileType: DEMFileType.SRTM_HGT, DEMDataSet.SRTM_GL3.PointsPerDegree);
-                TestEdges(DEMDataSet.SRTM_GL1, lat, lon, "N45E009.hgt", "N45E010.hgt", "N46E009.hgt", "N46E010.hgt"
-                    , fileType: DEMFileType.SRTM_HGT, DEMDataSet.SRTM_GL1.PointsPerDegree);
-                TestEdges(DEMDataSet.AW3D30, lat, lon, "N045E009_AVE_DSM.tif", "N045E010_AVE_DSM.tif", "N046E009_AVE_DSM.tif", "N046E010_AVE_DSM.tif"
-                    , fileType: DEMFileType.GEOTIFF, DEMDataSet.AW3D30.PointsPerDegree);
+                TestEdges(DEMDataSet.ASTER_GDEMV3, lat, lon, "ASTGTMV003_N45E009_dem.tif", "ASTGTMV003_N45E010_dem.tif", "ASTGTMV003_N46E009_dem.tif", "ASTGTMV003_N46E010_dem.tif");
+                TestEdges(DEMDataSet.SRTM_GL3, lat, lon, "N45E009.hgt", "N45E010.hgt", "N46E009.hgt", "N46E010.hgt");
+                TestEdges(DEMDataSet.SRTM_GL1, lat, lon, "N45E009.hgt", "N45E010.hgt", "N46E009.hgt", "N46E010.hgt");
+                TestEdges(DEMDataSet.AW3D30, lat, lon, "N045E009_AVE_DSM.tif", "N045E010_AVE_DSM.tif", "N046E009_AVE_DSM.tif", "N046E010_AVE_DSM.tif");
 
 
                 DEMDataSet dataSet = DEMDataSet.SRTM_GL1;
-                _rasterService.GenerateDirectoryMetadata(dataSet, true, false, 1);
+                //_rasterService.GenerateDirectoryMetadata(dataSet, true, false, 1);
                 _elevationService.DownloadMissingFiles(dataSet, lat, lon);
                 var tiles = _rasterService.GenerateReportForLocation(dataSet, lat, lon);
                 Debug.Assert(tiles.Count == 4);
@@ -134,17 +131,18 @@ namespace SampleApp
 
         void TestEdges(DEMDataSet dataSet, double lat, double lon
             , string rasterSouthWestName, string rasterSouthEastName
-            , string rasterNorthWestName, string rasterNorthEastName
-            , DEMFileType fileType, int rasterSize)
+            , string rasterNorthWestName, string rasterNorthEastName)
         {
-            double amountx = (1d / dataSet.PointsPerDegree) / 4d;
-            double amounty = (1d / dataSet.PointsPerDegree) / 4d;
+            DEMFileType fileType = dataSet.FileFormat.Type;
+            int rasterSize = dataSet.PointsPerDegree;
+            double amountx = (1d / rasterSize) / 4d;
+            double amounty = (1d / rasterSize) / 4d;
 
             // Regenerates all metadata            
-            _rasterService.GenerateDirectoryMetadata(dataSet
-                                                    , force: true
-                                                    , deleteOnError: false
-                                                    , maxDegreeOfParallelism: 1);
+            //_rasterService.GenerateDirectoryMetadata(dataSet
+            //                                        , force: true
+            //                                        , deleteOnError: false
+            //                                        , maxDegreeOfParallelism: 1);
             _elevationService.DownloadMissingFiles(dataSet, lat, lon);
             var tiles = _rasterService.GenerateReportForLocation(dataSet, lat, lon);
             Debug.Assert(tiles.Count == 4);

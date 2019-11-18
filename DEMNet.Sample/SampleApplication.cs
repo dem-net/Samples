@@ -103,13 +103,13 @@ namespace SampleApp
             //    _logger.LogInformation($"Sample {sample.GetType().Name} done. Press any key to run the next sample...");
             //    if (pauseAfterEachSample) Console.ReadLine();
             //}
-            using (_logger.BeginScope($"Running {nameof(CustomSamples)}.."))
-            {
-                customSamples.Run(cancellationToken);
-                _logger.LogInformation($"Sample {customSamples.GetType().Name} done. Press any key to run the next sample...");
-                if (pauseAfterEachSample) Console.ReadLine();
-                if (cancellationToken.IsCancellationRequested) return Task.FromCanceled(cancellationToken);
-            }
+            //using (_logger.BeginScope($"Running {nameof(CustomSamples)}.."))
+            //{
+            //    customSamples.Run(cancellationToken);
+            //    _logger.LogInformation($"Sample {customSamples.GetType().Name} done. Press any key to run the next sample...");
+            //    if (pauseAfterEachSample) Console.ReadLine();
+            //    if (cancellationToken.IsCancellationRequested) return Task.FromCanceled(cancellationToken);
+            //}
             using (_logger.BeginScope($"Running {nameof(ElevationSamples)}.."))
             {
                 elevationSamples.Run( cancellationToken);
@@ -153,13 +153,6 @@ namespace SampleApp
                 tinSamples.Run(TINSamples.WKT_EIGER, nameof(TINSamples.WKT_EIGER), DEMDataSet.SRTM_GL3, 25);
                 tinSamples.Run(TINSamples.WKT_GORGES_VERDON, nameof(TINSamples.WKT_GORGES_VERDON), DEMDataSet.AW3D30);
                 _logger.LogInformation($"Sample {tinSamples.GetType().Name} done. Press any key to run the next sample...");
-                if (pauseAfterEachSample) Console.ReadLine();
-                if (cancellationToken.IsCancellationRequested) return Task.FromCanceled(cancellationToken);
-            }
-            using (_logger.BeginScope($"Running {nameof(DatasetSamples)}.."))
-            {
-                datasetSamples.Run();
-                _logger.LogInformation($"Sample {datasetSamples.GetType().Name} done. Press any key to run the next sample...");
                 if (pauseAfterEachSample) Console.ReadLine();
                 if (cancellationToken.IsCancellationRequested) return Task.FromCanceled(cancellationToken);
             }
