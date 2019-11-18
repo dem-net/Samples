@@ -65,13 +65,13 @@ namespace SampleApp
     /// - Get report of local files
     /// - Get remote raster file information for location
     /// </summary>
-    public class DatasetSamples 
+    public class DatasetSamples
     {
         private readonly ILogger<DatasetSamples> _logger;
         private readonly IRasterService _rasterService;
 
         public DatasetSamples(ILogger<DatasetSamples> logger
-                , IRasterService rasterService) 
+                , IRasterService rasterService)
         {
             _logger = logger;
             _rasterService = rasterService;
@@ -101,22 +101,27 @@ namespace SampleApp
                 {
                     _logger.LogInformation($"{dataset.Name}:");
 
-                    DemFileReport report = _rasterService.GenerateReportForLocation(dataset, geoPoint.Latitude, geoPoint.Longitude);
-                    if (report == null)
+                    var report = _rasterService.GenerateReportForLocation(dataset, geoPoint.Latitude, geoPoint.Longitude);
+                    if (!report.Any())
                     {
                         _logger.LogInformation($"> Location is not covered by dataset");
                     }
-                     else
-                    { 
-                        _logger.LogInformation($"> Remote file URL: {report.URL}");
+                    else
+                    {
+                        foreach (var reportFile in report)
+                        {
+                            _logger.LogInformation($"> Remote file URL: {reportFile.URL}");
 
-                        if (report.IsExistingLocally)
-                        {
-                            _logger.LogInformation($"> Local file: {report.LocalName}");
-                        } else
-                        {
-                            _logger.LogInformation($"> Local file: <not dowloaded>");
+                            if (reportFile.IsExistingLocally)
+                            {
+                                _logger.LogInformation($"> Local file: {reportFile.LocalName}");
+                            }
+                            else
+                            {
+                                _logger.LogInformation($"> Local file: <not dowloaded>");
+                            }
                         }
+
                     }
                 }
             }
@@ -126,7 +131,7 @@ namespace SampleApp
             }
         }
 
-       
+
 
 
     }
