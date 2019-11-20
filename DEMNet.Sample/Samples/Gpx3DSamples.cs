@@ -70,14 +70,13 @@ namespace SampleApp
         {
             try
             {
-
-
                 string _gpxFile = Path.Combine("SampleData", "BikeRide.gpx");
                 bool withTexture = true;
                 float Z_FACTOR = 2f;
                 float Z_TRANSLATE_GPX_TRACK_METERS = 5;
                 float trailWidthMeters = 5f;
                 int skipGpxPointsEvery = 1;
+                ImageryProvider provider = new TileDebugProvider(maxDegreeOfParallelism: 1);//  ImageryProvider.MapBoxSatellite;
 
                 List<MeshPrimitive> meshes = new List<MeshPrimitive>();
                 string outputDir = Path.GetFullPath(".");
@@ -114,7 +113,7 @@ namespace SampleApp
 
 
                     Console.WriteLine("Download image tiles...");
-                    TileRange tiles = _imageryService.DownloadTiles(bbox, ImageryProvider.MapBoxSatellite, 8);
+                    TileRange tiles = _imageryService.DownloadTiles(bbox, provider, 8);
                     string fileName = Path.Combine(outputDir, "Texture.jpg");
 
                     Console.WriteLine("Construct texture...");
