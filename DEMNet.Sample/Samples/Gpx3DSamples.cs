@@ -94,7 +94,7 @@ namespace SampleApp
                 // DEBUG
                 points = GenerateDebugTrailPointsGenerateDebugTrailPoints(4.98, 5.02, 44.98, 45.02, 0.001);
                 //points = GenerateDebugTrailPointsGenerateDebugTrailPoints(5.10, 5.50, 43.10, 43.50, 0.01);
-                bbox = points.GetBoundingBox();
+                bbox = points.GetBoundingBox().Scale(1.01,1.01);
                 var gpxPointsElevated = _elevationService.GetPointsElevation(points, dataSet);
 
                 //
@@ -176,7 +176,7 @@ namespace SampleApp
                                                             .ZScale(Z_FACTOR);
 
 
-                    MeshPrimitive gpxLine = _glTFService.GenerateLine(gpxPointsElevated, new Vector4(1, 0, 0, 0.5f), trailWidthMeters);
+                    MeshPrimitive gpxLine = _glTFService.GenerateLine(gpxPointsElevated, new Vector4(0, 1, 0, 0.5f), trailWidthMeters);
                     meshes.Add(gpxLine);
                 }
 
