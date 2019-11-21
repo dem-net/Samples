@@ -79,6 +79,7 @@ namespace SampleApp
                 float Z_TRANSLATE_GPX_TRACK_METERS = 5;
                 float trailWidthMeters = 5f;
                 int skipGpxPointsEvery = 1;
+                ImageryProvider imageryProvider = new TileDebugProvider();// ImageryProvider.MapBoxSatellite;
 
                 List<MeshPrimitive> meshes = new List<MeshPrimitive>();
                 string outputDir = Path.GetFullPath(".");
@@ -91,7 +92,8 @@ namespace SampleApp
                 var points = segments.SelectMany(seg => seg);
                 var bbox = points.GetBoundingBox().Scale(1.3, 1.3);
                 // DEBUG
-                points = GenerateDebugTrailPointsGenerateDebugTrailPoints(5.50,5.52,43.30,43.32,0.001);
+                points = GenerateDebugTrailPointsGenerateDebugTrailPoints(4.98, 5.02, 44.98, 45.02, 0.001);
+                //points = GenerateDebugTrailPointsGenerateDebugTrailPoints(5.10, 5.50, 43.10, 43.50, 0.01);
                 bbox = points.GetBoundingBox();
                 var gpxPointsElevated = _elevationService.GetPointsElevation(points, dataSet);
 
@@ -103,7 +105,7 @@ namespace SampleApp
                 ///
                 HeightMap hMap = _elevationService.GetHeightMap(bbox, dataSet);
 
-               
+
                 hMap = hMap.ReprojectTo(4326, outputSrid).CenterOnOrigin().ZScale(Z_FACTOR).BakeCoordinates();
                 //
                 //=======================
@@ -117,7 +119,7 @@ namespace SampleApp
 
 
                     Console.WriteLine("Download image tiles...");
-                    TileRange tiles = _imageryService.DownloadTiles(bbox, ImageryProvider.MapBoxSatellite, 8);
+                    TileRange tiles = _imageryService.DownloadTiles(bbox, imageryProvider, 8);
                     string fileName = Path.Combine(outputDir, "Texture.jpg");
 
                     Console.WriteLine("Construct texture...");
@@ -191,12 +193,26 @@ namespace SampleApp
 
         private IEnumerable<GeoPoint> GenerateDebugTrailPointsGenerateDebugTrailPoints(double xmin, double xmax, double ymin, double ymax, double step)
         {
-            for (double x = xmin; x <= xmax; x += step)
+            int xSign = 1;
+            for (double y = ymax; y >= ymin; y -= step)
             {
-                for (double y = ymax; y >= ymin; y -= step)
+                if (xSign == 1)
                 {
-                    yield return new GeoPoint(y, x);
-                } 
+                    for (double x = xmin; x <= xmax; x += step)
+                    {
+                        yield return new GeoPoint(y, x);
+                    }
+                    xSign = -xSign;
+                }
+                else
+                {
+                    for (double x = xmax; x >= xmin; x -= step)
+                    {
+                        yield return new GeoPoint(y, x);
+                    }
+                    xSign = -xSign;
+                }
+
             }
         }
     }
