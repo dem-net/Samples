@@ -38,6 +38,7 @@ using System.Linq;
 using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
+using DEM.Net.Core.Gpx;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Configuration;
 
@@ -89,7 +90,9 @@ namespace SampleApp
                 var segments = GpxImport.ReadGPX_Segments(_gpxFile);
                 var points = segments.SelectMany(seg => seg);
                 var bbox = points.GetBoundingBox().Scale(1.3, 1.3);
-
+                // DEBUG
+                points = GenerateDebugTrailPointsGenerateDebugTrailPoints(5.50,5.52,43.30,43.32,0.001);
+                bbox = points.GetBoundingBox();
                 var gpxPointsElevated = _elevationService.GetPointsElevation(points, dataSet);
 
                 //
@@ -186,6 +189,16 @@ namespace SampleApp
             }
         }
 
+        private IEnumerable<GeoPoint> GenerateDebugTrailPointsGenerateDebugTrailPoints(double xmin, double xmax, double ymin, double ymax, double step)
+        {
+            for (double x = xmin; x <= xmax; x += step)
+            {
+                for (double y = ymax; y >= ymin; y -= step)
+                {
+                    yield return new GeoPoint(y, x);
+                } 
+            }
+        }
     }
 
 }
