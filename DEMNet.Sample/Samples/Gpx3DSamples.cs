@@ -72,15 +72,13 @@ namespace SampleApp
         {
             try
             {
-
-
-                string _gpxFile = Path.Combine("SampleData", "trail.gpx");
+                string _gpxFile = Path.Combine("SampleData", "BikeRide.gpx");
                 bool withTexture = true;
-                float Z_FACTOR = 2f;
+                float Z_FACTOR = 4f;
                 float Z_TRANSLATE_GPX_TRACK_METERS = 5;
                 float trailWidthMeters = 5f;
                 int skipGpxPointsEvery = 1;
-                ImageryProvider imageryProvider = new TileDebugProvider(new GeoPoint(43.5, 5.5));
+                ImageryProvider imageryProvider = ImageryProvider.MapBoxSatelliteStreet;// new TileDebugProvider(new GeoPoint(43.5, 5.5));
 
                 List<MeshPrimitive> meshes = new List<MeshPrimitive>();
                 string outputDir = Path.GetFullPath(".");
@@ -97,11 +95,11 @@ namespace SampleApp
                 // 303     307     308
                 // 309    *315*    317
                 // 314     321     324
-                // points = GenerateDebugTrailPointsGenerateDebugTrailPoints(5.003, 5.006, 43.995, 43.997, 0.0001, 0.001);
+                //points = GenerateDebugTrailPointsGenerateDebugTrailPoints(5.003, 5.006, 43.995, 43.997, 0.0001, 0.001);
                 //points = GenerateDebugTrailPointsGenerateDebugTrailPoints(5.4990, 5.501, 43.4990, 43.501, 0.0001, 0.001);
-                points = GenerateDebugTrailPointsGenerateDebugTrailPoints(5.49, 5.51, 43.49, 43.51, 0.001, 0.01);
-                bbox = points.GetBoundingBox();//.Scale(1,1);
-                var gpxPointsElevated = _elevationService.GetPointsElevation(points, dataSet);
+                //points = GenerateDebugTrailPointsGenerateDebugTrailPoints(5.49, 5.51, 43.49, 43.51, 0.0005, 0.001);
+                //bbox = points.GetBoundingBox().Scale(1.3,1.3);
+                IEnumerable<GeoPoint> gpxPointsElevated = _elevationService.GetPointsElevation(points, dataSet);
 
 
                 //
@@ -113,35 +111,17 @@ namespace SampleApp
                 HeightMap hMap = _elevationService.GetHeightMap(bbox, dataSet);
                 bbox = hMap.BoundingBox;
                 
-                var refPoint = new GeoPoint(43.5, 5.5);
-                hMap = hMap.BakeCoordinates();
-                var hMapRefPoint = hMap.Coordinates.OrderBy(c => c.DistanceSquaredTo(refPoint)).First();
-                hMapRefPoint.Elevation += 60;
-                //points =GenerateDebugTrailPointsGenerateDebugTrailPoints(hMap.BoundingBox.xMin, hMap.BoundingBox.xMax, hMap.BoundingBox.yMin, hMap.BoundingBox.yMax, 1d/dataSet.PointsPerDegree, 1d/dataSet.PointsPerDegree); 
-                //gpxPointsElevated = _elevationService.GetPointsElevation(points, dataSet);
-                /*var gpx = gpxPointsElevated.ToList();
-                var dem = hMap.Coordinates.ToList();
-                List<(double elevDiff, double distDiff, GeoPoint gpxRefPoint, GeoPoint demRefPoint)> result = new List<(double, double, GeoPoint,GeoPoint)>(gpx.Count);
-                foreach (var gpxPoint in gpx)
-                {
-                    var closestDem = dem.OrderBy(p => p.DistanceSquaredTo(gpxPoint)).First();
-                    result.Add( (gpxPoint.Elevation.GetValueOrDefault(0)-closestDem.Elevation.GetValueOrDefault(0)
-                                ,gpxPoint.DistanceTo(closestDem),gpxPoint,closestDem));
-                }
-
-//                var crazys = result.Where(r => r.elevDiff > 8).ToList();
-//                var crazy = crazys.First();
-//                var crazyGpxElevation = _elevationService.GetPointElevation(crazy.gpxRefPoint.Latitude, crazy.gpxRefPoint.Longitude, dataSet);
-//                var crazyDemElevation = _elevationService.GetPointElevation(crazy.demRefPoint.Latitude, crazy.demRefPoint.Longitude, dataSet);
-
-                var maxElevDiff = result.Max(r => r.elevDiff);
-                Console.WriteLine($"Max elevDiff {maxElevDiff.ToString(CultureInfo.InvariantCulture)}");
+//                var refPoint = new GeoPoint(43.5, 5.5);
+//                hMap = hMap.BakeCoordinates();
+//                var hMapRefPoint = hMap.Coordinates.OrderBy(c => c.DistanceSquaredTo(refPoint)).First();
+//                var gpxRefPoint = gpxPointsElevated.OrderBy(c => c.DistanceSquaredTo(refPoint)).First();
+//                hMapRefPoint.Elevation += 60;
+//                gpxRefPoint.Elevation += 60;
                 
-
-                var refPoint = new GeoPoint(43.5, 5.5);
-                var testCoords = hMap.Coordinates.OrderBy(c => c.DistanceSquaredTo(refPoint)).Take(10).ToList();
-                Console.WriteLine($"Coord : {testCoords.First()}");*/
-                hMap = hMap.ReprojectTo(4326, outputSrid).CenterOnOrigin().ZScale(Z_FACTOR).BakeCoordinates();
+                hMap = hMap.ReprojectTo(4326, outputSrid)
+                    //.CenterOnOrigin()
+                    .ZScale(Z_FACTOR)
+                    .BakeCoordinates();
                 //
                 //=======================
 
@@ -158,7 +138,7 @@ namespace SampleApp
                     string fileName = Path.Combine(outputDir, "Texture.jpg");
 
                     Console.WriteLine("Construct texture...");
-                    TextureInfo texInfo = _imageryService.ConstructTextureWithGpxTrack(tiles, bbox, fileName, TextureImageFormat.image_jpeg, gpxPointsElevated);
+                    TextureInfo texInfo = _imageryService.ConstructTextureWithGpxTrack(tiles, bbox, fileName, TextureImageFormat.image_jpeg, gpxPointsElevated, false);
 
                     //
                     //=======================
@@ -206,8 +186,8 @@ namespace SampleApp
                     gpxPointsElevated = gpxPointsElevated.Where((x, i) => (i + 1) % skipGpxPointsEvery == 0);
                     gpxPointsElevated = gpxPointsElevated.ZTranslate(Z_TRANSLATE_GPX_TRACK_METERS)
                                                             .ReprojectTo(4326, outputSrid)
-                                                            .CenterOnOrigin()
-                                                            .CenterOnOrigin(hMap.BoundingBox)
+                                                            //.CenterOnOrigin()
+                                                            //.CenterOnOrigin(hMap.BoundingBox)
                                                             .ZScale(Z_FACTOR);
 
 
