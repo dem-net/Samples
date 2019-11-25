@@ -33,11 +33,13 @@ using DEM.Net.Core.Services.Lab;
 using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
+using DEM.Net.Core.Gpx;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Configuration;
 
@@ -72,10 +74,11 @@ namespace SampleApp
             {
                 string _gpxFile = Path.Combine("SampleData", "BikeRide.gpx");
                 bool withTexture = true;
-                float Z_FACTOR = 2f;
+                float Z_FACTOR = 4f;
                 float Z_TRANSLATE_GPX_TRACK_METERS = 5;
                 float trailWidthMeters = 5f;
                 int skipGpxPointsEvery = 1;
+              
                 ImageryProvider provider = new TileDebugProvider(maxDegreeOfParallelism: 1);//  ImageryProvider.MapBoxSatellite;
 
                 List<MeshPrimitive> meshes = new List<MeshPrimitive>();
@@ -88,8 +91,17 @@ namespace SampleApp
                 var segments = GpxImport.ReadGPX_Segments(_gpxFile);
                 var points = segments.SelectMany(seg => seg);
                 var bbox = points.GetBoundingBox().Scale(1.3, 1.3);
+                // DEBUG
+                // Test case : ASTER GDEMv3 : 5.5 43.5 Z=315
+                // 303     307     308
+                // 309    *315*    317
+                // 314     321     324
+                //points = GenerateDebugTrailPointsGenerateDebugTrailPoints(5.003, 5.006, 43.995, 43.997, 0.0001, 0.001);
+                //points = GenerateDebugTrailPointsGenerateDebugTrailPoints(5.4990, 5.501, 43.4990, 43.501, 0.0001, 0.001);
+                //points = GenerateDebugTrailPointsGenerateDebugTrailPoints(5.49, 5.51, 43.49, 43.51, 0.0005, 0.001);
+                //bbox = points.GetBoundingBox().Scale(1.3,1.3);
+                IEnumerable<GeoPoint> gpxPointsElevated = _elevationService.GetPointsElevation(points, dataSet);
 
-                var gpxPointsElevated = _elevationService.GetPointsElevation(points, dataSet);
 
                 //
                 //=======================
@@ -98,9 +110,19 @@ namespace SampleApp
                 /// Height map (get dem elevation for bbox)
                 ///
                 HeightMap hMap = _elevationService.GetHeightMap(bbox, dataSet);
-
-               
-                hMap = hMap.ReprojectTo(4326, outputSrid).CenterOnOrigin().ZScale(Z_FACTOR).BakeCoordinates();
+                bbox = hMap.BoundingBox;
+                
+//                var refPoint = new GeoPoint(43.5, 5.5);
+//                hMap = hMap.BakeCoordinates();
+//                var hMapRefPoint = hMap.Coordinates.OrderBy(c => c.DistanceSquaredTo(refPoint)).First();
+//                var gpxRefPoint = gpxPointsElevated.OrderBy(c => c.DistanceSquaredTo(refPoint)).First();
+//                hMapRefPoint.Elevation += 60;
+//                gpxRefPoint.Elevation += 60;
+                
+                hMap = hMap.ReprojectTo(4326, outputSrid)
+                    //.CenterOnOrigin()
+                    .ZScale(Z_FACTOR)
+                    .BakeCoordinates();
                 //
                 //=======================
 
@@ -117,7 +139,7 @@ namespace SampleApp
                     string fileName = Path.Combine(outputDir, "Texture.jpg");
 
                     Console.WriteLine("Construct texture...");
-                    TextureInfo texInfo = _imageryService.ConstructTextureWithGpxTrack(tiles, bbox, fileName, TextureImageFormat.image_jpeg, gpxPointsElevated);
+                    TextureInfo texInfo = _imageryService.ConstructTextureWithGpxTrack(tiles, bbox, fileName, TextureImageFormat.image_jpeg, gpxPointsElevated, false);
 
                     //
                     //=======================
@@ -165,19 +187,19 @@ namespace SampleApp
                     gpxPointsElevated = gpxPointsElevated.Where((x, i) => (i + 1) % skipGpxPointsEvery == 0);
                     gpxPointsElevated = gpxPointsElevated.ZTranslate(Z_TRANSLATE_GPX_TRACK_METERS)
                                                             .ReprojectTo(4326, outputSrid)
-                                                            .CenterOnOrigin()
-                                                            .CenterOnOrigin(hMap.BoundingBox)
+                                                            //.CenterOnOrigin()
+                                                            //.CenterOnOrigin(hMap.BoundingBox)
                                                             .ZScale(Z_FACTOR);
 
 
-                    MeshPrimitive gpxLine = _glTFService.GenerateLine(gpxPointsElevated, new Vector4(1, 0, 0, 0.5f), trailWidthMeters);
+                    MeshPrimitive gpxLine = _glTFService.GenerateLine(gpxPointsElevated, new Vector4(0, 1, 0, 0.5f), trailWidthMeters);
                     meshes.Add(gpxLine);
                 }
 
                 // model export
                 Console.WriteLine("GenerateModel...");
                 Model model = _glTFService.GenerateModel(meshes, this.GetType().Name);
-                _glTFService.Export(model, ".", $"{GetType().Name} TIN{generateTIN} Srid{outputSrid}", false, true);
+                _glTFService.Export(model, ".", $"{GetType().Name} dst{dataSet.Name} TIN{generateTIN} Srid{outputSrid}", false, true);
             }
             catch (Exception ex)
             {
@@ -185,6 +207,30 @@ namespace SampleApp
             }
         }
 
+        private IEnumerable<GeoPoint> GenerateDebugTrailPointsGenerateDebugTrailPoints(double xmin, double xmax, double ymin, double ymax, double stepX, double stepY)
+        {
+            int xSign = 1;
+            for (double y = ymax; y >= ymin; y -= stepY)
+            {
+                if (xSign == 1)
+                {
+                    for (double x = xmin; x <= xmax; x += stepX)
+                    {
+                        yield return new GeoPoint(y, x);
+                    }
+                    xSign = -xSign;
+                }
+                else
+                {
+                    for (double x = xmax; x >= xmin; x -= stepX)
+                    {
+                        yield return new GeoPoint(y, x);
+                    }
+                    xSign = -xSign;
+                }
+
+            }
+        }
     }
 
 }
