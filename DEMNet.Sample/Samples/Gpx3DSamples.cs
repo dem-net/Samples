@@ -78,7 +78,8 @@ namespace SampleApp
                 float Z_TRANSLATE_GPX_TRACK_METERS = 5;
                 float trailWidthMeters = 5f;
                 int skipGpxPointsEvery = 1;
-                ImageryProvider imageryProvider = ImageryProvider.MapBoxSatelliteStreet;// new TileDebugProvider(new GeoPoint(43.5, 5.5));
+              
+                ImageryProvider provider = new TileDebugProvider(maxDegreeOfParallelism: 1);//  ImageryProvider.MapBoxSatellite;
 
                 List<MeshPrimitive> meshes = new List<MeshPrimitive>();
                 string outputDir = Path.GetFullPath(".");
@@ -134,7 +135,7 @@ namespace SampleApp
 
 
                     Console.WriteLine("Download image tiles...");
-                    TileRange tiles = _imageryService.DownloadTiles(bbox, imageryProvider, 8);
+                    TileRange tiles = _imageryService.DownloadTiles(bbox, provider, 8);
                     string fileName = Path.Combine(outputDir, "Texture.jpg");
 
                     Console.WriteLine("Construct texture...");
