@@ -26,22 +26,15 @@
 
 using AssetGenerator;
 using AssetGenerator.Runtime;
-using DEM.Net.glTF;
 using DEM.Net.Core;
 using DEM.Net.Core.Imagery;
-using DEM.Net.Core.Services.Lab;
-using Microsoft.Extensions.DependencyInjection;
+using DEM.Net.glTF;
+using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Numerics;
-using System.Text;
-using System.Threading.Tasks;
-using DEM.Net.Core.Gpx;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Configuration;
 
 namespace SampleApp
 {
@@ -78,8 +71,8 @@ namespace SampleApp
                 float Z_TRANSLATE_GPX_TRACK_METERS = 5;
                 float trailWidthMeters = 5f;
                 int skipGpxPointsEvery = 1;
-              
-                ImageryProvider provider = new TileDebugProvider(maxDegreeOfParallelism: 1);//  ImageryProvider.MapBoxSatellite;
+
+                ImageryProvider provider = ImageryProvider.MapBoxSatellite; // new TileDebugProvider(null, maxDegreeOfParallelism: 1);//  ImageryProvider.MapBoxSatellite;
 
                 List<MeshPrimitive> meshes = new List<MeshPrimitive>();
                 string outputDir = Path.GetFullPath(".");
@@ -135,7 +128,7 @@ namespace SampleApp
 
 
                     Console.WriteLine("Download image tiles...");
-                    TileRange tiles = _imageryService.DownloadTiles(bbox, provider, 8);
+                    TileRange tiles = _imageryService.DownloadTiles(bbox, provider, 4);
                     string fileName = Path.Combine(outputDir, "Texture.jpg");
 
                     Console.WriteLine("Construct texture...");
@@ -199,7 +192,7 @@ namespace SampleApp
                 // model export
                 Console.WriteLine("GenerateModel...");
                 Model model = _glTFService.GenerateModel(meshes, this.GetType().Name);
-                _glTFService.Export(model, ".", $"{GetType().Name} dst{dataSet.Name} TIN{generateTIN} Srid{outputSrid}", false, true);
+                _glTFService.Export(model, ".", $"{GetType().Name} dst{dataSet.Name} TIN{generateTIN} Srid{outputSrid}", true, true);
             }
             catch (Exception ex)
             {

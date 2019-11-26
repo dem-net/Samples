@@ -53,6 +53,7 @@ namespace SampleApp
         private readonly TINSamples tinSamples;
         private readonly glTF3DSamples glTF3DSamples;
         private readonly CustomSamples customSamples;
+        private readonly AerialGpxSample aerialGpxSample;
         private const string DATA_FILES_PATH = null; //@"C:\Users\ElevationAPI\AppData\Local"; // Leave to null for default location (Environment.SpecialFolder.LocalApplicationData)
 
         public SampleApplication(ILogger<SampleApplication> logger,
@@ -65,7 +66,8 @@ namespace SampleApp
             DatasetSamples datasetSamples,
             TINSamples tinSamples,
             glTF3DSamples glTF3DSamples,
-            CustomSamples customSamples)
+            CustomSamples customSamples,
+            AerialGpxSample aerialGpxSample)
         {
             _logger = logger;
             this.rasterService = rasterService;
@@ -78,6 +80,7 @@ namespace SampleApp
             this.tinSamples = tinSamples;
             this.glTF3DSamples = glTF3DSamples;
             this.customSamples = customSamples;
+            this.aerialGpxSample = aerialGpxSample;
         }
 
 
@@ -95,12 +98,22 @@ namespace SampleApp
             {
                 rasterService.SetLocalDirectory(DATA_FILES_PATH);
             }
+            using (_logger.BeginScope($"Running {nameof(AerialGpxSample)}.."))
+            {
+                aerialGpxSample.Run(DEMDataSet.ASTER_GDEMV3);
+                //gpx3DSamples.Run(DEMDataSet.SRTM_GL1, true, false, Reprojection.SRID_PROJECTED_MERCATOR);
+                //gpx3DSamples.Run(DEMDataSet.SRTM_GL3, true, false, Reprojection.SRID_PROJECTED_MERCATOR);
+                //gpx3DSamples.Run(DEMDataSet.ASTER_GDEMV3, true, false, Reprojection.SRID_PROJECTED_MERCATOR);
+                _logger.LogInformation($"Sample {gpx3DSamples.GetType().Name} done. Press any key to run the next sample...");
+                if (pauseAfterEachSample) Console.ReadLine();
+                if (cancellationToken.IsCancellationRequested) return Task.FromCanceled(cancellationToken);
+            }
             using (_logger.BeginScope($"Running {nameof(Gpx3DSamples)}.."))
             {
-                gpx3DSamples.Run(DEMDataSet.AW3D30, true, false, Reprojection.SRID_PROJECTED_MERCATOR);
-                gpx3DSamples.Run(DEMDataSet.SRTM_GL1, true, false, Reprojection.SRID_PROJECTED_MERCATOR);
-                gpx3DSamples.Run(DEMDataSet.SRTM_GL3, true, false, Reprojection.SRID_PROJECTED_MERCATOR);
                 gpx3DSamples.Run(DEMDataSet.ASTER_GDEMV3, true, false, Reprojection.SRID_PROJECTED_MERCATOR);
+                //gpx3DSamples.Run(DEMDataSet.SRTM_GL1, true, false, Reprojection.SRID_PROJECTED_MERCATOR);
+                //gpx3DSamples.Run(DEMDataSet.SRTM_GL3, true, false, Reprojection.SRID_PROJECTED_MERCATOR);
+                //gpx3DSamples.Run(DEMDataSet.ASTER_GDEMV3, true, false, Reprojection.SRID_PROJECTED_MERCATOR);
                 _logger.LogInformation($"Sample {gpx3DSamples.GetType().Name} done. Press any key to run the next sample...");
                 if (pauseAfterEachSample) Console.ReadLine();
                 if (cancellationToken.IsCancellationRequested) return Task.FromCanceled(cancellationToken);
