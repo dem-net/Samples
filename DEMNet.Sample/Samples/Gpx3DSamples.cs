@@ -128,7 +128,7 @@ namespace SampleApp
 
 
                     Console.WriteLine("Download image tiles...");
-                    TileRange tiles = _imageryService.DownloadTiles(bbox, provider, 4);
+                    TileRange tiles = _imageryService.DownloadTiles(bbox, provider, 8);
                     string fileName = Path.Combine(outputDir, "Texture.jpg");
 
                     Console.WriteLine("Construct texture...");

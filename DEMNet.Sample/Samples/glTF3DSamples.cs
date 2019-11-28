@@ -31,6 +31,8 @@ using Microsoft.Extensions.Logging;
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
+using DEM.Net.Core.Imagery;
 
 namespace SampleApp
 {
@@ -42,53 +44,98 @@ namespace SampleApp
         private readonly ILogger<glTF3DSamples> _logger;
         private readonly IElevationService _elevationService;
         private readonly IglTFService _glTFService;
+        private readonly IImageryService _imageryService;
+
 
         public glTF3DSamples(ILogger<glTF3DSamples> logger
                 , IElevationService elevationService
-                , IglTFService glTFService)
+                , IglTFService glTFService
+                , IImageryService imageryService)
         {
             _logger = logger;
             _elevationService = elevationService;
             _glTFService = glTFService;
+            _imageryService = imageryService;
         }
-        public void Run()
+        public void Run(DEMDataSet dataset, bool withTexture = true)
         {
             try
             {
 
 
-                DEMDataSet dataset = DEMDataSet.AW3D30;
                 Stopwatch sw = Stopwatch.StartNew();
                 string modelName = $"Montagne Sainte Victoire {dataset.Name}";
+                string outputDir = Directory.GetCurrentDirectory();
+                
+                ImageryProvider provider = ImageryProvider.MapBoxSatelliteStreet;// new TileDebugProvider(new GeoPoint(43.5,5.5));
 
                 // You can get your boox from https://geojson.net/ (save as WKT)
-                string bboxWKT = "POLYGON((5.54888 43.519525, 5.61209 43.519525, 5.61209 43.565225, 5.54888 43.565225, 5.54888 43.519525))";
+                //string bboxWKT = "POLYGON((5.54888 43.519525, 5.61209 43.519525, 5.61209 43.565225, 5.54888 43.565225, 5.54888 43.519525))";
+//                string bboxWKT =
+//                    "POLYGON((5.594457381483949 43.545276557046044,5.652135604140199 43.545276557046044,5.652135604140199 43.52038635099936,5.594457381483949 43.52038635099936,5.594457381483949 43.545276557046044))";
+//                _logger.LogInformation($"Processing model {modelName}...");
+//
+//
+//                _logger.LogInformation($"Getting bounding box geometry...");
+//                var bbox = GeometryService.GetBoundingBox(bboxWKT);
 
-                _logger.LogInformation($"Processing model {modelName}...");
-
-
-                _logger.LogInformation($"Getting bounding box geometry...");
-                var bbox = GeometryService.GetBoundingBox(bboxWKT);
-
+                var bbox = new BoundingBox(5.5613898348431485,5.597185285307553,43.49372969433046,43.50939068558466);
                 _logger.LogInformation($"Getting height map data...");
                 var heightMap = _elevationService.GetHeightMap(bbox, dataset);
-
+               bbox = heightMap.BoundingBox;
+                
+//                var refPoint = new GeoPoint(43.5, 5.5);
+//                heightMap = heightMap.BakeCoordinates();
+//                var hMapRefPoint = heightMap.Coordinates.OrderBy(c => c.DistanceSquaredTo(refPoint)).First();
+//                hMapRefPoint.Elevation += 100;
+                
                 _logger.LogInformation($"Processing height map data ({heightMap.Count} coordinates)...");
                 heightMap = heightMap
-                                        .ReprojectGeodeticToCartesian() // Reproject to 3857 (useful to get coordinates in meters)
-                                        .ZScale(2f)                     // Elevation exageration
-                                        .CenterOnOrigin();
+                    .ReprojectGeodeticToCartesian() // Reproject to 3857 (useful to get coordinates in meters)
+                    .ZScale(2f);                    // Elevation exageration
 
+                //=======================
+                // Textures
+                //
+                PBRTexture pbrTexture = null;
+                if (withTexture)
+                {
+
+
+                    Console.WriteLine("Download image tiles...");
+                    TileRange tiles = _imageryService.DownloadTiles(bbox, provider, 8);
+                    string fileName = Path.Combine(outputDir, "Texture.jpg");
+
+                    Console.WriteLine("Construct texture...");
+                    TextureInfo texInfo = _imageryService.ConstructTexture(tiles, bbox, fileName, TextureImageFormat.image_jpeg);
+
+                    //
+                    //=======================
+
+                    //=======================
+                    // Normal map
+                    Console.WriteLine("Height map...");
+                    //float Z_FACTOR = 0.00002f;
+
+                    //hMap = hMap.CenterOnOrigin().ZScale(Z_FACTOR);
+                    var normalMap = _imageryService.GenerateNormalMap(heightMap, outputDir);
+    
+                    pbrTexture = PBRTexture.Create(texInfo, normalMap);
+
+                    //hMap = hMap.CenterOnOrigin(Z_FACTOR);
+                    //
+                    //=======================
+                }
                 // Triangulate height map
                 // and add base and sides
                 _logger.LogInformation($"Triangulating height map and generating 3D mesh...");
-                var mesh = _glTFService.GenerateTriangleMesh(heightMap);
+                var mesh = _glTFService.GenerateTriangleMesh(heightMap, null, pbrTexture);
 
                 _logger.LogInformation($"Creating glTF model...");
                 var model = _glTFService.GenerateModel(mesh, modelName);
 
                 _logger.LogInformation($"Exporting glTF model...");
-                _glTFService.Export(model, Directory.GetCurrentDirectory(), modelName, exportglTF: false, exportGLB: true);
+                _glTFService.Export(model, outputDir, modelName, exportglTF: false, exportGLB: true);
 
                 _logger.LogInformation($"Model exported as {Path.Combine(Directory.GetCurrentDirectory(), modelName + ".gltf")} and .glb");
 
