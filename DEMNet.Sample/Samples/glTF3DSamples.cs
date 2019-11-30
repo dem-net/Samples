@@ -71,7 +71,7 @@ namespace SampleApp
                 var bbox = GeometryService.GetBoundingBox(bboxWKT);
 
                 _logger.LogInformation($"Getting height map data...");
-                var heightMap = _elevationService.GetHeightMap(bbox, dataset);
+                var heightMap = _elevationService.GetHeightMap(ref bbox, dataset);
 
                 _logger.LogInformation($"Processing height map data ({heightMap.Count} coordinates)...");
                 heightMap = heightMap

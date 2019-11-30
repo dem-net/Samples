@@ -102,8 +102,7 @@ namespace SampleApp
                 //=======================
                 /// Height map (get dem elevation for bbox)
                 ///
-                HeightMap hMap = _elevationService.GetHeightMap(bbox, dataSet);
-                bbox = hMap.BoundingBox;
+                HeightMap hMap = _elevationService.GetHeightMap(ref bbox, dataSet);
                 
 //                var refPoint = new GeoPoint(43.5, 5.5);
 //                hMap = hMap.BakeCoordinates();

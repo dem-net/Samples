@@ -65,7 +65,7 @@ namespace SampleApp
                 var bbox = GeometryService.GetBoundingBox(wkt);
 
                 _logger.LogInformation($"Getting height map...");
-                HeightMap hMap = _elevationService.GetHeightMap(bbox, dataSet);
+                HeightMap hMap = _elevationService.GetHeightMap(ref bbox, dataSet);
                 hMap = hMap.ZScale(2);
 
 
