@@ -27,6 +27,7 @@
 using AssetGenerator;
 using AssetGenerator.Runtime;
 using DEM.Net.Core;
+using DEM.Net.Core.Gpx;
 using DEM.Net.Core.Imagery;
 using DEM.Net.glTF;
 using Microsoft.Extensions.Logging;
@@ -75,12 +76,13 @@ namespace SampleApp
                 /// Line strip from GPX
                 ///
                 // Get GPX points
-                var segments = GpxImport.ReadGPX_Segments(_gpxFile);
-                var points = segments.SelectMany(seg => seg);
+                var segments = GpxImport.ReadGPX_Segments<GpxTrackPoint>(_gpxFile, p => p);
+                var pointsGpx = segments.SelectMany(seg => seg);
+                var geoPoints = pointsGpx.ToGeoPoints();
 
                 List<MeshPrimitive> meshes = new List<MeshPrimitive>();
 
-                //var largeMesh = GetMeshFromGpxTrack(outputDir, largeDataSet, points
+                //var largeMesh = GetMeshFromGpxTrack(outputDir, largeDataSet, geoPoints
                 //                                , bboxScale: 5
                 //                                , zFactor: Z_FACTOR
                 //                                , generateTIN: false
@@ -89,18 +91,18 @@ namespace SampleApp
                 //                                , ImageryProvider.OpenTopoMap);
                 //meshes.Add(largeMesh);
 
-                var localMesh = GetMeshFromGpxTrack(outputDir, localDataset, points
+                var localMesh = GetMeshFromGpxTrack(outputDir, localDataset, geoPoints
                                                 , bboxScale: 1.3
                                                 , zFactor: Z_FACTOR
                                                 , generateTIN: false
                                                 , tinPrecision: 500d
                                                 , drawGpxOnTexture: true
-                                                , null);
+                                                , ImageryProvider.OpenTopoMap);
                 //localMesh.Translate(0, 500, 0);
                 meshes.Add(localMesh);
 
 
-                var gpxPoints = points.ReprojectGeodeticToCartesian().ZScale(Z_FACTOR);
+                var gpxPoints = geoPoints.ReprojectGeodeticToCartesian().ZScale(Z_FACTOR);
                 MeshPrimitive gpxLine = _glTFService.GenerateLine(gpxPoints, new Vector4(0, 1, 0, 0.5f), trailWidthMeters);
                 meshes.Add(gpxLine);
 
@@ -109,22 +111,40 @@ namespace SampleApp
                 Console.WriteLine("GenerateModel...");
                 Model model = _glTFService.GenerateModel(meshes, this.GetType().Name);
 
-
-                List<AnimationChannel> channels = new List<AnimationChannel>();
-                List<float> timeSteps = new List<float> { 0, 1, 2 };
-                List<Vector3> translations = new List<Vector3> { new Vector3(0, 0, 0), new Vector3(0, 1000, 0), new Vector3(5000, 10000, 0) };
-                AnimationSampler sampler = new LinearAnimationSampler<Vector3>(timeSteps, translations);
-                AnimationChannelTarget target = new AnimationChannelTarget() { Node = model.GLTF.Scenes.First().Nodes.First(), Path = AnimationChannelTarget.PathEnum.TRANSLATION };
-                AnimationChannel channel = new AnimationChannel() { Sampler = sampler, Target = target };
-                channels.Add(channel);
-                Animation animation = new Animation() { Name = "Test", Channels = channels };
-                model.GLTF.Animations = Enumerable.Repeat(animation, 1);
+                // animations
+                var animations = new List<Animation>();
+                animations.Add(CreateAnimationFromGpx("GPX", model.GLTF.Scenes.First().Nodes.First(), pointsGpx, 1f));
+                animations.Add(CreateAnimationFromGpx("GPX x10", model.GLTF.Scenes.First().Nodes.First(), pointsGpx, 10f));
+                animations.Add(CreateAnimationFromGpx("GPX x500", model.GLTF.Scenes.First().Nodes.First(), pointsGpx, 500f));
+                model.GLTF.Animations = animations;
                 _glTFService.Export(model, ".", $"{GetType().Name}", exportglTF: true, exportGLB: true);
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, ex.Message);
             }
+
+        }
+
+        private Animation CreateAnimationFromGpx(string name, Node node, IEnumerable<GpxTrackPoint> points, float timeFactor)
+        {
+            timeFactor = timeFactor <= 0f ? 1f : timeFactor;
+
+            var initialPoint = points.First();
+            IEnumerable<float> timeSteps = points.Select(p => (float)(p.Time.Value - initialPoint.Time.Value).TotalSeconds / timeFactor);
+            //Enumerable.Range(0, gpxPointsList.Count).Select(n=>(float)n).ToList();
+
+            var geoVectors = points.Select(p => p.ToGeoPoint().ToVector3());
+            Vector3 initialPos = geoVectors.First();
+            IEnumerable<Vector3> translations = geoVectors.Select(p => initialPos - p);
+            AnimationSampler sampler = new LinearAnimationSampler<Vector3>(timeSteps, translations);
+            AnimationChannelTarget target = new AnimationChannelTarget() { Node = node, Path = AnimationChannelTarget.PathEnum.TRANSLATION };
+            AnimationChannel channel = new AnimationChannel() { Sampler = sampler, Target = target };
+
+            List<AnimationChannel> channels = new List<AnimationChannel>();
+            channels.Add(channel);
+
+            return new Animation() { Name = timeFactor  == 1f ?  $"{name} real speed" : $"{name} x{timeFactor:f1} speed", Channels = channels };
 
         }
 
