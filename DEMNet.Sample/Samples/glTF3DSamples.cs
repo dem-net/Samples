@@ -42,17 +42,14 @@ namespace SampleApp
     {
         private readonly ILogger<glTF3DSamples> _logger;
         private readonly IElevationService _elevationService;
-        private readonly IglTFService _glTFService;
         private readonly SharpGltfService _sharpGltfService;
 
         public glTF3DSamples(ILogger<glTF3DSamples> logger
                 , IElevationService elevationService
-                , IglTFService glTFService
                 , SharpGltfService sharpGltfService)
         {
             _logger = logger;
             _elevationService = elevationService;
-            _glTFService = glTFService;
             _sharpGltfService = sharpGltfService;
 
 
@@ -88,22 +85,12 @@ namespace SampleApp
                 // Triangulate height map
                 // and add base and sides
                 _logger.LogInformation($"Triangulating height map and generating 3D mesh...");
-                var mesh = _glTFService.GenerateTriangleMesh(heightMap);
 
-                var model3 = _sharpGltfService.CreateModel(heightMap);
-                model3.SaveGLB(Path.Combine(Directory.GetCurrentDirectory(), modelName + "_3.glb"));
+                var model = _sharpGltfService.CreateModel(heightMap);
+                model.SaveGLB(Path.Combine(Directory.GetCurrentDirectory(), modelName + ".glb"));
 
-                var mesh2 = _sharpGltfService.CreateTerrainMesh_NoTextureColor(heightMap);
-                var model2 = _sharpGltfService.CreateModel(mesh2);
-
-
-                model2.SaveGLB(Path.Combine(Directory.GetCurrentDirectory(), modelName + "_2.glb"));
-
-                _logger.LogInformation($"Creating glTF model...");
-                var model = _glTFService.GenerateModel(mesh, modelName);
-
-                _logger.LogInformation($"Exporting glTF model...");
-                _glTFService.Export(model, Directory.GetCurrentDirectory(), modelName, exportglTF: false, exportGLB: true);
+                model = _sharpGltfService.CreateModel(heightMap, GenOptions.Normals | GenOptions.BoxedBaseElevationMin);
+                model.SaveGLB(Path.Combine(Directory.GetCurrentDirectory(), modelName + "_normalsBox.glb"));
 
                 _logger.LogInformation($"Model exported as {Path.Combine(Directory.GetCurrentDirectory(), modelName + ".gltf")} and .glb");
 
