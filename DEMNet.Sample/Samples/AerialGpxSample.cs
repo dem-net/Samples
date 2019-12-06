@@ -30,6 +30,7 @@ using DEM.Net.Core;
 using DEM.Net.Core.Gpx;
 using DEM.Net.Core.Imagery;
 using DEM.Net.glTF;
+using DEM.Net.glTF.SharpglTF;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
@@ -47,6 +48,7 @@ namespace SampleApp
         private readonly IElevationService _elevationService;
         private readonly IglTFService _glTFService;
         private readonly IImageryService _imageryService;
+        private readonly SharpGltfService _sharpGltfService;
         private readonly int outputSrid = Reprojection.SRID_PROJECTED_MERCATOR;
         private readonly int imageryNbTiles = 4;
 
@@ -54,13 +56,15 @@ namespace SampleApp
                 , IRasterService rasterService
                 , IElevationService elevationService
                 , IglTFService glTFService
-                , IImageryService imageryService)
+                , IImageryService imageryService
+                , SharpGltfService sharpGltfService)
         {
             _logger = logger;
             _rasterService = rasterService;
             _elevationService = elevationService;
             _glTFService = glTFService;
             _imageryService = imageryService;
+            _sharpGltfService = sharpGltfService;
         }
         internal void Run(DEMDataSet largeDataSet, DEMDataSet localDataset)
         {

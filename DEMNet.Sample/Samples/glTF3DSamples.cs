@@ -27,6 +27,7 @@
 using DEM.Net.Core;
 using DEM.Net.glTF;
 using DEM.Net.glTF.Export;
+using DEM.Net.glTF.SharpglTF;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Diagnostics;
@@ -42,14 +43,19 @@ namespace SampleApp
         private readonly ILogger<glTF3DSamples> _logger;
         private readonly IElevationService _elevationService;
         private readonly IglTFService _glTFService;
+        private readonly SharpGltfService _sharpGltfService;
 
         public glTF3DSamples(ILogger<glTF3DSamples> logger
                 , IElevationService elevationService
-                , IglTFService glTFService)
+                , IglTFService glTFService
+                , SharpGltfService sharpGltfService)
         {
             _logger = logger;
             _elevationService = elevationService;
             _glTFService = glTFService;
+            _sharpGltfService = sharpGltfService;
+
+
         }
         public void Run()
         {
@@ -83,6 +89,15 @@ namespace SampleApp
                 // and add base and sides
                 _logger.LogInformation($"Triangulating height map and generating 3D mesh...");
                 var mesh = _glTFService.GenerateTriangleMesh(heightMap);
+
+                var model3 = _sharpGltfService.CreateModel(heightMap);
+                model3.SaveGLB(Path.Combine(Directory.GetCurrentDirectory(), modelName + "_3.glb"));
+
+                var mesh2 = _sharpGltfService.CreateTerrainMesh_NoTextureColor(heightMap);
+                var model2 = _sharpGltfService.CreateModel(mesh2);
+
+
+                model2.SaveGLB(Path.Combine(Directory.GetCurrentDirectory(), modelName + "_2.glb"));
 
                 _logger.LogInformation($"Creating glTF model...");
                 var model = _glTFService.GenerateModel(mesh, modelName);

@@ -98,6 +98,13 @@ namespace SampleApp
             {
                 rasterService.SetLocalDirectory(DATA_FILES_PATH);
             }
+            using (_logger.BeginScope($"Running {nameof(glTF3DSamples)}.."))
+            {
+                glTF3DSamples.Run();
+                _logger.LogInformation($"Sample {glTF3DSamples.GetType().Name} done. Press any key to run the next sample...");
+                if (pauseAfterEachSample) Console.ReadLine();
+                if (cancellationToken.IsCancellationRequested) return Task.FromCanceled(cancellationToken);
+            }
             using (_logger.BeginScope($"Running {nameof(AerialGpxSample)}.."))
             {
                 aerialGpxSample.Run(DEMDataSet.SRTM_GL3, DEMDataSet.SRTM_GL3);
@@ -158,13 +165,7 @@ namespace SampleApp
                 if (pauseAfterEachSample) Console.ReadLine();
                 if (cancellationToken.IsCancellationRequested) return Task.FromCanceled(cancellationToken);
             }
-            using (_logger.BeginScope($"Running {nameof(glTF3DSamples)}.."))
-            {
-                glTF3DSamples.Run();
-                _logger.LogInformation($"Sample {glTF3DSamples.GetType().Name} done. Press any key to run the next sample...");
-                if (pauseAfterEachSample) Console.ReadLine();
-                if (cancellationToken.IsCancellationRequested) return Task.FromCanceled(cancellationToken);
-            }
+            
             using (_logger.BeginScope($"Running {nameof(Gpx3DSamples)}.."))
             {
                gpx3DSamples.Run(DEMDataSet.AW3D30, false, true, Reprojection.SRID_PROJECTED_MERCATOR);
