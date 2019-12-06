@@ -98,6 +98,13 @@ namespace SampleApp
             {
                 rasterService.SetLocalDirectory(DATA_FILES_PATH);
             }
+            using (_logger.BeginScope($"Running {nameof(STLSamples)}.."))
+            {
+                stLSamples.Run();
+                _logger.LogInformation($"Sample {stLSamples.GetType().Name} done. Press any key to run the next sample...");
+                if (pauseAfterEachSample) Console.ReadLine();
+                if (cancellationToken.IsCancellationRequested) return Task.FromCanceled(cancellationToken);
+            }
             using (_logger.BeginScope($"Running {nameof(glTF3DSamples)}.."))
             {
                 glTF3DSamples.Run();
@@ -182,13 +189,7 @@ namespace SampleApp
                 if (pauseAfterEachSample) Console.ReadLine();
                 if (cancellationToken.IsCancellationRequested) return Task.FromCanceled(cancellationToken);
             }
-            using (_logger.BeginScope($"Running {nameof(STLSamples)}.."))
-            {
-                stLSamples.Run();
-                _logger.LogInformation($"Sample {stLSamples.GetType().Name} done. Press any key to run the next sample...");
-                if (pauseAfterEachSample) Console.ReadLine();
-                if (cancellationToken.IsCancellationRequested) return Task.FromCanceled(cancellationToken);
-            }
+            
 
             _logger.LogTrace($"Application ran in : {sw.Elapsed:g}");
 
