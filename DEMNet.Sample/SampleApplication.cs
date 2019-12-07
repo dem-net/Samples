@@ -54,6 +54,7 @@ namespace SampleApp
         private readonly glTF3DSamples glTF3DSamples;
         private readonly CustomSamples customSamples;
         private readonly AerialGpxSample aerialGpxSample;
+        private readonly ImagerySample imagerySample;
         private const string DATA_FILES_PATH = null; //@"C:\Users\ElevationAPI\AppData\Local"; // Leave to null for default location (Environment.SpecialFolder.LocalApplicationData)
 
         public SampleApplication(ILogger<SampleApplication> logger,
@@ -67,7 +68,8 @@ namespace SampleApp
             TINSamples tinSamples,
             glTF3DSamples glTF3DSamples,
             CustomSamples customSamples,
-            AerialGpxSample aerialGpxSample)
+            AerialGpxSample aerialGpxSample,
+            ImagerySample imagerySample)
         {
             _logger = logger;
             this.rasterService = rasterService;
@@ -81,6 +83,7 @@ namespace SampleApp
             this.glTF3DSamples = glTF3DSamples;
             this.customSamples = customSamples;
             this.aerialGpxSample = aerialGpxSample;
+            this.imagerySample = imagerySample;
         }
 
 
@@ -97,6 +100,22 @@ namespace SampleApp
             if (!string.IsNullOrWhiteSpace(DATA_FILES_PATH))
             {
                 rasterService.SetLocalDirectory(DATA_FILES_PATH);
+            }
+            using (_logger.BeginScope($"Running {nameof(TINSamples)}.."))
+            {
+                tinSamples.Run(TINSamples.WKT_STE_VICTOIRE, nameof(TINSamples.WKT_STE_VICTOIRE), DEMDataSet.AW3D30, 50);
+                tinSamples.Run(TINSamples.WKT_EIGER, nameof(TINSamples.WKT_EIGER), DEMDataSet.SRTM_GL3, 50);
+                tinSamples.Run(TINSamples.WKT_GORGES_VERDON, nameof(TINSamples.WKT_GORGES_VERDON), DEMDataSet.AW3D30, 50);
+                _logger.LogInformation($"Sample {tinSamples.GetType().Name} done. Press any key to run the next sample...");
+                if (pauseAfterEachSample) Console.ReadLine();
+                if (cancellationToken.IsCancellationRequested) return Task.FromCanceled(cancellationToken);
+            }
+            using (_logger.BeginScope($"Running {nameof(ImagerySample)}.."))
+            {
+                imagerySample.Run();
+                _logger.LogInformation($"Sample {imagerySample.GetType().Name} done. Press any key to run the next sample...");
+                if (pauseAfterEachSample) Console.ReadLine();
+                if (cancellationToken.IsCancellationRequested) return Task.FromCanceled(cancellationToken);
             }
             using (_logger.BeginScope($"Running {nameof(STLSamples)}.."))
             {
@@ -134,7 +153,7 @@ namespace SampleApp
                 if (pauseAfterEachSample) Console.ReadLine();
                 if (cancellationToken.IsCancellationRequested) return Task.FromCanceled(cancellationToken);
             }
-            
+
             //using (_logger.BeginScope($"Running {nameof(DownloaderSample)}.."))
             //{
             //    var sample = serviceProvider.GetRequiredService<DownloaderSample>();
@@ -151,7 +170,7 @@ namespace SampleApp
             //}
             using (_logger.BeginScope($"Running {nameof(ElevationSamples)}.."))
             {
-                elevationSamples.Run( cancellationToken);
+                elevationSamples.Run(cancellationToken);
                 _logger.LogInformation($"Sample {elevationSamples.GetType().Name} done. Press any key to run the next sample...");
                 if (pauseAfterEachSample) Console.ReadLine();
                 if (cancellationToken.IsCancellationRequested) return Task.FromCanceled(cancellationToken);
@@ -172,24 +191,16 @@ namespace SampleApp
                 if (pauseAfterEachSample) Console.ReadLine();
                 if (cancellationToken.IsCancellationRequested) return Task.FromCanceled(cancellationToken);
             }
-            
+
             using (_logger.BeginScope($"Running {nameof(Gpx3DSamples)}.."))
             {
-               gpx3DSamples.Run(DEMDataSet.AW3D30, false, true, Reprojection.SRID_PROJECTED_MERCATOR);
+                gpx3DSamples.Run(DEMDataSet.AW3D30, false, true, Reprojection.SRID_PROJECTED_MERCATOR);
                 _logger.LogInformation($"Sample {gpx3DSamples.GetType().Name} done. Press any key to run the next sample...");
                 if (pauseAfterEachSample) Console.ReadLine();
                 if (cancellationToken.IsCancellationRequested) return Task.FromCanceled(cancellationToken);
             }
-            using (_logger.BeginScope($"Running {nameof(TINSamples)}.."))
-            {
-                tinSamples.Run(TINSamples.WKT_STE_VICTOIRE, nameof(TINSamples.WKT_STE_VICTOIRE), DEMDataSet.AW3D30);
-                tinSamples.Run(TINSamples.WKT_EIGER, nameof(TINSamples.WKT_EIGER), DEMDataSet.SRTM_GL3, 25);
-                tinSamples.Run(TINSamples.WKT_GORGES_VERDON, nameof(TINSamples.WKT_GORGES_VERDON), DEMDataSet.AW3D30);
-                _logger.LogInformation($"Sample {tinSamples.GetType().Name} done. Press any key to run the next sample...");
-                if (pauseAfterEachSample) Console.ReadLine();
-                if (cancellationToken.IsCancellationRequested) return Task.FromCanceled(cancellationToken);
-            }
-            
+
+
 
             _logger.LogTrace($"Application ran in : {sw.Elapsed:g}");
 

@@ -162,7 +162,7 @@ namespace SampleApp
                 if (generateTIN)
                 {
 
-                    triangleMesh = TINGeneration.GenerateTIN(hMap, 10d, _glTFService, pbrTexture, outputSrid);
+                    //triangleMesh = TINGeneration.GenerateTIN(hMap, 10d, _glTFService, pbrTexture, outputSrid);
 
                 }
                 else

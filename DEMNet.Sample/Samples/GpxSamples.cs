@@ -26,7 +26,6 @@
 
 using AssetGenerator;
 using AssetGenerator.Runtime;
-using DEM.Net.glTF;
 using DEM.Net.Core;
 using DEM.Net.Core.Imagery;
 using DEM.Net.Core.Services.Lab;
