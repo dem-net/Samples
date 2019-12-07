@@ -32,12 +32,11 @@
     <PackageReference Include="Microsoft.Extensions.Logging" Version="3.0.0" />
     <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="3.0.0" />
     <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="3.0.0" />
-    <PackageReference Include="SharpGLTF.Toolkit" Version="1.0.0-alpha0014" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\..\DEM.Net\DEM.Net.Core\DEM.Net.Core.csproj" />
-    <ProjectReference Include="..\..\..\DEM.Net\DEM.Net.glTF\DEM.Net.glTF.csproj" />
+    <ProjectReference Include="..\..\DEM.Net\DEM.Net.Core\DEM.Net.Core.csproj" />
+    <ProjectReference Include="..\..\DEM.Net\DEM.Net.glTF\DEM.Net.glTF.csproj" />
   </ItemGroup>
 
 
