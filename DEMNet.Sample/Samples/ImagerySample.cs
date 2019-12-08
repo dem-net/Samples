@@ -26,8 +26,6 @@
 
 using DEM.Net.Core;
 using DEM.Net.Core.Imagery;
-using DEM.Net.glTF;
-using DEM.Net.glTF.Export;
 using DEM.Net.glTF.SharpglTF;
 using Microsoft.Extensions.Logging;
 using System;

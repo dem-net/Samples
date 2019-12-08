@@ -24,12 +24,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-using AssetGenerator;
-using AssetGenerator.Runtime;
 using DEM.Net.Core;
-using DEM.Net.Core.Imagery;
-using DEM.Net.Core.Services.Lab;
-using Microsoft.Extensions.DependencyInjection;
 using System;
 using System.Collections.Generic;
 using System.IO;

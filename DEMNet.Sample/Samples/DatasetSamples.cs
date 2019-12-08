@@ -25,8 +25,6 @@
 // THE SOFTWARE.
 
 using DEM.Net.Core;
-using DEM.Net.glTF;
-using DEM.Net.glTF.Export;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Diagnostics;
