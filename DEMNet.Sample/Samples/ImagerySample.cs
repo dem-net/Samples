@@ -91,7 +91,7 @@ namespace SampleApp
                 // Triangulate height map
                 _logger.LogInformation($"Triangulating height map and generating 3D mesh...");
 
-                var model = _sharpGltfService.CreateModel(heightMap, pbrTexture);
+                var model = _sharpGltfService.CreateTerrainMesh(heightMap, pbrTexture);
                 model.SaveGLB(Path.Combine(Directory.GetCurrentDirectory(), modelName + ".glb"));
 
                 _logger.LogInformation($"Done in {sw.Elapsed:g}");

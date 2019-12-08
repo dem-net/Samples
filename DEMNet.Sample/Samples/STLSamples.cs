@@ -93,7 +93,7 @@ namespace SampleApp
                 _logger.LogInformation($"Triangulating height map and generating box (5mm thick)...");
 
                 // STL axis differ from glTF 
-                var model = _sharpGltfService.CreateModel(heightMap, GenOptions.BoxedBaseElevationMin, Matrix4x4.CreateRotationX((float)Math.PI / 2f));
+                var model = _sharpGltfService.CreateTerrainMesh(heightMap, GenOptions.BoxedBaseElevationMin, Matrix4x4.CreateRotationX((float)Math.PI / 2f));
 
 
                 _logger.LogInformation($"Exporting STL model...");
