@@ -108,7 +108,7 @@ namespace SampleApp
                 Console.WriteLine("GenerateModel...");
 
                 var node = model.LogicalNodes.First();
-                pointsGpx = pointsGpx.ReprojectGeodeticToCartesian().ToList();
+                pointsGpx = pointsGpx.ReprojectGeodeticToCartesian();
                 // animations
                 node = CreateAnimationFromGpx("GPX", node, pointsGpx, 1f);
                 node = CreateAnimationFromGpx("GPX x500", node, pointsGpx, 500f);
