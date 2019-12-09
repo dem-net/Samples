@@ -24,7 +24,6 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-using AssetGenerator;
 using DEM.Net.Core;
 using DEM.Net.glTF.SharpglTF;
 using Microsoft.Extensions.Logging;

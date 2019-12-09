@@ -93,7 +93,7 @@ namespace SampleApp
                 model = GetMeshFromGpxTrack(model, outputDir, localDataset, geoPoints
                                             , bboxScale: (1.3, 1.5)
                                             , zFactor: Z_FACTOR
-                                            , generateTIN: false
+                                            , generateTIN: true
                                             , tinPrecision: 50d
                                             , drawGpxOnTexture: true
                                             , ImageryProvider.OpenTopoMap);
@@ -108,7 +108,7 @@ namespace SampleApp
                 Console.WriteLine("GenerateModel...");
 
                 var node = model.LogicalNodes.First();
-                pointsGpx = pointsGpx.ReprojectGeodeticToCartesian();
+                pointsGpx = pointsGpx.ReprojectGeodeticToCartesian().ZScale(Z_FACTOR);
                 // animations
                 node = CreateAnimationFromGpx("GPX", node, pointsGpx, 1f);
                 node = CreateAnimationFromGpx("GPX x500", node, pointsGpx, 500f);

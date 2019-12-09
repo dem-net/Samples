@@ -98,7 +98,7 @@ namespace SampleApp
 
                 _logger.LogInformation($"Exporting STL model...");
                 var stlFilePath = Path.Combine(Directory.GetCurrentDirectory(), $"{modelName}.stl");
-                _stlService.STLExport(model.LogicalMeshes.First().Primitives.First(), stlFilePath, false);
+                _stlService.STLExport(model.LogicalMeshes[0].Primitives[0], stlFilePath, false);
 
                 _logger.LogInformation($"Model exported in {stlFilePath}.");
 
