@@ -103,7 +103,7 @@ namespace SampleApp
             }
             using (_logger.BeginScope($"Running {nameof(AerialGpxSample)}.."))
             {
-                aerialGpxSample.Run(DEMDataSet.SRTM_GL3, DEMDataSet.SRTM_GL3);
+                aerialGpxSample.Run(DEMDataSet.SRTM_GL3, DEMDataSet.ASTER_GDEMV3);
                 //aerialGpxSample.Run(DEMDataSet.SRTM_GL1);
                 //aerialGpxSample.Run(DEMDataSet.AW3D30);
                 //gpx3DSamples.Run(DEMDataSet.SRTM_GL1, true, false, Reprojection.SRID_PROJECTED_MERCATOR);

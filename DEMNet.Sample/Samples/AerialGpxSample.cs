@@ -79,7 +79,7 @@ namespace SampleApp
                 var segments = GpxImport.ReadGPX_Segments<GpxTrackPoint>(_gpxFile, p => p);
                 var pointsGpx = segments.SelectMany(seg => seg);
                 var geoPoints = pointsGpx.ToGeoPoints();
-                
+
                 var model = _sharpGltfService.CreateNewModel();
                 //var largeMesh = GetMeshFromGpxTrack(outputDir, largeDataSet, geoPoints
                 //                                , bboxScale: 5
@@ -91,13 +91,13 @@ namespace SampleApp
                 //meshes.Add(largeMesh);
 
                 model = GetMeshFromGpxTrack(model, outputDir, localDataset, geoPoints
-                                            , bboxScale: 1.3
+                                            , bboxScale: (1.3, 1.5)
                                             , zFactor: Z_FACTOR
                                             , generateTIN: false
-                                            , tinPrecision: 500d
+                                            , tinPrecision: 50d
                                             , drawGpxOnTexture: true
                                             , ImageryProvider.OpenTopoMap);
-                
+
 
                 var gpxPoints = geoPoints.ReprojectGeodeticToCartesian().ZScale(Z_FACTOR);
 
@@ -108,11 +108,11 @@ namespace SampleApp
                 Console.WriteLine("GenerateModel...");
 
                 var node = model.LogicalNodes.First();
+                pointsGpx = pointsGpx.ReprojectGeodeticToCartesian().ToList();
                 // animations
                 node = CreateAnimationFromGpx("GPX", node, pointsGpx, 1f);
-                node = CreateAnimationFromGpx("GPX x10", node, pointsGpx, 10f);
                 node = CreateAnimationFromGpx("GPX x500", node, pointsGpx, 500f);
-                model.SaveGLB(Path.Combine(Directory.GetCurrentDirectory(),  $"{GetType().Name}.glb"));
+                model.SaveGLB(Path.Combine(Directory.GetCurrentDirectory(), $"{GetType().Name}.glb"));
             }
             catch (Exception ex)
             {
@@ -124,17 +124,19 @@ namespace SampleApp
         private Node CreateAnimationFromGpx(string name, Node node, IEnumerable<GpxTrackPoint> points, float timeFactor)
         {
             timeFactor = timeFactor <= 0f ? 1f : timeFactor;
-            var initialPoint = points.First();
+            GpxTrackPoint initialPoint = points.First();
+            Vector3 initialPointVec3 = initialPoint.ToGeoPoint().ToVector3();
 
             var curve = points
-                .Select(p => ((float)(p.Time.Value - initialPoint.Time.Value).TotalSeconds / timeFactor, p.ToGeoPoint().ToVector3()))
+                .Select(p => ((float)(p.Time.Value - initialPoint.Time.Value).TotalSeconds / timeFactor
+                                , (initialPointVec3 - p.ToGeoPoint().ToVector3())))
                 .ToArray();
 
             node = node.WithTranslationAnimation(name, curve);
             return node;
         }
 
-        internal ModelRoot GetMeshFromGpxTrack(ModelRoot model, string outputDir, DEMDataSet dataSet, IEnumerable<GeoPoint> gpxPoints4326, double bboxScale, float zFactor, bool generateTIN,
+        internal ModelRoot GetMeshFromGpxTrack(ModelRoot model, string outputDir, DEMDataSet dataSet, IEnumerable<GeoPoint> gpxPoints4326, (double x, double y) bboxScale, float zFactor, bool generateTIN,
             double tinPrecision, bool drawGpxOnTexture, ImageryProvider imageryProvider)
         {
             using (TimeSpanBlock chrono = new TimeSpanBlock($"{nameof(AerialGpxSample)} {dataSet.Name}", _logger))
@@ -142,7 +144,7 @@ namespace SampleApp
                 if (model == null)
                     model = _sharpGltfService.CreateNewModel();
 
-                var bbox = gpxPoints4326.GetBoundingBox().Scale(bboxScale, bboxScale);
+                var bbox = gpxPoints4326.GetBoundingBox().Scale(bboxScale.x, bboxScale.y);
 
                 //
                 //=======================
@@ -199,7 +201,7 @@ namespace SampleApp
                 if (generateTIN)
                 {
 
-                    //triangleMesh = TINGeneration.GenerateTIN(hMap, tinPrecision, _glTFService, pbrTexture, outputSrid);
+                    model = TINGeneration.GenerateTIN(hMap, tinPrecision, _sharpGltfService, pbrTexture, outputSrid);
 
                 }
                 else
