@@ -44,6 +44,9 @@
     <None Update="SampleData\20191022-Puch-Pöllau.gpx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Update="SampleData\20191023-Puch-Pöllau-sensorlog.trunk.json">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="SampleData\20191023-Puch-Pöllau-sensorlog.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

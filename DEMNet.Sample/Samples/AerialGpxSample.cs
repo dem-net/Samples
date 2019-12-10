@@ -37,6 +37,7 @@ using System.IO;
 using System.Linq;
 using System.Numerics;
 using System.Threading.Tasks;
+using DEM.Net.Core.IO.SensorLog;
 
 namespace SampleApp
 {
@@ -69,6 +70,8 @@ namespace SampleApp
             {
                 string outputDir = Path.GetFullPath(".");
                 string _gpxFile = Path.Combine("SampleData", "20191022-Puch-Pöllau.gpx");
+                string sensorLogFile = Path.Combine("SampleData", "20191023-Puch-Pöllau-sensorlog.json");
+                var sensorLog = SensorLog.FromJson(sensorLogFile);
                 string balloonModel = Path.Combine("SampleData", "OE-SOE.glb");
                 float Z_FACTOR = 2f;
                 float trailWidthMeters = 5f;
