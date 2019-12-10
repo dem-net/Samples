@@ -103,7 +103,7 @@ namespace SampleApp
             }
             using (_logger.BeginScope($"Running {nameof(AerialGpxSample)}.."))
             {
-                aerialGpxSample.Run(DEMDataSet.SRTM_GL3, DEMDataSet.ASTER_GDEMV3);
+                aerialGpxSample.Run(DEMDataSet.SRTM_GL3, DEMDataSet.SRTM_GL3);
                 //aerialGpxSample.Run(DEMDataSet.SRTM_GL1);
                 //aerialGpxSample.Run(DEMDataSet.AW3D30);
                 //gpx3DSamples.Run(DEMDataSet.SRTM_GL1, true, false, Reprojection.SRID_PROJECTED_MERCATOR);
@@ -153,23 +153,6 @@ namespace SampleApp
                 if (pauseAfterEachSample) Console.ReadLine();
                 if (cancellationToken.IsCancellationRequested) return Task.FromCanceled(cancellationToken);
             }
-           
-            
-
-            //using (_logger.BeginScope($"Running {nameof(DownloaderSample)}.."))
-            //{
-            //    var sample = serviceProvider.GetRequiredService<DownloaderSample>();
-            //    sample.Run(DEMDataSet.ASTER_GDEMV3);
-            //    _logger.LogInformation($"Sample {sample.GetType().Name} done. Press any key to run the next sample...");
-            //    if (pauseAfterEachSample) Console.ReadLine();
-            //}
-            //using (_logger.BeginScope($"Running {nameof(CustomSamples)}.."))
-            //{
-            //    customSamples.Run(cancellationToken);
-            //    _logger.LogInformation($"Sample {customSamples.GetType().Name} done. Press any key to run the next sample...");
-            //    if (pauseAfterEachSample) Console.ReadLine();
-            //    if (cancellationToken.IsCancellationRequested) return Task.FromCanceled(cancellationToken);
-            //}
             using (_logger.BeginScope($"Running {nameof(ElevationSamples)}.."))
             {
                 elevationSamples.Run(cancellationToken);
@@ -194,13 +177,22 @@ namespace SampleApp
                 if (cancellationToken.IsCancellationRequested) return Task.FromCanceled(cancellationToken);
             }
 
-            using (_logger.BeginScope($"Running {nameof(Gpx3DSamples)}.."))
-            {
-                gpx3DSamples.Run(DEMDataSet.AW3D30, false, true, Reprojection.SRID_PROJECTED_MERCATOR);
-                _logger.LogInformation($"Sample {gpx3DSamples.GetType().Name} done. Press any key to run the next sample...");
-                if (pauseAfterEachSample) Console.ReadLine();
-                if (cancellationToken.IsCancellationRequested) return Task.FromCanceled(cancellationToken);
-            }
+
+            //using (_logger.BeginScope($"Running {nameof(DownloaderSample)}.."))
+            //{
+            //    var sample = serviceProvider.GetRequiredService<DownloaderSample>();
+            //    sample.Run(DEMDataSet.ASTER_GDEMV3);
+            //    _logger.LogInformation($"Sample {sample.GetType().Name} done. Press any key to run the next sample...");
+            //    if (pauseAfterEachSample) Console.ReadLine();
+            //}
+            //using (_logger.BeginScope($"Running {nameof(CustomSamples)}.."))
+            //{
+            //    customSamples.Run(cancellationToken);
+            //    _logger.LogInformation($"Sample {customSamples.GetType().Name} done. Press any key to run the next sample...");
+            //    if (pauseAfterEachSample) Console.ReadLine();
+            //    if (cancellationToken.IsCancellationRequested) return Task.FromCanceled(cancellationToken);
+            //}
+
 
 
 

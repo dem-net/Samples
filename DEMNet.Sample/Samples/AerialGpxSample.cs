@@ -69,9 +69,13 @@ namespace SampleApp
             {
                 string outputDir = Path.GetFullPath(".");
                 string _gpxFile = Path.Combine("SampleData", "20191022-Puch-Pöllau.gpx");
+                string balloonModel = Path.Combine("SampleData", "OE-SOE.glb");
                 float Z_FACTOR = 2f;
                 float trailWidthMeters = 5f;
 
+
+                ModelRoot balloon = ModelRoot.Load(balloonModel);
+                
                 //=======================
                 /// Line strip from GPX
                 ///
@@ -93,17 +97,16 @@ namespace SampleApp
                 model = GetMeshFromGpxTrack(model, outputDir, localDataset, geoPoints
                                             , bboxScale: (1.3, 1.5)
                                             , zFactor: Z_FACTOR
-                                            , generateTIN: true
+                                            , generateTIN: false
                                             , tinPrecision: 50d
                                             , drawGpxOnTexture: true
-                                            , ImageryProvider.OpenTopoMap);
+                                            , ImageryProvider.EsriWorldImagery);
 
 
                 var gpxPoints = geoPoints.ReprojectGeodeticToCartesian().ZScale(Z_FACTOR);
 
                 model = _sharpGltfService.AddLine(model, gpxPoints, new Vector4(0, 1, 0, 0.5f), trailWidthMeters);
-
-
+                
                 // model export
                 Console.WriteLine("GenerateModel...");
 
@@ -112,6 +115,15 @@ namespace SampleApp
                 // animations
                 node = CreateAnimationFromGpx("GPX", node, pointsGpx, 1f);
                 node = CreateAnimationFromGpx("GPX x500", node, pointsGpx, 500f);
+
+
+                //var sceneBuilderBalloon = balloon.DefaultScene.ToSceneBuilder();
+
+                //var sceneBuilderTerrain = model.DefaultScene.ToSceneBuilder();
+                //sceneBuilderBalloon.
+
+
+
                 model.SaveGLB(Path.Combine(Directory.GetCurrentDirectory(), $"{GetType().Name}.glb"));
             }
             catch (Exception ex)
