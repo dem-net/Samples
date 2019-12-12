@@ -72,6 +72,7 @@ namespace SampleApp
                 string _gpxFile = Path.Combine("SampleData", "20191022-Puch-Pöllau.gpx");
                 string sensorLogFile = Path.Combine("SampleData", "20191023-Puch-Pöllau-sensorlog.json");
                 var sensorLog = SensorLog.FromJson(sensorLogFile);
+                sensorLog.Plot("sensorLog.png");
                 string balloonModel = Path.Combine("SampleData", "OE-SOE.glb");
                 float Z_FACTOR = 2f;
                 float trailWidthMeters = 5f;
