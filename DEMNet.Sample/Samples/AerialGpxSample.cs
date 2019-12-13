@@ -24,19 +24,20 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-using AssetGenerator;
-using AssetGenerator.Runtime;
 using DEM.Net.Core;
 using DEM.Net.Core.Gpx;
 using DEM.Net.Core.Imagery;
-using DEM.Net.glTF;
+using DEM.Net.glTF.SharpglTF;
 using Microsoft.Extensions.Logging;
+using SharpGLTF.Schema2;
+using SharpGLTF;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Numerics;
 using System.Threading.Tasks;
+using DEM.Net.Core.IO.SensorLog;
 
 namespace SampleApp
 {
@@ -45,22 +46,22 @@ namespace SampleApp
         private readonly ILogger<Gpx3DSamples> _logger;
         private readonly IRasterService _rasterService;
         private readonly IElevationService _elevationService;
-        private readonly IglTFService _glTFService;
         private readonly IImageryService _imageryService;
+        private readonly SharpGltfService _sharpGltfService;
         private readonly int outputSrid = Reprojection.SRID_PROJECTED_MERCATOR;
         private readonly int imageryNbTiles = 4;
 
         public AerialGpxSample(ILogger<Gpx3DSamples> logger
                 , IRasterService rasterService
                 , IElevationService elevationService
-                , IglTFService glTFService
-                , IImageryService imageryService)
+                , IImageryService imageryService
+                , SharpGltfService sharpGltfService)
         {
             _logger = logger;
             _rasterService = rasterService;
             _elevationService = elevationService;
-            _glTFService = glTFService;
             _imageryService = imageryService;
+            _sharpGltfService = sharpGltfService;
         }
         internal void Run(DEMDataSet largeDataSet, DEMDataSet localDataset)
         {
@@ -69,9 +70,16 @@ namespace SampleApp
             {
                 string outputDir = Path.GetFullPath(".");
                 string _gpxFile = Path.Combine("SampleData", "20191022-Puch-Pöllau.gpx");
+                string sensorLogFile = Path.Combine("SampleData", "20191023-Puch-Pöllau-sensorlog.json");
+                var sensorLog = SensorLog.FromJson(sensorLogFile);
+                sensorLog.Plot("sensorLog.png");
+                string balloonModel = Path.Combine("SampleData", "OE-SOE.glb");
                 float Z_FACTOR = 2f;
                 float trailWidthMeters = 5f;
 
+
+                ModelRoot balloon = ModelRoot.Load(balloonModel);
+                
                 //=======================
                 /// Line strip from GPX
                 ///
@@ -80,8 +88,7 @@ namespace SampleApp
                 var pointsGpx = segments.SelectMany(seg => seg);
                 var geoPoints = pointsGpx.ToGeoPoints();
 
-                List<MeshPrimitive> meshes = new List<MeshPrimitive>();
-
+                var model = _sharpGltfService.CreateNewModel();
                 //var largeMesh = GetMeshFromGpxTrack(outputDir, largeDataSet, geoPoints
                 //                                , bboxScale: 5
                 //                                , zFactor: Z_FACTOR
@@ -91,33 +98,37 @@ namespace SampleApp
                 //                                , ImageryProvider.OpenTopoMap);
                 //meshes.Add(largeMesh);
 
-                var localMesh = GetMeshFromGpxTrack(outputDir, localDataset, geoPoints
-                                                , bboxScale: 1.3
-                                                , zFactor: Z_FACTOR
-                                                , generateTIN: false
-                                                , tinPrecision: 500d
-                                                , drawGpxOnTexture: true
-                                                , ImageryProvider.OpenTopoMap);
-                //localMesh.Translate(0, 500, 0);
-                meshes.Add(localMesh);
+                model = GetMeshFromGpxTrack(model, outputDir, localDataset, geoPoints
+                                            , bboxScale: (1.3, 1.5)
+                                            , zFactor: Z_FACTOR
+                                            , generateTIN: false
+                                            , tinPrecision: 50d
+                                            , drawGpxOnTexture: true
+                                            , ImageryProvider.EsriWorldImagery);
 
 
                 var gpxPoints = geoPoints.ReprojectGeodeticToCartesian().ZScale(Z_FACTOR);
-                MeshPrimitive gpxLine = _glTFService.GenerateLine(gpxPoints, new Vector4(0, 1, 0, 0.5f), trailWidthMeters);
-                meshes.Add(gpxLine);
 
-
+                model = _sharpGltfService.AddLine(model, gpxPoints, new Vector4(0, 1, 0, 0.5f), trailWidthMeters);
+                
                 // model export
                 Console.WriteLine("GenerateModel...");
-                Model model = _glTFService.GenerateModel(meshes, this.GetType().Name);
 
+                var node = model.LogicalNodes.First();
+                pointsGpx = pointsGpx.ReprojectGeodeticToCartesian().ZScale(Z_FACTOR);
                 // animations
-                var animations = new List<Animation>();
-                animations.Add(CreateAnimationFromGpx("GPX", model.GLTF.Scenes.First().Nodes.First(), pointsGpx, 1f));
-                animations.Add(CreateAnimationFromGpx("GPX x10", model.GLTF.Scenes.First().Nodes.First(), pointsGpx, 10f));
-                animations.Add(CreateAnimationFromGpx("GPX x500", model.GLTF.Scenes.First().Nodes.First(), pointsGpx, 500f));
-                model.GLTF.Animations = animations;
-                _glTFService.Export(model, ".", $"{GetType().Name}", exportglTF: true, exportGLB: true);
+                node = CreateAnimationFromGpx("GPX", node, pointsGpx, 1f);
+                node = CreateAnimationFromGpx("GPX x500", node, pointsGpx, 500f);
+
+
+                //var sceneBuilderBalloon = balloon.DefaultScene.ToSceneBuilder();
+
+                //var sceneBuilderTerrain = model.DefaultScene.ToSceneBuilder();
+                //sceneBuilderBalloon.
+
+
+
+                model.SaveGLB(Path.Combine(Directory.GetCurrentDirectory(), $"{GetType().Name}.glb"));
             }
             catch (Exception ex)
             {
@@ -126,34 +137,30 @@ namespace SampleApp
 
         }
 
-        private Animation CreateAnimationFromGpx(string name, Node node, IEnumerable<GpxTrackPoint> points, float timeFactor)
+        private Node CreateAnimationFromGpx(string name, Node node, IEnumerable<GpxTrackPoint> points, float timeFactor)
         {
             timeFactor = timeFactor <= 0f ? 1f : timeFactor;
+            GpxTrackPoint initialPoint = points.First();
+            Vector3 initialPointVec3 = initialPoint.ToGeoPoint().ToVector3();
 
-            var initialPoint = points.First();
-            IEnumerable<float> timeSteps = points.Select(p => (float)(p.Time.Value - initialPoint.Time.Value).TotalSeconds / timeFactor);
-            //Enumerable.Range(0, gpxPointsList.Count).Select(n=>(float)n).ToList();
+            var curve = points
+                .Select(p => ((float)(p.Time.Value - initialPoint.Time.Value).TotalSeconds / timeFactor
+                                , (initialPointVec3 - p.ToGeoPoint().ToVector3())))
+                .ToArray();
 
-            var geoVectors = points.Select(p => p.ToGeoPoint().ToVector3());
-            Vector3 initialPos = geoVectors.First();
-            IEnumerable<Vector3> translations = geoVectors.Select(p => initialPos - p);
-            AnimationSampler sampler = new LinearAnimationSampler<Vector3>(timeSteps, translations);
-            AnimationChannelTarget target = new AnimationChannelTarget() { Node = node, Path = AnimationChannelTarget.PathEnum.TRANSLATION };
-            AnimationChannel channel = new AnimationChannel() { Sampler = sampler, Target = target };
-
-            List<AnimationChannel> channels = new List<AnimationChannel>();
-            channels.Add(channel);
-
-            return new Animation() { Name = timeFactor  == 1f ?  $"{name} real speed" : $"{name} x{timeFactor:f1} speed", Channels = channels };
-
+            node = node.WithTranslationAnimation(name, curve);
+            return node;
         }
 
-        internal MeshPrimitive GetMeshFromGpxTrack(string outputDir, DEMDataSet dataSet, IEnumerable<GeoPoint> gpxPoints4326, double bboxScale, float zFactor, bool generateTIN,
+        internal ModelRoot GetMeshFromGpxTrack(ModelRoot model, string outputDir, DEMDataSet dataSet, IEnumerable<GeoPoint> gpxPoints4326, (double x, double y) bboxScale, float zFactor, bool generateTIN,
             double tinPrecision, bool drawGpxOnTexture, ImageryProvider imageryProvider)
         {
             using (TimeSpanBlock chrono = new TimeSpanBlock($"{nameof(AerialGpxSample)} {dataSet.Name}", _logger))
             {
-                var bbox = gpxPoints4326.GetBoundingBox().Scale(bboxScale, bboxScale);
+                if (model == null)
+                    model = _sharpGltfService.CreateNewModel();
+
+                var bbox = gpxPoints4326.GetBoundingBox().Scale(bboxScale.x, bboxScale.y);
 
                 //
                 //=======================
@@ -210,16 +217,16 @@ namespace SampleApp
                 if (generateTIN)
                 {
 
-                    triangleMesh = TINGeneration.GenerateTIN(hMap, tinPrecision, _glTFService, pbrTexture, outputSrid);
+                    model = TINGeneration.GenerateTIN(hMap, tinPrecision, _sharpGltfService, pbrTexture, outputSrid);
 
                 }
                 else
                 {
                     // generate mesh with texture
-                    triangleMesh = _glTFService.GenerateTriangleMesh(hMap, null, pbrTexture);
+                    model = _sharpGltfService.AddTerrainMesh(model, hMap, pbrTexture);
                 }
 
-                return triangleMesh;
+                return model;
             }
 
         }
