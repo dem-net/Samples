@@ -25,8 +25,7 @@
 // THE SOFTWARE.
 
 using DEM.Net.Core;
-using DEM.Net.glTF;
-using DEM.Net.glTF.Export;
+using DEM.Net.glTF.SharpglTF;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Diagnostics;
@@ -41,15 +40,17 @@ namespace SampleApp
     {
         private readonly ILogger<glTF3DSamples> _logger;
         private readonly IElevationService _elevationService;
-        private readonly IglTFService _glTFService;
+        private readonly SharpGltfService _sharpGltfService;
 
         public glTF3DSamples(ILogger<glTF3DSamples> logger
                 , IElevationService elevationService
-                , IglTFService glTFService)
+                , SharpGltfService sharpGltfService)
         {
             _logger = logger;
             _elevationService = elevationService;
-            _glTFService = glTFService;
+            _sharpGltfService = sharpGltfService;
+
+
         }
         public void Run()
         {
@@ -71,7 +72,7 @@ namespace SampleApp
                 var bbox = GeometryService.GetBoundingBox(bboxWKT);
 
                 _logger.LogInformation($"Getting height map data...");
-                var heightMap = _elevationService.GetHeightMap(bbox, dataset);
+                var heightMap = _elevationService.GetHeightMap(ref bbox, dataset);
 
                 _logger.LogInformation($"Processing height map data ({heightMap.Count} coordinates)...");
                 heightMap = heightMap
@@ -82,13 +83,12 @@ namespace SampleApp
                 // Triangulate height map
                 // and add base and sides
                 _logger.LogInformation($"Triangulating height map and generating 3D mesh...");
-                var mesh = _glTFService.GenerateTriangleMesh(heightMap);
 
-                _logger.LogInformation($"Creating glTF model...");
-                var model = _glTFService.GenerateModel(mesh, modelName);
+                var model = _sharpGltfService.CreateTerrainMesh(heightMap);
+                model.SaveGLB(Path.Combine(Directory.GetCurrentDirectory(), modelName + ".glb"));
 
-                _logger.LogInformation($"Exporting glTF model...");
-                _glTFService.Export(model, Directory.GetCurrentDirectory(), modelName, exportglTF: false, exportGLB: true);
+                model = _sharpGltfService.CreateTerrainMesh(heightMap, GenOptions.Normals | GenOptions.BoxedBaseElevationMin);
+                model.SaveGLB(Path.Combine(Directory.GetCurrentDirectory(), modelName + "_normalsBox.glb"));
 
                 _logger.LogInformation($"Model exported as {Path.Combine(Directory.GetCurrentDirectory(), modelName + ".gltf")} and .glb");
 

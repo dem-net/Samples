@@ -24,12 +24,12 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-using AssetGenerator;
 using DEM.Net.Core;
-using DEM.Net.glTF;
+using DEM.Net.glTF.SharpglTF;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Text;
 
 namespace SampleApp
@@ -43,12 +43,12 @@ namespace SampleApp
         private readonly ILogger<TINSamples> _logger;
         private readonly IRasterService _rasterService;
         private readonly IElevationService _elevationService;
-        private readonly IglTFService _glTFService;
+        private readonly SharpGltfService _glTFService;
 
         public TINSamples(ILogger<TINSamples> logger
                 , IRasterService rasterService
                 , IElevationService elevationService
-                , IglTFService glTFService) 
+                , SharpGltfService glTFService) 
         {
             _logger = logger;
             _rasterService = rasterService;
@@ -65,20 +65,18 @@ namespace SampleApp
                 var bbox = GeometryService.GetBoundingBox(wkt);
 
                 _logger.LogInformation($"Getting height map...");
-                HeightMap hMap = _elevationService.GetHeightMap(bbox, dataSet);
+                HeightMap hMap = _elevationService.GetHeightMap(ref bbox, dataSet);
                 hMap = hMap.ZScale(2);
 
 
                 _logger.LogInformation($"Generating TIN with {precisionMeters}m precision...");
                 hMap = hMap.ReprojectTo(4326, outputSrid);
-                var mesh = TINGeneration.GenerateTIN(hMap, (double)precisionMeters, _glTFService, null, outputSrid);
+                var model = TINGeneration.GenerateTIN(hMap, (double)precisionMeters, _glTFService, null, outputSrid);
 
                 _logger.LogInformation($"Generating model...");
+                string v_nomFichierOut = Path.Combine(Directory.GetCurrentDirectory(), $"{name}_TIN_{dataSet.Name}.glb");
+                model.SaveGLB(v_nomFichierOut);
 
-                Model model = _glTFService.GenerateModel(mesh, $"TIN {dataSet.Name}");
-                string v_nomFichierOut = $"{name}_TIN_{dataSet.Name}";
-
-                _glTFService.Export(model, ".", v_nomFichierOut, false, true);
                 _logger.LogInformation($"Model {v_nomFichierOut} generated.");
             }
             catch (Exception ex)

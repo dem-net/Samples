@@ -24,24 +24,16 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-using AssetGenerator;
-using AssetGenerator.Runtime;
-using DEM.Net.glTF;
 using DEM.Net.Core;
 using DEM.Net.Core.Imagery;
-using DEM.Net.Core.Services.Lab;
-using Microsoft.Extensions.DependencyInjection;
+using DEM.Net.glTF.SharpglTF;
+using Microsoft.Extensions.Logging;
+using SharpGLTF.Schema2;
 using System;
 using System.Collections.Generic;
-using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Numerics;
-using System.Text;
-using System.Threading.Tasks;
-using DEM.Net.Core.Gpx;
-using Microsoft.Extensions.Logging;
-using Microsoft.Extensions.Configuration;
 
 namespace SampleApp
 {
@@ -51,19 +43,19 @@ namespace SampleApp
         private readonly ILogger<Gpx3DSamples> _logger;
         private readonly IRasterService _rasterService;
         private readonly IElevationService _elevationService;
-        private readonly IglTFService _glTFService;
+        private readonly SharpGltfService _sharpGltfService;
         private readonly IImageryService _imageryService;
 
         public Gpx3DSamples(ILogger<Gpx3DSamples> logger
                 , IRasterService rasterService
                 , IElevationService elevationService
-                , IglTFService glTFService
+                , SharpGltfService sharpGltfService
                 , IImageryService imageryService)
         {
             _logger = logger;
             _rasterService = rasterService;
             _elevationService = elevationService;
-            _glTFService = glTFService;
+            _sharpGltfService = sharpGltfService;
             _imageryService = imageryService;
         }
 
@@ -78,10 +70,9 @@ namespace SampleApp
                 float Z_TRANSLATE_GPX_TRACK_METERS = 5;
                 float trailWidthMeters = 5f;
                 int skipGpxPointsEvery = 1;
-              
-                ImageryProvider provider = new TileDebugProvider(maxDegreeOfParallelism: 1);//  ImageryProvider.MapBoxSatellite;
 
-                List<MeshPrimitive> meshes = new List<MeshPrimitive>();
+                ImageryProvider provider = ImageryProvider.MapBoxSatellite; // new TileDebugProvider(null, maxDegreeOfParallelism: 1);//  ImageryProvider.MapBoxSatellite;
+
                 string outputDir = Path.GetFullPath(".");
 
                 //=======================
@@ -109,8 +100,7 @@ namespace SampleApp
                 //=======================
                 /// Height map (get dem elevation for bbox)
                 ///
-                HeightMap hMap = _elevationService.GetHeightMap(bbox, dataSet);
-                bbox = hMap.BoundingBox;
+                HeightMap hMap = _elevationService.GetHeightMap(ref bbox, dataSet);
                 
 //                var refPoint = new GeoPoint(43.5, 5.5);
 //                hMap = hMap.BakeCoordinates();
@@ -135,7 +125,7 @@ namespace SampleApp
 
 
                     Console.WriteLine("Download image tiles...");
-                    TileRange tiles = _imageryService.DownloadTiles(bbox, provider, 8);
+                    TileRange tiles = _imageryService.DownloadTiles(bbox, provider, 4);
                     string fileName = Path.Combine(outputDir, "Texture.jpg");
 
                     Console.WriteLine("Construct texture...");
@@ -165,21 +155,20 @@ namespace SampleApp
                 Console.WriteLine("Height map...");
 
                 Console.WriteLine("GenerateTriangleMesh...");
-                MeshPrimitive triangleMesh = null;
                 //hMap = _elevationService.GetHeightMap(bbox, _dataSet);
+                ModelRoot model = null;
                 if (generateTIN)
                 {
 
-                    triangleMesh = TINGeneration.GenerateTIN(hMap, 10d, _glTFService, pbrTexture, outputSrid);
+                    model = TINGeneration.GenerateTIN(hMap, 10d, _sharpGltfService, pbrTexture, outputSrid);
 
                 }
                 else
                 {
                     //hMap = hMap.CenterOnOrigin().ZScale(Z_FACTOR);
                     // generate mesh with texture
-                    triangleMesh = _glTFService.GenerateTriangleMesh(hMap, null, pbrTexture);
+                    model = _sharpGltfService.CreateTerrainMesh(hMap, pbrTexture);
                 }
-                meshes.Add(triangleMesh);
 
                 if (trackIn3D)
                 {
@@ -192,14 +181,13 @@ namespace SampleApp
                                                             .ZScale(Z_FACTOR);
 
 
-                    MeshPrimitive gpxLine = _glTFService.GenerateLine(gpxPointsElevated, new Vector4(0, 1, 0, 0.5f), trailWidthMeters);
-                    meshes.Add(gpxLine);
+                    model = _sharpGltfService.AddLine(model, gpxPointsElevated, new Vector4(0, 1, 0, 0.5f), trailWidthMeters);
+                   
                 }
 
                 // model export
                 Console.WriteLine("GenerateModel...");
-                Model model = _glTFService.GenerateModel(meshes, this.GetType().Name);
-                _glTFService.Export(model, ".", $"{GetType().Name} dst{dataSet.Name} TIN{generateTIN} Srid{outputSrid}", false, true);
+                model.SaveGLB(Path.Combine(Directory.GetCurrentDirectory(), $"{GetType().Name} dst{dataSet.Name} TIN{generateTIN} Srid{outputSrid}.glb"));
             }
             catch (Exception ex)
             {

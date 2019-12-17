@@ -128,7 +128,9 @@ namespace SampleApp
                     .AddTransient<TINSamples>()
                     .AddTransient<glTF3DSamples>()
                     .AddTransient<DownloaderSample>()
-                    .AddTransient<CustomSamples>();
+                    .AddTransient<CustomSamples>()
+                    .AddTransient<AerialGpxSample>()
+                    .AddTransient<ImagerySample>();
 
 
             services.AddHostedService<SampleApplication>();

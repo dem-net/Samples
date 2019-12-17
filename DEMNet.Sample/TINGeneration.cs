@@ -24,8 +24,6 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
-using AssetGenerator.Runtime;
-using DEM.Net.glTF;
 using DEM.Net.Core;
 using DEM.Net.Core.Imagery;
 using DEM.Net.Core.Services.Lab;
@@ -34,12 +32,14 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using DEM.Net.glTF.SharpglTF;
+using SharpGLTF.Schema2;
 
 namespace SampleApp
 {
     public static class TINGeneration
     {
-        public static MeshPrimitive GenerateTIN(HeightMap hMap, double precision, IglTFService gltf, PBRTexture textures, int srid)
+        public static ModelRoot GenerateTIN(HeightMap hMap, double precision, SharpGltfService gltf, PBRTexture textures, int srid)
         {
             var v_pointsToTest = GetGeoPointsByHMap(hMap, srid);
 
@@ -71,7 +71,7 @@ namespace SampleApp
                 v_indiceParIdPoint.Add(v_point.p00_id, v_indice);
                 v_indice++;
             }
-            p00_geoPoint = p00_geoPoint.CenterOnOrigin().ToList();
+            p00_geoPoint = p00_geoPoint.ToList();
 
 
             //Création des listes d'indices et normalisation du sens des points favettes
@@ -93,13 +93,13 @@ namespace SampleApp
                     p01_listeIndexPointsfacettes.Add(v_listeIndices);
                 }
             }
-            MeshPrimitive v_trianglesMesh = gltf.GenerateTriangleMesh(p00_geoPoint, p01_listeIndexPointsfacettes.SelectMany(c => c).ToList(), null, textures);
+            ModelRoot model = gltf.GenerateTriangleMesh(p00_geoPoint, p01_listeIndexPointsfacettes.SelectMany(c => c).ToList(), textures);
 
-            return v_trianglesMesh;
+            return model;
 
         }
 
-        public static Triangulation GenerateTIN(HeightMap hMap, double precision, IglTFService gltf, PBRTexture textures
+        public static Triangulation GenerateTIN(HeightMap hMap, double precision
                         , int inputSRID = Reprojection.SRID_GEODETIC
                         , int outputSRID = Reprojection.SRID_PROJECTED_MERCATOR)
         {
@@ -134,7 +134,7 @@ namespace SampleApp
                 v_indiceParIdPoint.Add(v_point.p00_id, v_indice);
                 v_indice++;
             }
-            p00_geoPoint = p00_geoPoint.CenterOnOrigin().ToList();
+            p00_geoPoint = p00_geoPoint.ToList();
 
 
             //Création des listes d'indices et normalisation du sens des points favettes

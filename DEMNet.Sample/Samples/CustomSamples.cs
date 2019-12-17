@@ -26,12 +26,7 @@
 
 using DEM.Net.Core;
 using DEM.Net.Core.Interpolation;
-using DEM.Net.glTF;
-using DEM.Net.glTF.Export;
-using GeoJSON.Net.Feature;
-using GeoJSON.Net.Geometry;
 using Microsoft.Extensions.Logging;
-using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -46,20 +41,14 @@ namespace SampleApp
     {
         private readonly ILogger<ElevationSamples> _logger;
         private readonly IElevationService _elevationService;
-        private readonly IglTFService _glTFService;
-        private readonly ISTLExportService _stlService;
         private readonly IRasterService _rasterService;
 
         public CustomSamples(ILogger<ElevationSamples> logger
                 , IElevationService elevationService
-                , IglTFService glTFService
-                , ISTLExportService stlService
                 , IRasterService rasterService)
         {
             _logger = logger;
             _elevationService = elevationService;
-            _glTFService = glTFService;
-            _stlService = stlService;
             _rasterService = rasterService;
         }
         public void Run(CancellationToken cancellationToken)
