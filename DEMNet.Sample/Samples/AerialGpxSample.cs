@@ -29,18 +29,21 @@ using DEM.Net.Core.Gpx;
 using DEM.Net.Core.Imagery;
 using DEM.Net.glTF.SharpglTF;
 using Microsoft.Extensions.Logging;
-using SharpGLTF.Schema2;
-using SharpGLTF;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Numerics;
-using System.Threading.Tasks;
 using DEM.Net.Core.IO.SensorLog;
+using SharpGLTF.Geometry;
+using SharpGLTF.Geometry.VertexTypes;
+using SharpGLTF.Materials;
+using SharpGLTF.Schema2;
+using SharpGLTF.Scenes;
 
 namespace SampleApp
 {
+    using VERTEX = SharpGLTF.Geometry.VertexTypes.VertexPosition;
     public class AerialGpxSample
     {
         private readonly ILogger<Gpx3DSamples> _logger;
@@ -49,7 +52,7 @@ namespace SampleApp
         private readonly IImageryService _imageryService;
         private readonly SharpGltfService _sharpGltfService;
         private readonly int outputSrid = Reprojection.SRID_PROJECTED_MERCATOR;
-        private readonly int imageryNbTiles = 4;
+        private readonly int imageryNbTiles = 8;
 
         public AerialGpxSample(ILogger<Gpx3DSamples> logger
                 , IRasterService rasterService
@@ -63,7 +66,155 @@ namespace SampleApp
             _imageryService = imageryService;
             _sharpGltfService = sharpGltfService;
         }
-        internal void Run(DEMDataSet largeDataSet, DEMDataSet localDataset)
+
+
+        internal void Run(DEMDataSet largeDataSet, DEMDataSet localDataset, bool useSensorLog)
+        {
+
+            if (useSensorLog)
+            {
+                RunSimpleAnimation("0", Vector3.Zero, Vector3.Zero);
+
+                RunSimpleAnimation("1", new Vector3(10, 0, 10), Vector3.Zero);
+                RunSimpleAnimation("2", Vector3.Zero, new Vector3(10, 0, 10));
+
+                RunSensorLog(largeDataSet, localDataset);
+            }
+            else
+            {
+                RunGPX(largeDataSet, localDataset);
+            }
+
+        }
+
+        private void RunSimpleAnimation(string name, Vector3 translation, Vector3 localTrans)
+        {
+            float xTrans = 10;
+            float zTrans = 10;
+            // create two materials
+
+            var material1 = new MaterialBuilder()
+                .WithDoubleSide(true)
+                .WithMetallicRoughnessShader()
+                .WithChannelParam("BaseColor", new Vector4(1, 0, 0, 1));
+
+            var material2 = new MaterialBuilder()
+                .WithDoubleSide(true)
+                .WithMetallicRoughnessShader()
+                .WithChannelParam("BaseColor", new Vector4(1, 0, 1, 1));
+
+            // create a mesh with two primitives, one for each material
+
+            var node = new NodeBuilder("Node");
+            node.LocalTransform = Matrix4x4.CreateTranslation(localTrans);
+            node = node.CreateNode();
+            node.UseTranslation("track1")
+                .WithPoint(0, translation)
+                .WithPoint(1, translation);
+            node.UseRotation("track1")
+               .WithPoint(0, Quaternion.Identity)
+               .WithPoint(0.5f, Quaternion.CreateFromAxisAngle(Vector3.UnitY, MathF.PI))
+               .WithPoint(1, Quaternion.CreateFromAxisAngle(Vector3.UnitY, 1.5f * MathF.PI));
+            var mesh = new MeshBuilder<VERTEX>("mesh");
+
+            var prim = mesh.UsePrimitive(material1);
+            prim.AddTriangle(new VERTEX(-10 + xTrans, 0, 0 + zTrans), new VERTEX(10 + xTrans, 0, 0 + zTrans), new VERTEX(0 + xTrans, 0, 10 + zTrans));
+            prim.AddTriangle(new VERTEX(10 + xTrans, 0, 0 + zTrans), new VERTEX(-10 + xTrans, 0, 0 + zTrans), new VERTEX(0 + xTrans, 0, -10 + zTrans));
+
+            prim = mesh.UsePrimitive(material2);
+            prim.AddQuadrangle(new VERTEX(-5 + xTrans, 3, 0 + zTrans), new VERTEX(0 + xTrans, 3, -5 + zTrans), new VERTEX(5 + xTrans, 3, 0 + zTrans), new VERTEX(0 + xTrans, 3, 5 + zTrans));
+
+            // create a scene
+
+            var scene = new SceneBuilder();
+
+            scene.AddMesh(mesh, node);
+            // save the model in different formats
+
+            var model = scene.ToSchema2();
+            model.SaveGLB($"{name}.glb");
+        }
+
+        internal void RunSensorLog(DEMDataSet largeDataSet, DEMDataSet localDataset)
+        {
+            // sensor log needs data filtering
+            // => some coordinates are null (not in the json data)
+            // => most accurate is RelativeElevation 
+            //      => this is height above initial point, need to sum with start elevation
+            try
+            {
+                string outputDir = Path.GetFullPath(".");
+                //string _gpxFile = Path.Combine("SampleData", "20191022-Puch-Pöllau.gpx");
+                string sensorLogFile = Path.Combine("SampleData", "20191023-Puch-Pöllau-sensorlog.json");
+                var sensorLog = SensorLog.FromJson(sensorLogFile);
+                //sensorLog.Plot("sensorLog.png");
+                string balloonModel = Path.Combine("SampleData", "OE-SOE.glb");
+                float Z_FACTOR = 2f;
+                float trailWidthMeters = 5f;
+
+
+                ModelRoot balloon = ModelRoot.Load(balloonModel);
+
+                //=======================
+                /// Line strip from SensorLog
+                ///
+                var pointsGpx = sensorLog.ToGPX().ToList();
+                var geoPoints = sensorLog.ToGeoPoints().ToList();
+
+                var firstElevation = _elevationService.GetPointElevation(geoPoints.First(), localDataset);
+                foreach (var p in pointsGpx) p.Elevation += firstElevation.Elevation.Value;
+                foreach (var p in geoPoints) p.Elevation += firstElevation.Elevation.Value;
+
+                var model = _sharpGltfService.CreateNewModel();
+                //var largeMesh = GetMeshFromGpxTrack(outputDir, largeDataSet, geoPoints
+                //                                , bboxScale: 5
+                //                                , zFactor: Z_FACTOR
+                //                                , generateTIN: false
+                //                                , tinPrecision: 500d
+                //                                , drawGpxOnTexture: false
+                //                                , ImageryProvider.OpenTopoMap);
+                //meshes.Add(largeMesh);
+
+                model = GetMeshFromGpxTrack(model, outputDir, localDataset, geoPoints
+                                            , bboxScale: (1.05, 1.05)
+                                            , zFactor: Z_FACTOR
+                                            , generateTIN: false
+                                            , tinPrecision: 50d
+                                            , drawGpxOnTexture: true
+                                            , ImageryProvider.EsriWorldImagery);
+
+
+                var gpxPoints = geoPoints.ReprojectGeodeticToCartesian().ZScale(Z_FACTOR);
+
+                model = _sharpGltfService.AddLine(model, gpxPoints, new Vector4(0, 1, 0, 0.5f), trailWidthMeters);
+
+                // model export
+                Console.WriteLine("GenerateModel...");
+
+                var node = model.LogicalNodes.First();
+                pointsGpx = pointsGpx.ReprojectGeodeticToCartesian().ZScale(Z_FACTOR);
+                // animations
+                node = CreateAnimationFromGpx("GPX", node, pointsGpx, 1f);
+                node = CreateAnimationFromGpx("GPX x500", node, pointsGpx, 500f);
+
+
+                //var sceneBuilderBalloon = balloon.DefaultScene.ToSceneBuilder();
+
+                //var sceneBuilderTerrain = model.DefaultScene.ToSceneBuilder();
+                //sceneBuilderBalloon.
+
+
+
+                model.SaveGLB(Path.Combine(Directory.GetCurrentDirectory(), $"{GetType().Name}.glb"));
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, ex.Message);
+            }
+
+        }
+
+        internal void RunGPX(DEMDataSet largeDataSet, DEMDataSet localDataset)
         {
 
             try
@@ -72,14 +223,14 @@ namespace SampleApp
                 string _gpxFile = Path.Combine("SampleData", "20191022-Puch-Pöllau.gpx");
                 string sensorLogFile = Path.Combine("SampleData", "20191023-Puch-Pöllau-sensorlog.json");
                 var sensorLog = SensorLog.FromJson(sensorLogFile);
-                sensorLog.Plot("sensorLog.png");
+                //sensorLog.Plot("sensorLog.png");
                 string balloonModel = Path.Combine("SampleData", "OE-SOE.glb");
                 float Z_FACTOR = 2f;
                 float trailWidthMeters = 5f;
 
 
                 ModelRoot balloon = ModelRoot.Load(balloonModel);
-                
+
                 //=======================
                 /// Line strip from GPX
                 ///
@@ -110,7 +261,7 @@ namespace SampleApp
                 var gpxPoints = geoPoints.ReprojectGeodeticToCartesian().ZScale(Z_FACTOR);
 
                 model = _sharpGltfService.AddLine(model, gpxPoints, new Vector4(0, 1, 0, 0.5f), trailWidthMeters);
-                
+
                 // model export
                 Console.WriteLine("GenerateModel...");
 
@@ -143,13 +294,37 @@ namespace SampleApp
             GpxTrackPoint initialPoint = points.First();
             Vector3 initialPointVec3 = initialPoint.ToGeoPoint().ToVector3();
 
-            var curve = points
+            var translationCurve = points
                 .Select(p => ((float)(p.Time.Value - initialPoint.Time.Value).TotalSeconds / timeFactor
                                 , (initialPointVec3 - p.ToGeoPoint().ToVector3())))
                 .ToArray();
 
-            node = node.WithTranslationAnimation(name, curve);
+            node = node.WithTranslationAnimation(name, translationCurve);
+
+            // return new Vector3((float)geoPoint.Longitude, (float)geoPoint.Elevation, -(float)geoPoint.Latitude);
+            // up vector is (0,1,0)
+
+            double lastBearing = points.Where(p => p.Bearing.HasValue).First().Bearing.Value;
+            var rotationCurve = points
+                .Select(p =>
+                {
+                    Matrix4x4 mat;
+                    Quaternion quaternion = Quaternion.CreateFromAxisAngle(Vector3.UnitY, GetAngleRadians(lastBearing, p.Bearing));
+                    lastBearing = p.Bearing ?? lastBearing;
+                    return ((float)((p.Time.Value - initialPoint.Time.Value).TotalSeconds / timeFactor)
+                                    , quaternion);
+                })
+                .ToArray();
+
+            node = node.WithRotationAnimation(name + "rot", rotationCurve);
             return node;
+        }
+
+        private float GetAngleRadians(double angle1Deg, double? angle2Deg)
+        {
+            var angle = (float)((angle2Deg ?? angle1Deg) - angle1Deg);
+            //_logger.LogInformation($"Angle {angle:F2}");
+            return (float)(angle * Math.PI / 180d);
         }
 
         internal ModelRoot GetMeshFromGpxTrack(ModelRoot model, string outputDir, DEMDataSet dataSet, IEnumerable<GeoPoint> gpxPoints4326, (double x, double y) bboxScale, float zFactor, bool generateTIN,
