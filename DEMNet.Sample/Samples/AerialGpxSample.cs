@@ -137,80 +137,80 @@ namespace SampleApp
 
         internal void RunSensorLog(DEMDataSet largeDataSet, DEMDataSet localDataset)
         {
-            // sensor log needs data filtering
-            // => some coordinates are null (not in the json data)
-            // => most accurate is RelativeElevation 
-            //      => this is height above initial point, need to sum with start elevation
-            try
-            {
-                string outputDir = Path.GetFullPath(".");
-                //string _gpxFile = Path.Combine("SampleData", "20191022-Puch-Pöllau.gpx");
-                string sensorLogFile = Path.Combine("SampleData", "20191023-Puch-Pöllau-sensorlog.json");
-                var sensorLog = SensorLog.FromJson(sensorLogFile);
-                //sensorLog.Plot("sensorLog.png");
-                string balloonModel = Path.Combine("SampleData", "OE-SOE.glb");
-                float Z_FACTOR = 2f;
-                float trailWidthMeters = 5f;
+            //// sensor log needs data filtering
+            //// => some coordinates are null (not in the json data)
+            //// => most accurate is RelativeElevation 
+            ////      => this is height above initial point, need to sum with start elevation
+            //try
+            //{
+            //    string outputDir = Path.GetFullPath(".");
+            //    //string _gpxFile = Path.Combine("SampleData", "20191022-Puch-Pöllau.gpx");
+            //    string sensorLogFile = Path.Combine("SampleData", "20191023-Puch-Pöllau-sensorlog.json");
+            //    var sensorLog = SensorLog.FromJson(sensorLogFile);
+            //    //sensorLog.Plot("sensorLog.png");
+            //    string balloonModel = Path.Combine("SampleData", "OE-SOE.glb");
+            //    float Z_FACTOR = 2f;
+            //    float trailWidthMeters = 5f;
 
 
-                ModelRoot balloon = ModelRoot.Load(balloonModel);
+            //    ModelRoot balloon = ModelRoot.Load(balloonModel);
 
-                //=======================
-                /// Line strip from SensorLog
-                ///
-                var pointsGpx = sensorLog.ToGPX().ToList();
-                var geoPoints = sensorLog.ToGeoPoints().ToList();
+            //    //=======================
+            //    /// Line strip from SensorLog
+            //    ///
+            //    var pointsGpx = sensorLog.ToGPX().ToList();
+            //    var geoPoints = sensorLog.ToGeoPoints().ToList();
 
-                var firstElevation = _elevationService.GetPointElevation(geoPoints.First(), localDataset);
-                foreach (var p in pointsGpx) p.Elevation += firstElevation.Elevation.Value;
-                foreach (var p in geoPoints) p.Elevation += firstElevation.Elevation.Value;
+            //    var firstElevation = _elevationService.GetPointElevation(geoPoints.First(), localDataset);
+            //    foreach (var p in pointsGpx) p.Elevation += firstElevation.Elevation.Value;
+            //    foreach (var p in geoPoints) p.Elevation += firstElevation.Elevation.Value;
 
-                var model = _sharpGltfService.CreateNewModel();
-                //var largeMesh = GetMeshFromGpxTrack(outputDir, largeDataSet, geoPoints
-                //                                , bboxScale: 5
-                //                                , zFactor: Z_FACTOR
-                //                                , generateTIN: false
-                //                                , tinPrecision: 500d
-                //                                , drawGpxOnTexture: false
-                //                                , ImageryProvider.OpenTopoMap);
-                //meshes.Add(largeMesh);
+            //    var model = _sharpGltfService.CreateNewModel();
+            //    //var largeMesh = GetMeshFromGpxTrack(outputDir, largeDataSet, geoPoints
+            //    //                                , bboxScale: 5
+            //    //                                , zFactor: Z_FACTOR
+            //    //                                , generateTIN: false
+            //    //                                , tinPrecision: 500d
+            //    //                                , drawGpxOnTexture: false
+            //    //                                , ImageryProvider.OpenTopoMap);
+            //    //meshes.Add(largeMesh);
 
-                model = GetMeshFromGpxTrack(model, outputDir, localDataset, geoPoints
-                                            , bboxScale: (1.05, 1.05)
-                                            , zFactor: Z_FACTOR
-                                            , generateTIN: false
-                                            , tinPrecision: 50d
-                                            , drawGpxOnTexture: true
-                                            , ImageryProvider.EsriWorldImagery);
-
-
-                var gpxPoints = geoPoints.ReprojectGeodeticToCartesian().ZScale(Z_FACTOR);
-
-                model = _sharpGltfService.AddLine(model, gpxPoints, new Vector4(0, 1, 0, 0.5f), trailWidthMeters);
-
-                // model export
-                Console.WriteLine("GenerateModel...");
-
-                var node = model.LogicalNodes.First();
-                pointsGpx = pointsGpx.ReprojectGeodeticToCartesian().ZScale(Z_FACTOR);
-                // animations
-                node = CreateAnimationFromGpx("GPX", node, pointsGpx, 1f);
-                node = CreateAnimationFromGpx("GPX x500", node, pointsGpx, 500f);
+            //    model = GetMeshFromGpxTrack(model, outputDir, localDataset, geoPoints
+            //                                , bboxScale: (1.05, 1.05)
+            //                                , zFactor: Z_FACTOR
+            //                                , generateTIN: false
+            //                                , tinPrecision: 50d
+            //                                , drawGpxOnTexture: true
+            //                                , ImageryProvider.EsriWorldImagery);
 
 
-                //var sceneBuilderBalloon = balloon.DefaultScene.ToSceneBuilder();
+            //    var gpxPoints = geoPoints.ReprojectGeodeticToCartesian().ZScale(Z_FACTOR);
 
-                //var sceneBuilderTerrain = model.DefaultScene.ToSceneBuilder();
-                //sceneBuilderBalloon.
+            //    model = _sharpGltfService.AddLine(model, gpxPoints, new Vector4(0, 1, 0, 0.5f), trailWidthMeters);
+
+            //    // model export
+            //    Console.WriteLine("GenerateModel...");
+
+            //    var node = model.LogicalNodes.First();
+            //    pointsGpx = pointsGpx.ReprojectGeodeticToCartesian().ZScale(Z_FACTOR);
+            //    // animations
+            //    node = CreateAnimationFromGpx("GPX", node, pointsGpx, 1f);
+            //    node = CreateAnimationFromGpx("GPX x500", node, pointsGpx, 500f);
+
+
+            //    //var sceneBuilderBalloon = balloon.DefaultScene.ToSceneBuilder();
+
+            //    //var sceneBuilderTerrain = model.DefaultScene.ToSceneBuilder();
+            //    //sceneBuilderBalloon.
 
 
 
-                model.SaveGLB(Path.Combine(Directory.GetCurrentDirectory(), $"{GetType().Name}.glb"));
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, ex.Message);
-            }
+            //    model.SaveGLB(Path.Combine(Directory.GetCurrentDirectory(), $"{GetType().Name}.glb"));
+            //}
+            //catch (Exception ex)
+            //{
+            //    _logger.LogError(ex, ex.Message);
+            //}
 
         }
 
