@@ -25,8 +25,6 @@
 // THE SOFTWARE.
 
 using DEM.Net.Core;
-using DEM.Net.glTF;
-using DEM.Net.glTF.Export;
 using GeoJSON.Net.Feature;
 using GeoJSON.Net.Geometry;
 using Microsoft.Extensions.Logging;
@@ -44,18 +42,12 @@ namespace SampleApp
     {
         private readonly ILogger<ElevationSamples> _logger;
         private readonly IElevationService _elevationService;
-        private readonly IglTFService _glTFService;
-        private readonly ISTLExportService _stlService;
 
         public ElevationSamples(ILogger<ElevationSamples> logger
-                , IElevationService elevationService
-                , IglTFService glTFService
-                , ISTLExportService stlService)
+                , IElevationService elevationService)
         {
             _logger = logger;
             _elevationService = elevationService;
-            _glTFService = glTFService;
-            _stlService = stlService;
         }
         public void Run(CancellationToken cancellationToken)
         {

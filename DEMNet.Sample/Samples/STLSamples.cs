@@ -25,12 +25,14 @@
 // THE SOFTWARE.
 
 using DEM.Net.Core;
-using DEM.Net.glTF;
 using DEM.Net.glTF.Export;
+using DEM.Net.glTF.SharpglTF;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Diagnostics;
 using System.IO;
+using System.Linq;
+using System.Numerics;
 
 namespace SampleApp
 {
@@ -41,17 +43,17 @@ namespace SampleApp
     {
         private readonly ILogger<STLSamples> _logger;
         private readonly IElevationService _elevationService;
-        private readonly IglTFService _glTFService;
+        private readonly SharpGltfService _sharpGltfService;
         private readonly ISTLExportService _stlService;
 
         public STLSamples(ILogger<STLSamples> logger
                 , IElevationService elevationService
-                , IglTFService glTFService
+                , SharpGltfService sharpGltfService
                 , ISTLExportService stlService)
         {
             _logger = logger;
             _elevationService = elevationService;
-            _glTFService = glTFService;
+            _sharpGltfService = sharpGltfService;
             _stlService = stlService;
         }
         public void Run()
@@ -74,7 +76,7 @@ namespace SampleApp
                 var bbox = GeometryService.GetBoundingBox(bboxWKT);
 
                 _logger.LogInformation($"Getting height map data...");
-                var heightMap = _elevationService.GetHeightMap(bbox, dataset);
+                var heightMap = _elevationService.GetHeightMap(ref bbox, dataset);
 
                 _logger.LogInformation($"Processing height map data ({heightMap.Count} coordinates)...");
                 heightMap = heightMap
@@ -89,16 +91,14 @@ namespace SampleApp
                 // Triangulate height map
                 // and add base and sides
                 _logger.LogInformation($"Triangulating height map and generating box (5mm thick)...");
-                var mesh = _glTFService.GenerateTriangleMesh_Boxed(heightMap, BoxBaseThickness.FromMinimumPoint, 5);
-
 
                 // STL axis differ from glTF 
-                _logger.LogInformation($"Rotating mesh...");
-                mesh.RotateX((float)Math.PI / 2f);
+                var model = _sharpGltfService.CreateTerrainMesh(heightMap, GenOptions.BoxedBaseElevationMin, Matrix4x4.CreateRotationX((float)Math.PI / 2f));
+
 
                 _logger.LogInformation($"Exporting STL model...");
                 var stlFilePath = Path.Combine(Directory.GetCurrentDirectory(), $"{modelName}.stl");
-                _stlService.STLExport(mesh, stlFilePath, false);
+                _stlService.STLExport(model.LogicalMeshes[0].Primitives[0], stlFilePath, false);
 
                 _logger.LogInformation($"Model exported in {stlFilePath}.");
 

@@ -25,8 +25,7 @@
 // THE SOFTWARE.
 
 using DEM.Net.Core;
-using DEM.Net.glTF;
-using DEM.Net.glTF.Export;
+using DEM.Net.glTF.SharpglTF;
 using Microsoft.Extensions.Logging;
 using System;
 using System.Diagnostics;
@@ -43,6 +42,7 @@ namespace SampleApp
     {
         private readonly ILogger<glTF3DSamples> _logger;
         private readonly IElevationService _elevationService;
+<<<<<<< HEAD
         private readonly IglTFService _glTFService;
         private readonly IImageryService _imageryService;
 
@@ -56,6 +56,19 @@ namespace SampleApp
             _elevationService = elevationService;
             _glTFService = glTFService;
             _imageryService = imageryService;
+=======
+        private readonly SharpGltfService _sharpGltfService;
+
+        public glTF3DSamples(ILogger<glTF3DSamples> logger
+                , IElevationService elevationService
+                , SharpGltfService sharpGltfService)
+        {
+            _logger = logger;
+            _elevationService = elevationService;
+            _sharpGltfService = sharpGltfService;
+
+
+>>>>>>> 104765ffe0f1757308e176bada4b37c91ea116d9
         }
         public void Run(DEMDataSet dataset, bool withTexture = true)
         {
@@ -81,6 +94,7 @@ namespace SampleApp
 
                 var bbox = new BoundingBox(5.5613898348431485,5.597185285307553,43.49372969433046,43.50939068558466);
                 _logger.LogInformation($"Getting height map data...");
+<<<<<<< HEAD
                 var heightMap = _elevationService.GetHeightMap(bbox, dataset);
                bbox = heightMap.BoundingBox;
                 
@@ -89,6 +103,10 @@ namespace SampleApp
 //                var hMapRefPoint = heightMap.Coordinates.OrderBy(c => c.DistanceSquaredTo(refPoint)).First();
 //                hMapRefPoint.Elevation += 100;
                 
+=======
+                var heightMap = _elevationService.GetHeightMap(ref bbox, dataset);
+
+>>>>>>> 104765ffe0f1757308e176bada4b37c91ea116d9
                 _logger.LogInformation($"Processing height map data ({heightMap.Count} coordinates)...");
                 heightMap = heightMap
                     .ReprojectGeodeticToCartesian() // Reproject to 3857 (useful to get coordinates in meters)
@@ -129,13 +147,21 @@ namespace SampleApp
                 // Triangulate height map
                 // and add base and sides
                 _logger.LogInformation($"Triangulating height map and generating 3D mesh...");
+<<<<<<< HEAD
                 var mesh = _glTFService.GenerateTriangleMesh(heightMap, null, pbrTexture);
+=======
+>>>>>>> 104765ffe0f1757308e176bada4b37c91ea116d9
 
-                _logger.LogInformation($"Creating glTF model...");
-                var model = _glTFService.GenerateModel(mesh, modelName);
+                var model = _sharpGltfService.CreateTerrainMesh(heightMap);
+                model.SaveGLB(Path.Combine(Directory.GetCurrentDirectory(), modelName + ".glb"));
 
+<<<<<<< HEAD
                 _logger.LogInformation($"Exporting glTF model...");
                 _glTFService.Export(model, outputDir, modelName, exportglTF: false, exportGLB: true);
+=======
+                model = _sharpGltfService.CreateTerrainMesh(heightMap, GenOptions.Normals | GenOptions.BoxedBaseElevationMin);
+                model.SaveGLB(Path.Combine(Directory.GetCurrentDirectory(), modelName + "_normalsBox.glb"));
+>>>>>>> 104765ffe0f1757308e176bada4b37c91ea116d9
 
                 _logger.LogInformation($"Model exported as {Path.Combine(Directory.GetCurrentDirectory(), modelName + ".gltf")} and .glb");
 
