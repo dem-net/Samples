@@ -52,7 +52,7 @@ namespace SampleApp
         private readonly IImageryService _imageryService;
         private readonly SharpGltfService _sharpGltfService;
         private readonly int outputSrid = Reprojection.SRID_PROJECTED_MERCATOR;
-        private readonly int imageryNbTiles = 8;
+        private readonly int imageryNbTiles = 4;
 
         public AerialGpxSample(ILogger<Gpx3DSamples> logger
                 , IRasterService rasterService
@@ -272,9 +272,9 @@ namespace SampleApp
                 node = CreateAnimationFromGpx("GPX x500", node, pointsGpx, 500f);
 
 
-                //var sceneBuilderBalloon = balloon.DefaultScene.ToSceneBuilder();
-
-                //var sceneBuilderTerrain = model.DefaultScene.ToSceneBuilder();
+                var sceneBuilderBalloon = balloon.DefaultScene.ToSceneBuilder();
+                
+                var sceneBuilderTerrain = model.DefaultScene.ToSceneBuilder();
                 //sceneBuilderBalloon.
 
 
@@ -304,19 +304,23 @@ namespace SampleApp
             // return new Vector3((float)geoPoint.Longitude, (float)geoPoint.Elevation, -(float)geoPoint.Latitude);
             // up vector is (0,1,0)
 
-            double lastBearing = points.Where(p => p.Bearing.HasValue).First().Bearing.Value;
-            var rotationCurve = points
-                .Select(p =>
-                {
-                    Matrix4x4 mat;
-                    Quaternion quaternion = Quaternion.CreateFromAxisAngle(Vector3.UnitY, GetAngleRadians(lastBearing, p.Bearing));
-                    lastBearing = p.Bearing ?? lastBearing;
-                    return ((float)((p.Time.Value - initialPoint.Time.Value).TotalSeconds / timeFactor)
-                                    , quaternion);
-                })
-                .ToArray();
+            
+            double? lastBearing = points.FirstOrDefault(p => p.Bearing.HasValue)?.Bearing;
+            if (lastBearing.HasValue)
+            {
+                var rotationCurve = points
+                    .Select(p =>
+                    {
+                        Matrix4x4 mat;
+                        Quaternion quaternion = Quaternion.CreateFromAxisAngle(Vector3.UnitY, GetAngleRadians(lastBearing.Value, p.Bearing));
+                        lastBearing = p.Bearing ?? lastBearing;
+                        return ((float)((p.Time.Value - initialPoint.Time.Value).TotalSeconds / timeFactor)
+                                        , quaternion);
+                    })
+                    .ToArray();
 
-            node = node.WithRotationAnimation(name + "rot", rotationCurve);
+                node = node.WithRotationAnimation(name + "rot", rotationCurve);
+            }
             return node;
         }
 
