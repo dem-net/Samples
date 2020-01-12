@@ -157,12 +157,9 @@ namespace SampleApp
                 if (pauseAfterEachSample) Console.ReadLine();
                 if (cancellationToken.IsCancellationRequested) return Task.FromCanceled(cancellationToken);
             }
-<<<<<<< HEAD
-            using (_logger.BeginScope($"Running {nameof(TINSamples)}.."))
-=======
             using (_logger.BeginScope($"Running {nameof(glTF3DSamples)}.."))
             {
-                glTF3DSamples.Run();
+                glTF3DSamples.Run(DEMDataSet.SRTM_GL3,true);
                 _logger.LogInformation($"Sample {glTF3DSamples.GetType().Name} done. Press any key to run the next sample...");
                 if (pauseAfterEachSample) Console.ReadLine();
                 if (cancellationToken.IsCancellationRequested) return Task.FromCanceled(cancellationToken);
@@ -176,7 +173,6 @@ namespace SampleApp
             }
 
             using (_logger.BeginScope($"Running {nameof(GpxSamples)}.."))
->>>>>>> 104765ffe0f1757308e176bada4b37c91ea116d9
             {
                 gpxSamples.Run();
                 _logger.LogInformation($"Sample {gpxSamples.GetType().Name} done. Press any key to run the next sample...");
