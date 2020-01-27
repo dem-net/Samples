@@ -130,7 +130,8 @@ namespace SampleApp
                     .AddTransient<DownloaderSample>()
                     .AddTransient<CustomSamples>()
                     .AddTransient<AerialGpxSample>()
-                    .AddTransient<ImagerySample>();
+                    .AddTransient<ImagerySample>()
+                    .AddTransient<IntervisibilitySample>();
 
 
             services.AddHostedService<SampleApplication>();

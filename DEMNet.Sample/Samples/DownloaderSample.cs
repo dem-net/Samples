@@ -58,7 +58,7 @@ namespace SampleApp
                 _logger.LogInformation($"Downloading all files to {_rasterService.LocalDirectory}");
                 Stopwatch sw = new Stopwatch();
 
-                var datasetsQuery = DEMDataSet.RegisteredNonSingleFileDatasets;
+                var datasetsQuery = DEMDataSet.RegisteredNonLocalDatasets;
                 if (specificDataset != null)
                     datasetsQuery = datasetsQuery.Where(d => d.Name == specificDataset.Name);
 

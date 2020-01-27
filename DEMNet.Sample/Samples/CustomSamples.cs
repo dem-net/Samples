@@ -90,7 +90,7 @@ namespace SampleApp
                 pt = _elevationService.GetPointElevation(lat, lon, dataSet);
 
 
-                foreach (var dataset in DEMDataSet.RegisteredNonSingleFileDatasets)
+                foreach (var dataset in DEMDataSet.RegisteredNonLocalDatasets)
                 {
 
                     _elevationService.DownloadMissingFiles(dataset, lat, lon);

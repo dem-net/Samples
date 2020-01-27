@@ -25,8 +25,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="DEM.Net.Core" Version="0.2.0" />
-    <PackageReference Include="DEM.Net.glTF" Version="0.2.0" />
     <PackageReference Include="GeoJSON.Net" Version="1.1.73" />
     <PackageReference Include="Microsoft.Extensions.Configuration.CommandLine" Version="3.1.0" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="3.1.0" />
@@ -78,5 +76,9 @@
     <Compile Condition=" '$(EnableDefaultCompileItems)' == 'true' " Update="Samples\Gpx3DSamples.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Compile>
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\DEM.Net\DEM.Net.glTF\DEM.Net.glTF.csproj" />
+    <ProjectReference Include="..\..\DEM.Net\DEM.Net.Core\DEM.Net.Core.csproj" />
   </ItemGroup>
 </Project>
