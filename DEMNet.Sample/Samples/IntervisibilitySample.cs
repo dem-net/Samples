@@ -90,7 +90,7 @@ namespace SampleApp
                 sw.Restart();
                 // Line starting at mont ventoux peak to Mont Blanc
                 DEMDataSet dataSet = DEMDataSet.ASTER_GDEMV3;
-                var metrics = _elevationService.GetVisibilityReport(new GeoPoint(lat1, lon1), new GeoPoint(lat2, lon2), dataSet);
+                var metrics = _elevationService.GetIntervisibilityReport(new GeoPoint(lat1, lon1), new GeoPoint(lat2, lon2), dataSet);
 
                 _logger.LogInformation($"{dataSet.Name} metrics: {metrics.ToString()}");
 
