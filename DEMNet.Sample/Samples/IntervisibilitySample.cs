@@ -63,11 +63,14 @@ namespace SampleApp
                 //double lon1 = 5.612444;
 
                 // bottom ste victoire (fuveau)
-                double lat1 = 43.49029208393125;
-                double lon1 = 5.587234497070313;
+                //double lat1 = 43.49029208393125;
+                //double lon1 = 5.587234497070313;
                 //double lat2 = 43.53013134607789;
                 //double lon2 = 5.581398010253906;
 
+                // geneva
+                double lat1 = 46.08129825372404;
+                double lon1 = 3.382026672363281;
                 // mont blanc
                 double lat2 = 45.833;
                 double lon2 = 6.864;
@@ -86,13 +89,9 @@ namespace SampleApp
 
                 sw.Restart();
                 // Line starting at mont ventoux peak to Mont Blanc
-                var elevationLine = GeometryService.ParseGeoPointAsGeometryLine(new GeoPoint(lat1, lon1), new GeoPoint(lat2, lon2));
                 DEMDataSet dataSet = DEMDataSet.ASTER_GDEMV3;
+                var metrics = _elevationService.GetVisibilityReport(new GeoPoint(lat1, lon1), new GeoPoint(lat2, lon2), dataSet);
 
-                _elevationService.DownloadMissingFiles(dataSet, elevationLine.GetBoundingBox());
-                var geoPoints = _elevationService.GetLineGeometryElevation(elevationLine, dataSet);
-
-                var metrics = geoPoints.ComputeVisibilityMetrics();
                 _logger.LogInformation($"{dataSet.Name} metrics: {metrics.ToString()}");
 
                 //var geoJson = ConvertLineElevationResultToGeoJson(simplified);
