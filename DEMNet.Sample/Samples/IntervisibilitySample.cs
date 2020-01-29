@@ -29,6 +29,7 @@ using GeoJSON.Net.Feature;
 using GeoJSON.Net.Geometry;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using ScottPlot;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -59,8 +60,8 @@ namespace SampleApp
                 //double lon1 = 5.27829;
 
                 // ste victoire
-                //double lat1 = 43.532456;
-                //double lon1 = 5.612444;
+                double lat1 = 43.532456;
+                double lon1 = 5.612444;
 
                 // bottom ste victoire (fuveau)
                 //double lat1 = 43.49029208393125;
@@ -69,8 +70,8 @@ namespace SampleApp
                 //double lon2 = 5.581398010253906;
 
                 // geneva
-                double lat1 = 46.08129825372404;
-                double lon1 = 3.382026672363281;
+                //double lat1 = 46.08129825372404;
+                //double lon1 = 3.382026672363281;
                 // mont blanc
                 double lat2 = 45.833;
                 double lon2 = 6.864;
@@ -92,6 +93,8 @@ namespace SampleApp
                 DEMDataSet dataSet = DEMDataSet.ASTER_GDEMV3;
                 var metrics = _elevationService.GetIntervisibilityReport(new GeoPoint(lat1, lon1), new GeoPoint(lat2, lon2), dataSet);
 
+                PlotVisibilityReport(metrics);
+
                 _logger.LogInformation($"{dataSet.Name} metrics: {metrics.ToString()}");
 
                 //var geoJson = ConvertLineElevationResultToGeoJson(simplified);
@@ -101,6 +104,48 @@ namespace SampleApp
             catch (Exception ex)
             {
                 _logger.LogError(ex, ex.Message);
+            }
+        }
+
+        private void PlotVisibilityReport(IntervisibilityReport metrics)
+        {
+            try
+            {
+                double[] distancesX = metrics.GeoPoints.Select(p => p.DistanceFromOriginMeters ?? 0).ToArray();
+                double[] elevationsY = metrics.GeoPoints.Select(p => p.Elevation ?? 0).ToArray();
+
+                
+
+                var plt = new Plot(800, 600);
+                plt.PlotScatter(distancesX, elevationsY, lineWidth:2, markerSize:0, label: "profile");
+                plt.PlotLine(0, elevationsY[0], distancesX.Last(), elevationsY.Last(), color: System.Drawing.Color.Red, 1, "ray");
+                plt.Title("Visiblity report");
+                plt.XLabel("Distance (meters)");
+                plt.YLabel("Elevation (meters)");
+
+                if (metrics.HasObstacles)
+                {
+                    var obstacles = metrics.Metrics.Obstacles;
+                    double[] obstacleEntriesX = obstacles.Select(o => o.EntryPoint.DistanceFromOriginMeters ?? 0).ToArray();
+                    double[] obstacleEntriesY = obstacles.Select(o => o.EntryPoint.Elevation ?? 0).ToArray();
+                    double[] obstaclePeaksX = obstacles.Select(o => o.PeakPoint.DistanceFromOriginMeters ?? 0).ToArray();
+                    double[] obstaclePeaksY = obstacles.Select(o => o.PeakPoint.Elevation ?? 0).ToArray();
+                    double[] obstacleExitsX = obstacles.Select(o => o.ExitPoint.DistanceFromOriginMeters ?? 0).ToArray();
+                    double[] obstacleExitsY = obstacles.Select(o => o.ExitPoint.Elevation ?? 0).ToArray();
+
+                    plt.PlotScatter(obstacleEntriesX, obstacleEntriesY, lineWidth: 0, markerSize: 5, color: System.Drawing.Color.Green, markerShape: MarkerShape.cross, label: "entry");
+                    plt.PlotScatter(obstaclePeaksX, obstaclePeaksY, lineWidth: 0, markerSize: 5, color: System.Drawing.Color.Black, markerShape: MarkerShape.cross, label: "peak");
+                    plt.PlotScatter(obstacleExitsX, obstacleExitsY, lineWidth: 0, markerSize: 5, color: System.Drawing.Color.Violet, markerShape: MarkerShape.cross, label: "exit");
+                }
+
+                plt.Legend(enableLegend: true, fixedLineWidth: false);
+
+                plt.SaveFig("VisibilityReport.png");
+            }
+            catch (Exception)
+            {
+
+                throw;
             }
         }
 

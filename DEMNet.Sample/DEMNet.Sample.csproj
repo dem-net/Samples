@@ -32,6 +32,7 @@
     <PackageReference Include="Microsoft.Extensions.Logging" Version="3.1.0" />
     <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="3.1.0" />
     <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="3.1.0" />
+    <PackageReference Include="ScottPlot" Version="4.0.15" />
     <PackageReference Include="SharpGLTF.Toolkit" Version="1.0.0-alpha0015" />
   </ItemGroup>
 
