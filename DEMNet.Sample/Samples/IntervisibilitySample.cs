@@ -93,7 +93,7 @@ namespace SampleApp
                 DEMDataSet dataSet = DEMDataSet.ASTER_GDEMV3;
                 var metrics = _elevationService.GetIntervisibilityReport(new GeoPoint(lat1, lon1), new GeoPoint(lat2, lon2), dataSet);
 
-                PlotVisibilityReport(metrics);
+                PlotVisibilityReport(metrics, 2048, 600);
 
                 _logger.LogInformation($"{dataSet.Name} metrics: {metrics.ToString()}");
 
@@ -107,7 +107,7 @@ namespace SampleApp
             }
         }
 
-        private void PlotVisibilityReport(IntervisibilityReport metrics)
+        private void PlotVisibilityReport(IntervisibilityReport metrics, int width = 800, int height = 600, string fileName = "VisibilityReport.png")
         {
             try
             {
@@ -116,7 +116,7 @@ namespace SampleApp
 
                 
 
-                var plt = new Plot(800, 600);
+                var plt = new Plot(width, height);
                 plt.PlotScatter(distancesX, elevationsY, lineWidth:2, markerSize:0, label: "profile");
                 plt.PlotLine(0, elevationsY[0], distancesX.Last(), elevationsY.Last(), color: System.Drawing.Color.Red, 1, "ray");
                 plt.Title("Visiblity report");
@@ -140,7 +140,7 @@ namespace SampleApp
 
                 plt.Legend(enableLegend: true, fixedLineWidth: false);
 
-                plt.SaveFig("VisibilityReport.png");
+                plt.SaveFig(fileName);
             }
             catch (Exception)
             {
