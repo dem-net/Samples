@@ -60,8 +60,8 @@ namespace SampleApp
                 //double lon1 = 5.27829;
 
                 // ste victoire
-                double lat1 = 43.532456;
-                double lon1 = 5.612444;
+                //double lat1 = 43.532456;
+                //double lon1 = 5.612444;
 
                 // bottom ste victoire (fuveau)
                 //double lat1 = 43.49029208393125;
@@ -73,8 +73,8 @@ namespace SampleApp
                 //double lat1 = 46.08129825372404;
                 //double lon1 = 3.382026672363281;
                 // mont blanc
-                double lat2 = 45.833;
-                double lon2 = 6.864;
+                //double lat2 = 45.833;
+                //double lon2 = 6.864;
 
                 // bob
                 //double lat1 = 37.212627;
@@ -82,6 +82,12 @@ namespace SampleApp
 
                 //double lat2 = 37.208179;
                 //double lon2 = 22.324373;
+
+
+                double lat2 = 44.116655590545705;
+                double lat1 = 44.19524951146881;
+                double lon2 = 5.802505910396577;
+                double lon1 = 5.806566774845124;
 
                 Stopwatch sw = new Stopwatch();
 
@@ -91,10 +97,24 @@ namespace SampleApp
                 sw.Restart();
                 // Line starting at mont ventoux peak to Mont Blanc
                 DEMDataSet dataSet = DEMDataSet.ASTER_GDEMV3;
-                var metrics = _elevationService.GetIntervisibilityReport(new GeoPoint(lat1, lon1), new GeoPoint(lat2, lon2), dataSet
-                    , includeAllPoints: true);
 
-                PlotVisibilityReport(metrics, 2048, 600);
+                // High level way
+                var metrics = _elevationService.GetIntervisibilityReport(new GeoPoint(lat1, lon1), new GeoPoint(lat2, lon2), dataSet
+                    , downloadMissingFiles: true, sourceVerticalOffset:0);
+                
+                PlotVisibilityReport(metrics, 2048, 600, "VisReport.png");
+
+
+                // Low level (tests from 0 to 2000 m)
+                var elevationLine = GeometryService.ParseGeoPointAsGeometryLine(new GeoPoint(lat1, lon1), new GeoPoint(lat2, lon2));
+
+                var geoPoints = _elevationService.GetLineGeometryElevation(elevationLine, dataSet);
+
+                for (int i = 300; i < 10000; i += 500)
+                {
+                    var report = _elevationService.GetIntervisibilityReport(geoPoints, i);
+                    PlotVisibilityReport(report, 2048, 600, $"VisReport_{i}.png");
+                }
 
                 _logger.LogInformation($"{dataSet.Name} metrics: {metrics.ToString()}");
 
@@ -119,7 +139,7 @@ namespace SampleApp
 
                 var plt = new Plot(width, height);
                 plt.PlotScatter(distancesX, elevationsY, lineWidth:2, markerSize:0, label: "profile");
-                plt.PlotLine(0, elevationsY[0], distancesX.Last(), elevationsY.Last(), color: System.Drawing.Color.Red, 1, "ray");
+                plt.PlotLine(0, elevationsY[0] + metrics.OriginVerticalOffset, distancesX.Last(), elevationsY.Last(), color: System.Drawing.Color.Red, 1, "ray");
                 plt.Title("Visiblity report");
                 plt.XLabel("Distance (meters)");
                 plt.YLabel("Elevation (meters)");
