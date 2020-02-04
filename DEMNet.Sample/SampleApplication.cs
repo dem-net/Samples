@@ -55,6 +55,7 @@ namespace SampleApp
         private readonly CustomSamples customSamples;
         private readonly AerialGpxSample aerialGpxSample;
         private readonly ImagerySample imagerySample;
+        private readonly OsmExtensionSample osmSample;
         private const string DATA_FILES_PATH = null; //@"C:\Users\ElevationAPI\AppData\Local"; // Leave to null for default location (Environment.SpecialFolder.LocalApplicationData)
 
         public SampleApplication(ILogger<SampleApplication> logger,
@@ -69,7 +70,8 @@ namespace SampleApp
             glTF3DSamples glTF3DSamples,
             CustomSamples customSamples,
             AerialGpxSample aerialGpxSample,
-            ImagerySample imagerySample)
+            ImagerySample imagerySample,
+            OsmExtensionSample osmSample)
         {
             _logger = logger;
             this.rasterService = rasterService;
@@ -84,6 +86,7 @@ namespace SampleApp
             this.customSamples = customSamples;
             this.aerialGpxSample = aerialGpxSample;
             this.imagerySample = imagerySample;
+            this.osmSample = osmSample;
         }
 
 
@@ -101,13 +104,22 @@ namespace SampleApp
             {
                 rasterService.SetLocalDirectory(DATA_FILES_PATH);
             }
-            
+
+            using (_logger.BeginScope($"Running {nameof(OsmExtensionSample)}.."))
+            {
+                osmSample.Run();
+               
+                _logger.LogInformation($"Sample {nameof(OsmExtensionSample)} done. Press any key to run the next sample...");
+                if (pauseAfterEachSample) Console.ReadLine();
+                if (cancellationToken.IsCancellationRequested) return Task.FromCanceled(cancellationToken);
+            }
             using (_logger.BeginScope($"Running {nameof(glTF3DSamples)}.."))
             {
-                glTF3DSamples.Run(DEMDataSet.ASTER_GDEMV3, withTexture:true);
-                glTF3DSamples.Run(DEMDataSet.AW3D30, withTexture:true);
+                glTF3DSamples.Run(DEMDataSet.GEBCO_2019, withTexture: true);
+                //glTF3DSamples.Run(DEMDataSet.ASTER_GDEMV3, withTexture:true);
+                //glTF3DSamples.Run(DEMDataSet.AW3D30, withTexture:true);
                 glTF3DSamples.Run(DEMDataSet.SRTM_GL3, withTexture:true);
-                glTF3DSamples.Run(DEMDataSet.ETOPO1, withTexture:true);
+                //glTF3DSamples.Run(DEMDataSet.ETOPO1, withTexture:true);
                 _logger.LogInformation($"Sample {glTF3DSamples.GetType().Name} done. Press any key to run the next sample...");
                 if (pauseAfterEachSample) Console.ReadLine();
                 if (cancellationToken.IsCancellationRequested) return Task.FromCanceled(cancellationToken);
@@ -171,7 +183,13 @@ namespace SampleApp
                 if (pauseAfterEachSample) Console.ReadLine();
                 if (cancellationToken.IsCancellationRequested) return Task.FromCanceled(cancellationToken);
             }
-
+            using (_logger.BeginScope($"Running {nameof(DatasetSamples)}.."))
+            {
+                datasetSamples.Run();
+                _logger.LogInformation($"Sample {datasetSamples.GetType().Name} done. Press any key to run the next sample...");
+                if (pauseAfterEachSample) Console.ReadLine();
+                if (cancellationToken.IsCancellationRequested) return Task.FromCanceled(cancellationToken);
+            }
             using (_logger.BeginScope($"Running {nameof(GpxSamples)}.."))
             {
                 gpxSamples.Run();
@@ -180,13 +198,7 @@ namespace SampleApp
                 if (cancellationToken.IsCancellationRequested) return Task.FromCanceled(cancellationToken);
             }
 
-            using (_logger.BeginScope($"Running {nameof(DatasetSamples)}.."))
-            {
-                datasetSamples.Run();
-                _logger.LogInformation($"Sample {datasetSamples.GetType().Name} done. Press any key to run the next sample...");
-                if (pauseAfterEachSample) Console.ReadLine();
-                if (cancellationToken.IsCancellationRequested) return Task.FromCanceled(cancellationToken);
-            }
+            
 
 
             //using (_logger.BeginScope($"Running {nameof(DownloaderSample)}.."))

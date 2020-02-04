@@ -8,12 +8,6 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Docs", "Docs", "{BC338F65-6
 		README.md = README.md
 	EndProjectSection
 EndProject
-Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Dem.Net submodule", "Dem.Net submodule", "{8CCD6B02-86A2-4704-B1B6-6566864473BE}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DEM.Net.glTF", "DEM.Net\DEM.Net.glTF\DEM.Net.glTF.csproj", "{E8381EFB-9264-40D7-B9B2-3C72F039A1F5}"
-EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DEM.Net.Core", "DEM.Net\DEM.Net.Core\DEM.Net.Core.csproj", "{A3BB17D5-D793-4977-9907-00E90F4C4C91}"
-EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DEMNet.Sample", "DEMNet.Sample\DEMNet.Sample.csproj", "{3E719AA3-6920-4566-AB99-9735D048D042}"
 EndProject
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Dem.Net Core", "Dem.Net Core", "{6FD310F1-3AE4-465D-8745-A39615517CC9}"
@@ -22,20 +16,16 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DEM.Net.Core", "..\DEM.Net\
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DEM.Net.glTF", "..\DEM.Net\DEM.Net.glTF\DEM.Net.glTF.csproj", "{5C92A285-2B12-4D98-B2C1-0972E720B450}"
 EndProject
+Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Extensions", "Extensions", "{326835B1-B612-4EDD-A6D6-141B3FFA4FA1}"
+EndProject
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DEM.Net.Extension.Osm", "..\DEM.Net\DEM.Net.Extension.Osm\DEM.Net.Extension.Osm.csproj", "{C90E94BF-F96E-499B-86F5-FBA5CAD70714}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
 		Release|Any CPU = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(ProjectConfigurationPlatforms) = postSolution
-		{E8381EFB-9264-40D7-B9B2-3C72F039A1F5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{E8381EFB-9264-40D7-B9B2-3C72F039A1F5}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{E8381EFB-9264-40D7-B9B2-3C72F039A1F5}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{E8381EFB-9264-40D7-B9B2-3C72F039A1F5}.Release|Any CPU.Build.0 = Release|Any CPU
-		{A3BB17D5-D793-4977-9907-00E90F4C4C91}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{A3BB17D5-D793-4977-9907-00E90F4C4C91}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{A3BB17D5-D793-4977-9907-00E90F4C4C91}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{A3BB17D5-D793-4977-9907-00E90F4C4C91}.Release|Any CPU.Build.0 = Release|Any CPU
 		{3E719AA3-6920-4566-AB99-9735D048D042}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
 		{3E719AA3-6920-4566-AB99-9735D048D042}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3E719AA3-6920-4566-AB99-9735D048D042}.Release|Any CPU.ActiveCfg = Release|Any CPU
@@ -48,15 +38,18 @@ Global
 		{5C92A285-2B12-4D98-B2C1-0972E720B450}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5C92A285-2B12-4D98-B2C1-0972E720B450}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5C92A285-2B12-4D98-B2C1-0972E720B450}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C90E94BF-F96E-499B-86F5-FBA5CAD70714}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C90E94BF-F96E-499B-86F5-FBA5CAD70714}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C90E94BF-F96E-499B-86F5-FBA5CAD70714}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C90E94BF-F96E-499B-86F5-FBA5CAD70714}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
-		{E8381EFB-9264-40D7-B9B2-3C72F039A1F5} = {8CCD6B02-86A2-4704-B1B6-6566864473BE}
-		{A3BB17D5-D793-4977-9907-00E90F4C4C91} = {8CCD6B02-86A2-4704-B1B6-6566864473BE}
 		{CBC76125-A700-4F0D-B401-0D9BEC038D37} = {6FD310F1-3AE4-465D-8745-A39615517CC9}
 		{5C92A285-2B12-4D98-B2C1-0972E720B450} = {6FD310F1-3AE4-465D-8745-A39615517CC9}
+		{C90E94BF-F96E-499B-86F5-FBA5CAD70714} = {326835B1-B612-4EDD-A6D6-141B3FFA4FA1}
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {1661BA82-EB48-448E-9940-DD9FEE6B67F5}

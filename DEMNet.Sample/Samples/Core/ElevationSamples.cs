@@ -62,8 +62,8 @@ namespace SampleApp
 
                 _logger.LogInformation($"Getting location elevation for each dataset (location lat: {lat1:N2}, lon: {lon1:N2})");
                 Stopwatch sw = new Stopwatch();
-                Parallel.ForEach(DEMDataSet.RegisteredNonSingleFileDatasets, (dataSet, loopState) =>
-                //foreach (var dataSet in DEMDataSet.RegisteredNonSingleFileDatasets)
+                Parallel.ForEach(DEMDataSet.RegisteredNonLocalDatasets, (dataSet, loopState) =>
+                //foreach (var dataSet in DEMDataSet.RegisteredNonLocalDatasets)
                 {
                     if (cancellationToken.IsCancellationRequested) loopState.Stop();
                     sw.Restart();
@@ -83,8 +83,8 @@ namespace SampleApp
                 GeoPoint pt1 = new GeoPoint(lat1, lon1);
                 GeoPoint pt2 = new GeoPoint(lat2, lont2);
                 GeoPoint[] points = { pt1, pt2 };
-                Parallel.ForEach(DEMDataSet.RegisteredNonSingleFileDatasets, (dataSet, loopState) =>
-                //foreach (var dataSet in DEMDataSet.RegisteredNonSingleFileDatasets)
+                Parallel.ForEach(DEMDataSet.RegisteredNonLocalDatasets, (dataSet, loopState) =>
+                //foreach (var dataSet in DEMDataSet.RegisteredNonLocalDatasets)
                 {
                     if (cancellationToken.IsCancellationRequested) loopState.Stop();
                     sw.Restart();
@@ -99,8 +99,8 @@ namespace SampleApp
                 sw.Restart();
                 // Line passing by mont ventoux peak [5.144899, 44.078873], [5.351516, 44.225876]
                 var elevationLine = GeometryService.ParseGeoPointAsGeometryLine(new GeoPoint(44.078873, 5.144899), new GeoPoint(44.225876, 5.351516));
-                Parallel.ForEach(DEMDataSet.RegisteredNonSingleFileDatasets, (dataSet, loopState) =>
-                //foreach (var dataSet in DEMDataSet.RegisteredNonSingleFileDatasets)
+                Parallel.ForEach(DEMDataSet.RegisteredNonLocalDatasets, (dataSet, loopState) =>
+                //foreach (var dataSet in DEMDataSet.RegisteredNonLocalDatasets)
                 {
                     if (cancellationToken.IsCancellationRequested) loopState.Stop();
                     _elevationService.DownloadMissingFiles(dataSet, elevationLine.GetBoundingBox());

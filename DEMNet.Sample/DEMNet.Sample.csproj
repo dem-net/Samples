@@ -25,16 +25,19 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="DEM.Net.Core" Version="0.2.0" />
-    <PackageReference Include="DEM.Net.glTF" Version="0.2.0" />
-    <PackageReference Include="GeoJSON.Net" Version="1.1.73" />
     <PackageReference Include="Microsoft.Extensions.Configuration.CommandLine" Version="3.1.0" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="3.1.0" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="3.1.0" />
     <PackageReference Include="Microsoft.Extensions.Logging" Version="3.1.0" />
     <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="3.1.0" />
     <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="3.1.0" />
-    <PackageReference Include="SharpGLTF.Toolkit" Version="1.0.0-alpha0014" />
+    <PackageReference Include="System.Security.Permissions" Version="4.7.0" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\..\DEM.Net\DEM.Net.Core\DEM.Net.Core.csproj" />
+    <ProjectReference Include="..\..\DEM.Net\DEM.Net.Extension.Osm\DEM.Net.Extension.Osm.csproj" />
+    <ProjectReference Include="..\..\DEM.Net\DEM.Net.glTF\DEM.Net.glTF.csproj" />
   </ItemGroup>
 
 
@@ -75,7 +78,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Compile Condition=" '$(EnableDefaultCompileItems)' == 'true' " Update="Samples\Gpx3DSamples.cs">
+    <Compile Condition=" '$(EnableDefaultCompileItems)' == 'true' " Update="Samples\Core\Gpx3DSamples.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Compile>
   </ItemGroup>

@@ -36,6 +36,7 @@ using Microsoft.Extensions.Configuration;
 using DEM.Net.Core.Configuration;
 using Microsoft.Extensions.Hosting;
 using System.Threading.Tasks;
+using DEM.Net.Extension.Osm;
 
 namespace SampleApp
 {
@@ -108,7 +109,8 @@ namespace SampleApp
            .Configure<AppSecrets>(config.GetSection(nameof(AppSecrets)))
            .Configure<DEMNetOptions>(config.GetSection(nameof(DEMNetOptions)))
            .AddDemNetCore()
-           .AddDemNetglTF();
+           .AddDemNetglTF()
+           .AddDemNetOsmExtension();
 
             RegisterSamples(services);
 
@@ -130,7 +132,8 @@ namespace SampleApp
                     .AddTransient<DownloaderSample>()
                     .AddTransient<CustomSamples>()
                     .AddTransient<AerialGpxSample>()
-                    .AddTransient<ImagerySample>();
+                    .AddTransient<ImagerySample>()
+                    .AddTransient<OsmExtensionSample>();
 
 
             services.AddHostedService<SampleApplication>();
