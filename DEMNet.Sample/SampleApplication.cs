@@ -55,6 +55,7 @@ namespace SampleApp
         private readonly CustomSamples customSamples;
         private readonly AerialGpxSample aerialGpxSample;
         private readonly ImagerySample imagerySample;
+        private readonly IntervisibilitySample intervisibilitySample;
         private readonly OsmExtensionSample osmSample;
         private const string DATA_FILES_PATH = null; //@"C:\Users\ElevationAPI\AppData\Local"; // Leave to null for default location (Environment.SpecialFolder.LocalApplicationData)
 
@@ -71,6 +72,7 @@ namespace SampleApp
             CustomSamples customSamples,
             AerialGpxSample aerialGpxSample,
             ImagerySample imagerySample,
+            IntervisibilitySample intervisibilitySample,
             OsmExtensionSample osmSample)
         {
             _logger = logger;
@@ -86,6 +88,7 @@ namespace SampleApp
             this.customSamples = customSamples;
             this.aerialGpxSample = aerialGpxSample;
             this.imagerySample = imagerySample;
+            this.intervisibilitySample = intervisibilitySample;
             this.osmSample = osmSample;
         }
 
@@ -105,11 +108,20 @@ namespace SampleApp
                 rasterService.SetLocalDirectory(DATA_FILES_PATH);
             }
 
+            
             using (_logger.BeginScope($"Running {nameof(OsmExtensionSample)}.."))
             {
                 osmSample.Run();
                
                 _logger.LogInformation($"Sample {nameof(OsmExtensionSample)} done. Press any key to run the next sample...");
+                if (pauseAfterEachSample) Console.ReadLine();
+                if (cancellationToken.IsCancellationRequested) return Task.FromCanceled(cancellationToken);
+            }
+            using (_logger.BeginScope($"Running {nameof(IntervisibilitySample)}.."))
+            {
+                intervisibilitySample.Run(cancellationToken);
+                _logger.LogInformation($"Sample {nameof(IntervisibilitySample)} done. Press any key to run the next sample...");
+
                 if (pauseAfterEachSample) Console.ReadLine();
                 if (cancellationToken.IsCancellationRequested) return Task.FromCanceled(cancellationToken);
             }
