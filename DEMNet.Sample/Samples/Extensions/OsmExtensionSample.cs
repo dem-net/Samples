@@ -44,15 +44,7 @@ namespace SampleApp
         {
             try
             {
-                var task = new OverpassQuery(bbox)
-                    .WithWays("building")
-                    .ToGeoJSON();
-
-                FeatureCollection buildings = task.GetAwaiter().GetResult();
-
-
-                Triangulation triangulation = buildingService.Triangulate(buildings, DEMDataSet.AW3D30);
-                return triangulation;
+                return buildingService.GetBuildings3D(bbox, DEMDataSet.ASTER_GDEMV3, false);
             }
             catch (Exception ex)
             {
