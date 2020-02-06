@@ -126,7 +126,7 @@ namespace SampleApp
                 // and add base and sides
                 _logger.LogInformation($"Triangulating height map and generating 3D mesh...");
 
-                var model = _sharpGltfService.CreateTerrainMesh(heightMap);
+                var model = _sharpGltfService.CreateTerrainMesh(heightMap, pbrTexture);
                 model.SaveGLB(Path.Combine(Directory.GetCurrentDirectory(), modelName + ".glb"));
 
                 model = _sharpGltfService.CreateTerrainMesh(heightMap, GenOptions.Normals | GenOptions.BoxedBaseElevationMin);
