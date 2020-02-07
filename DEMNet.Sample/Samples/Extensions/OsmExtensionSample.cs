@@ -11,6 +11,7 @@ using SharpGLTF.Schema2;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -40,6 +41,53 @@ namespace SampleApp
         }
         public void Run()
         {
+
+            RunOsmPbfSample(@"D:\Temp\provence-alpes-cote-d-azur-latest.osm.pbf");
+
+            Run3DModelSamples();
+
+        }
+
+        private void RunOsmPbfSample(string pbfFileName)
+        {
+            PbfOsmReader reader = new PbfOsmReader();
+            AttributeRegistry registry = new AttributeRegistry();
+            long count = 0;
+            using (TimeSpanBlock timer = new TimeSpanBlock("ReadNodes", _logger))
+            {
+                foreach (var node in reader.ReadNodes(pbfFileName, registry))
+                {
+                    count++;
+                    if (count % 1000000 == 0)
+                        _logger.LogInformation($"{count} nodes read...");
+                }
+            }
+
+            count = 0;
+            using (TimeSpanBlock timer = new TimeSpanBlock("ReadWays", _logger))
+            {
+                foreach (var node in reader.ReadWays(pbfFileName, registry))
+                {
+                    count++;
+                    if (count % 1000000 == 0)
+                        _logger.LogInformation($"{count} ways read...");
+                }
+            }
+
+            count = 0;
+            using (TimeSpanBlock timer = new TimeSpanBlock("ReadRelations", _logger))
+            {
+                foreach (var node in reader.ReadRelations(pbfFileName, registry))
+                {
+                    count++;
+                    if (count % 1000000 == 0)
+                        _logger.LogInformation($"{count} relations read...");
+                }
+            }
+        }
+
+        private void Run3DModelSamples()
+        {
             BoundingBox bbox;
 
             //// BIG one Aix
@@ -64,10 +112,7 @@ namespace SampleApp
             // Manhattan
             bbox = GeometryService.GetBoundingBox("POLYGON((-74.02606764542348 40.74041375581217,-73.97697249161489 40.74041375581217,-73.97697249161489 40.699301026594576,-74.02606764542348 40.699301026594576,-74.02606764542348 40.74041375581217))");
             GetBuildings3D(bbox);
-
         }
-
-
 
         private void GetBuildings3D(BoundingBox bbox, string modelName = "buildings")
         {
@@ -78,7 +123,6 @@ namespace SampleApp
 
                 var model = _buildingService.GetBuildings3DModel(bbox, DEMDataSet.ASTER_GDEMV3, true, ZScale);
                 model = AddTerrainModel(model, bbox, DEMDataSet.ASTER_GDEMV3, true);
-
 
                 model.SaveGLB(Path.Combine(Directory.GetCurrentDirectory(), modelName + ".glb"));
 
