@@ -42,7 +42,7 @@ namespace SampleApp
         public void Run()
         {
 
-            RunOsmPbfSample(@"D:\Temp\provence-alpes-cote-d-azur-latest.osm.pbf");
+            //RunOsmPbfSample(@"D:\Temp\provence-alpes-cote-d-azur-latest.osm.pbf");
 
             Run3DModelSamples();
 
@@ -90,28 +90,30 @@ namespace SampleApp
         {
             BoundingBox bbox;
 
-            //// BIG one Aix
-            //bbox = GeometryService.GetBoundingBox("POLYGON((5.396107779203061 43.618902041686354,5.537556753812436 43.618902041686354,5.537556753812436 43.511932043620725,5.396107779203061 43.511932043620725,5.396107779203061 43.618902041686354))");
-            //GetBuildings3D(bbox);
+            // Manhattan
+            bbox = GeometryService.GetBoundingBox("POLYGON((-74.02606764542348 40.74041375581217,-73.97697249161489 40.74041375581217,-73.97697249161489 40.699301026594576,-74.02606764542348 40.699301026594576,-74.02606764542348 40.74041375581217))");
+            GetBuildings3D(bbox);
 
             // Aix en provence / rotonde
             bbox = new BoundingBox(5.444927726471018, 5.447502647125315, 43.52600685540608, 43.528138282848076);
             GetBuildings3D(bbox);
 
-            Task.Delay(1000).GetAwaiter().GetResult();
+            //Task.Delay(1000).GetAwaiter().GetResult();
             // Aix en provence / slope
             bbox = new BoundingBox(5.434828019053151, 5.4601480721537365, 43.5386672180082, 43.55272718416761);
             GetBuildings3D(bbox);
 
-            Task.Delay(1000).GetAwaiter().GetResult();
+            //// BIG one Aix
+            bbox = GeometryService.GetBoundingBox("POLYGON((5.396107779203061 43.618902041686354,5.537556753812436 43.618902041686354,5.537556753812436 43.511932043620725,5.396107779203061 43.511932043620725,5.396107779203061 43.618902041686354))");
+            GetBuildings3D(bbox);
+
+            //Task.Delay(1000).GetAwaiter().GetResult();
             // POLYGON((5.526716197512567 43.56457608971906,5.6334895739774105 43.56457608971906,5.6334895739774105 43.49662332237486,5.526716197512567 43.49662332237486,5.526716197512567 43.56457608971906))
             // Aix en provence / ste victoire
             bbox = new BoundingBox(5.526716197512567, 5.6334895739774105, 43.49662332237486, 43.56457608971906);
             GetBuildings3D(bbox);
 
-            // Manhattan
-            bbox = GeometryService.GetBoundingBox("POLYGON((-74.02606764542348 40.74041375581217,-73.97697249161489 40.74041375581217,-73.97697249161489 40.699301026594576,-74.02606764542348 40.699301026594576,-74.02606764542348 40.74041375581217))");
-            GetBuildings3D(bbox);
+
         }
 
         private void GetBuildings3D(BoundingBox bbox, string modelName = "buildings")
@@ -121,8 +123,8 @@ namespace SampleApp
                 // debug: write geojson to file
                 //File.WriteAllText("buildings.json", JsonConvert.SerializeObject(buildingService.GetBuildingsGeoJson(bbox)));
 
-                var model = _buildingService.GetBuildings3DModel(bbox, DEMDataSet.ASTER_GDEMV3, true, ZScale);
-                model = AddTerrainModel(model, bbox, DEMDataSet.ASTER_GDEMV3, true);
+                var model = _buildingService.GetBuildings3DModel(bbox, DEMDataSet.ASTER_GDEMV3, downloadMissingFiles: true, ZScale);
+                model = AddTerrainModel(model, bbox, DEMDataSet.ASTER_GDEMV3, withTexture: false);
 
                 model.SaveGLB(Path.Combine(Directory.GetCurrentDirectory(), modelName + ".glb"));
 
