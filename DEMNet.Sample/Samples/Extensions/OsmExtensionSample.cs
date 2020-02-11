@@ -23,6 +23,7 @@ namespace SampleApp
         private readonly IImageryService _imageryService;
         private readonly IElevationService _elevationService;
         private readonly SharpGltfService _gltfService;
+        private readonly IMeshService _meshService;
         private readonly ILogger _logger;
 
         private float ZScale = 2f;
@@ -31,12 +32,14 @@ namespace SampleApp
                 , IImageryService imageryService
                 , IElevationService elevationService
                 , SharpGltfService gltfService
+                , IMeshService meshService
                 , ILogger<OsmExtensionSample> logger)
         {
             this._buildingService = buildingService;
             this._imageryService = imageryService;
             this._elevationService = elevationService;
             this._gltfService = gltfService;
+            this._meshService = meshService;
             this._logger = logger;
         }
         public void Run()
@@ -46,6 +49,28 @@ namespace SampleApp
 
             Run3DModelSamples();
 
+            //RunTesselationSample();
+
+        }
+
+        private void RunTesselationSample()
+        {
+            List<GeoPoint> geoPoints = new List<GeoPoint>();
+            geoPoints.Add(new GeoPoint(0, 0));
+            geoPoints.Add(new GeoPoint(10, 0));
+            geoPoints.Add(new GeoPoint(10, 10));
+            geoPoints.Add(new GeoPoint(0, 10));
+
+            List<List<GeoPoint>> inners = new List<List<GeoPoint>>();
+            List<GeoPoint> inner = new List<GeoPoint>();
+            inner.Add(new GeoPoint(3, 3));
+            inner.Add(new GeoPoint(7, 3));
+            inner.Add(new GeoPoint(7, 7));
+            inner.Add(new GeoPoint(3, 7));
+            inners.Add(inner);
+
+            //_meshService.Tesselate(geoPoints, null);
+            _meshService.Tesselate(geoPoints, inners);
         }
 
         private void RunOsmPbfSample(string pbfFileName)
@@ -132,7 +157,7 @@ namespace SampleApp
                 //File.WriteAllText("buildings.json", JsonConvert.SerializeObject(buildingService.GetBuildingsGeoJson(bbox)));
 
                 var model = _buildingService.GetBuildings3DModel(bbox, DEMDataSet.ASTER_GDEMV3, downloadMissingFiles: true, ZScale);
-                model = AddTerrainModel(model, bbox, DEMDataSet.ASTER_GDEMV3, withTexture: false);
+                model = AddTerrainModel(model, bbox, DEMDataSet.ASTER_GDEMV3, withTexture: true);
 
                 model.SaveGLB(Path.Combine(Directory.GetCurrentDirectory(), modelName + ".glb"));
 
