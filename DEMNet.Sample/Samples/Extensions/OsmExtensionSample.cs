@@ -90,6 +90,13 @@ namespace SampleApp
         {
             BoundingBox bbox;
 
+            bbox = GeometryService.GetBoundingBox("POLYGON((5.418905095715298 43.55466923119226,5.419768767018094 43.55466923119226,5.419768767018094 43.55411328949576,5.418905095715298 43.55411328949576,5.418905095715298 43.55466923119226))");
+            GetBuildings3D(bbox);
+
+            // Aix Mignet / polygon with inner ring
+            bbox = GeometryService.GetBoundingBox("POLYGON((5.447534696327927 43.52534522157859,5.449659005867722 43.52534522157859,5.449659005867722 43.52432614366209,5.447534696327927 43.52432614366209,5.447534696327927 43.52534522157859))");
+            GetBuildings3D(bbox);
+
             // Manhattan
             bbox = GeometryService.GetBoundingBox("POLYGON((-74.02606764542348 40.74041375581217,-73.97697249161489 40.74041375581217,-73.97697249161489 40.699301026594576,-74.02606764542348 40.699301026594576,-74.02606764542348 40.74041375581217))");
             GetBuildings3D(bbox);
@@ -134,6 +141,16 @@ namespace SampleApp
                 throw;
             }
         }
+
+        private void TestBuildingTriangulation(int osmId)
+        {
+            //TODO: fix overpass id filter way(id:<id>)
+            FeatureCollection buildings = _buildingService.GetBuildingsGeoJson(osmId);
+
+            var triangulation = _buildingService.GetBuildings3DTriangulation(buildings, DEMDataSet.ASTER_GDEMV3, downloadMissingFiles: true, ZScale);
+
+        }
+
 
         private ModelRoot AddTerrainModel(ModelRoot model, BoundingBox bbox, DEMDataSet dataset, bool withTexture = true)
         {
