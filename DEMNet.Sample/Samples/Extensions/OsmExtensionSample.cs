@@ -119,6 +119,10 @@ namespace SampleApp
             //bbox = GeometryService.GetBoundingBox("POLYGON((5.418905095715298 43.55466923119226,5.419768767018094 43.55466923119226,5.419768767018094 43.55411328949576,5.418905095715298 43.55411328949576,5.418905095715298 43.55466923119226))");
             //GetBuildings3D(bbox);
 
+            // Aix / ZA les Milles
+            bbox = GeometryService.GetBoundingBox("POLYGON((5.337387271772482 43.49858292942485,5.3966104468213105 43.49858292942485,5.3966104468213105 43.46781823961212,5.337387271772482 43.46781823961212,5.337387271772482 43.49858292942485))");
+            GetBuildings3D(bbox);
+
             // Aix Mignet / polygon with inner ring
             bbox = GeometryService.GetBoundingBox("POLYGON((5.448310034686923 43.52504334503996,5.44888402741611 43.52504334503996,5.44888402741611 43.524666052953144,5.448310034686923 43.524666052953144,5.448310034686923 43.52504334503996))");
             GetBuildings3D(bbox);
@@ -178,7 +182,7 @@ namespace SampleApp
         }
 
 
-        private ModelRoot AddTerrainModel(ModelRoot model, BoundingBox bbox, DEMDataSet dataset, bool withTexture = true)
+        private ModelRoot AddTerrainModel(ModelRoot model, BoundingBox bbox, DEMDataSet dataset, bool withTexture = true, int numTiles = 4)
         {
             try
             {
@@ -204,7 +208,7 @@ namespace SampleApp
                     if (withTexture)
                     {
                         Console.WriteLine("Download image tiles...");
-                        TileRange tiles = _imageryService.DownloadTiles(bbox, provider, 10);
+                        TileRange tiles = _imageryService.DownloadTiles(bbox, provider, numTiles);
                         string fileName = Path.Combine(outputDir, "Texture.jpg");
 
                         Console.WriteLine("Construct texture...");
