@@ -26,7 +26,7 @@ namespace SampleApp
         private readonly IMeshService _meshService;
         private readonly ILogger _logger;
 
-        private float ZScale = 2f;
+        private float ZScale = 2.5f;
 
         public OsmExtensionSample(BuildingService buildingService
                 , IImageryService imageryService
@@ -140,12 +140,23 @@ namespace SampleApp
             GetBuildings3D(bbox, "Chicago");
 
             // SF
-            bbox = GeometryService.GetBoundingBox("POLYGON((-122.6018419648484 37.89723504829443,-122.32993034375465 37.89723504829443,-122.32993034375465 37.60841146894882,-122.6018419648484 37.60841146894882,-122.6018419648484 37.89723504829443))");
+            bbox = GeometryService.GetBoundingBox("POLYGON((-122.45396156906122 37.838401558170304, -122.37637062667841 37.838401558170304, -122.37637062667841 37.771400298497376, -122.45396156906122 37.771400298497376, -122.45396156906122 37.838401558170304))");
             GetBuildings3D(bbox , "San Francisco");
+
+            bbox = GeometryService.GetBoundingBox("POLYGON((-122.45430489181513 37.819961931258945,-122.35577126144403 37.819961931258945,-122.35577126144403 37.750229379397204,-122.45430489181513 37.750229379397204,-122.45430489181513 37.819961931258945))");
+            GetBuildings3D(bbox, "San Francisco (large)", 10);
 
             // Aix en provence / rotonde
             bbox = new BoundingBox(5.444927726471018, 5.447502647125315, 43.52600685540608, 43.528138282848076);
             GetBuildings3D(bbox);
+
+            // La Paz
+            bbox = GeometryService.GetBoundingBox("POLYGON((-68.17064463180934 -16.4766837193842,-68.09339701218043 -16.4766837193842,-68.09339701218043 -16.542681928856904,-68.17064463180934 -16.542681928856904,-68.17064463180934 -16.4766837193842))");
+            GetBuildings3D(bbox, "La Paz", 10);
+
+            // Capri
+            bbox = GeometryService.GetBoundingBox("POLYGON((10.085373456087536 42.88137857375818, 10.505600506868786 42.88137857375818, 10.505600506868786 42.63737387552473, 10.085373456087536 42.63737387552473, 10.085373456087536 42.88137857375818))");
+            GetBuildings3D(bbox, "Capri", 20, tinMesh: true);
 
             //Task.Delay(1000).GetAwaiter().GetResult();
             // Aix en provence / slope
@@ -165,7 +176,7 @@ namespace SampleApp
 
         }
 
-        private void GetBuildings3D(BoundingBox bbox, string modelName = "buildings")
+        private void GetBuildings3D(BoundingBox bbox, string modelName = "buildings", int numTiles = 4, bool tinMesh = false)
         {
             try
             {
@@ -173,7 +184,7 @@ namespace SampleApp
                 //File.WriteAllText("buildings.json", JsonConvert.SerializeObject(buildingService.GetBuildingsGeoJson(bbox)));
 
                 var model = _buildingService.GetBuildings3DModel(bbox, DEMDataSet.ASTER_GDEMV3, downloadMissingFiles: true, ZScale);
-                model = AddTerrainModel(model, bbox, DEMDataSet.ASTER_GDEMV3, withTexture: true);
+                model = AddTerrainModel(model, bbox, DEMDataSet.ASTER_GDEMV3, withTexture: true, numTiles, tinMesh);
 
                 model.SaveGLB(Path.Combine(Directory.GetCurrentDirectory(), modelName + ".glb"));
 
@@ -194,7 +205,7 @@ namespace SampleApp
         }
 
 
-        private ModelRoot AddTerrainModel(ModelRoot model, BoundingBox bbox, DEMDataSet dataset, bool withTexture = true, int numTiles = 4)
+        private ModelRoot AddTerrainModel(ModelRoot model, BoundingBox bbox, DEMDataSet dataset, bool withTexture = true, int numTiles = 4, bool tinMesh = false)
         {
             try
             {
@@ -202,7 +213,7 @@ namespace SampleApp
                 string outputDir = Directory.GetCurrentDirectory();
                 using (TimeSpanBlock timer = new TimeSpanBlock("Terrain", _logger))
                 {
-                    ImageryProvider provider = ImageryProvider.EsriWorldImagery;// new TileDebugProvider(new GeoPoint(43.5,5.5));
+                    ImageryProvider provider = ImageryProvider.MapBoxSatellite;// new TileDebugProvider(new GeoPoint(43.5,5.5));
 
                     _logger.LogInformation($"Getting height map data...");
 
@@ -243,7 +254,8 @@ namespace SampleApp
                     // and add base and sides
                     _logger.LogInformation($"Triangulating height map and generating 3D mesh...");
 
-                    model = _gltfService.AddTerrainMesh(model, heightMap, pbrTexture);
+                    model = tinMesh ? TINGeneration.AddTINMesh(model, heightMap, 10d, _gltfService, pbrTexture, Reprojection.SRID_PROJECTED_MERCATOR)
+                                    : _gltfService.AddTerrainMesh(model, heightMap, pbrTexture);
                     return model;
                 }
             }

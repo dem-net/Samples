@@ -39,7 +39,7 @@ namespace SampleApp
 {
     public static class TINGeneration
     {
-        public static ModelRoot GenerateTIN(HeightMap hMap, double precision, SharpGltfService gltf, PBRTexture textures, int srid)
+        public static Triangulation GenerateTIN(HeightMap hMap, double precision, int srid)
         {
             var v_pointsToTest = GetGeoPointsByHMap(hMap, srid);
 
@@ -93,76 +93,25 @@ namespace SampleApp
                     p01_listeIndexPointsfacettes.Add(v_listeIndices);
                 }
             }
-            ModelRoot model = gltf.GenerateTriangleMesh(p00_geoPoint, p01_listeIndexPointsfacettes.SelectMany(c => c).ToList(), textures);
 
-            return model;
+            return new Triangulation(p00_geoPoint, p01_listeIndexPointsfacettes.SelectMany(c => c).ToList());
+
 
         }
-
-        public static Triangulation GenerateTIN(HeightMap hMap, double precision
-                        , int inputSRID = Reprojection.SRID_GEODETIC
-                        , int outputSRID = Reprojection.SRID_PROJECTED_MERCATOR)
+        public static ModelRoot GenerateTIN(HeightMap hMap, double precision, SharpGltfService gltf, PBRTexture textures, int srid)
         {
-            hMap = hMap.ReprojectTo(inputSRID, outputSRID);
-            var v_pointsToTest = GetGeoPointsByHMap(hMap, outputSRID);
+            return TINGeneration.AddTINMesh(gltf.CreateNewModel(), hMap, precision, gltf, textures, srid);
+        }
 
+        public static ModelRoot AddTINMesh(ModelRoot model, HeightMap hMap, double precision, SharpGltfService gltf, PBRTexture textures, int srid)
+        {
+            Triangulation triangulation = TINGeneration.GenerateTIN(hMap, precision, srid);
 
-            var _paramTin = FLabServices.createCalculMedium().GetParametresDuTinParDefaut();
-            _paramTin.p11_initialisation_determinationFrontieres = enumModeDelimitationFrontiere.pointsProchesDuMbo;
-            _paramTin.p12_extensionSupplementaireMboEnM = 0;
-            _paramTin.p13_modeCalculZParDefaut = enumModeCalculZ.alti_0;
-            _paramTin.p14_altitudeParDefaut = -200;
-            _paramTin.p15_nbrePointsSupplMultiples4 = 0;
-            _paramTin.p16_initialisation_modeChoixDuPointCentral.p01_excentrationMinimum = 0;
-            _paramTin.p21_enrichissement_modeChoixDuPointCentral.p01_excentrationMinimum = precision;
-
-            //
-            var _topolFacettes = FLabServices.createCalculMedium().GetInitialisationTin(v_pointsToTest, _paramTin);
-            FLabServices.createCalculMedium().AugmenteDetailsTinByRef(ref _topolFacettes, _paramTin);
-
-
-            Dictionary<int, int> v_indiceParIdPoint = new Dictionary<int, int>();
-            int v_indice = 0;
-            GeoPoint v_geoPoint;
-            List<GeoPoint> p00_geoPoint = new List<GeoPoint>(_topolFacettes.p11_pointsFacettesByIdPoint.Count);
-            List<List<int>> p01_listeIndexPointsfacettes = new List<List<int>>(_topolFacettes.p13_facettesById.Count);
-
-            foreach (BeanPoint_internal v_point in _topolFacettes.p11_pointsFacettesByIdPoint.Values)
-            {
-                v_geoPoint = new GeoPoint(v_point.p10_coord[1], v_point.p10_coord[0], (float)v_point.p10_coord[2]);
-                p00_geoPoint.Add(v_geoPoint);
-                v_indiceParIdPoint.Add(v_point.p00_id, v_indice);
-                v_indice++;
-            }
-            p00_geoPoint = p00_geoPoint.ToList();
-
-
-            //Création des listes d'indices et normalisation du sens des points favettes
-            List<int> v_listeIndices;
-            bool v_renvoyerNullSiPointsColineaires_vf = true;
-            bool v_normalisationSensHoraireSinonAntihoraire = false;
-
-
-            foreach (BeanFacette_internal v_facette in _topolFacettes.p13_facettesById.Values)
-            {
-                List<BeanPoint_internal> v_normalisationDuSens = FLabServices.createCalculMedium().GetOrdonnancementPointsFacette(v_facette.p01_pointsDeFacette, v_renvoyerNullSiPointsColineaires_vf, v_normalisationSensHoraireSinonAntihoraire);
-                if (v_normalisationDuSens != null)
-                {
-                    v_listeIndices = new List<int>();
-                    foreach (BeanPoint_internal v_ptFacette in v_normalisationDuSens)
-                    {
-                        v_listeIndices.Add(v_indiceParIdPoint[v_ptFacette.p00_id]);
-                    }
-                    p01_listeIndexPointsfacettes.Add(v_listeIndices);
-                }
-            }
-
-            return new Triangulation(p00_geoPoint, p01_listeIndexPointsfacettes.SelectMany(c => c));
-            //MeshPrimitive v_trianglesMesh = gltf.GenerateTriangleMesh(p00_geoPoint, p01_listeIndexPointsfacettes.SelectMany(c => c).ToList(), null, textures);
-
-            //return v_trianglesMesh;
+            return gltf.AddTerrainMesh(model, triangulation, textures, doubleSided: true);
 
         }
+
+
         private static List<BeanPoint_internal> GetGeoPointsByHMap(HeightMap p_hMap, int p_srid)
         {
             return p_hMap.Coordinates.Select(c => GetPointInternalFromGeoPoint(c, p_srid)).ToList();
