@@ -195,15 +195,6 @@ namespace SampleApp
             }
         }
 
-        private void TestBuildingTriangulation(int osmId)
-        {
-            //TODO: fix overpass id filter way(id:<id>)
-            FeatureCollection buildings = _buildingService.GetBuildingsGeoJson(osmId);
-
-            var triangulation = _buildingService.GetBuildings3DTriangulation(buildings, DEMDataSet.ASTER_GDEMV3, downloadMissingFiles: true, ZScale);
-
-        }
-
 
         private ModelRoot AddTerrainModel(ModelRoot model, BoundingBox bbox, DEMDataSet dataset, bool withTexture = true, int numTiles = 4, bool tinMesh = false)
         {
