@@ -14,21 +14,24 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using static DEM.Net.glTF.SharpglTF.SharpGltfService;
 
 namespace SampleApp
 {
     public class OsmExtensionSample
     {
         private readonly BuildingService _buildingService;
+        private readonly WayService _wayService;
         private readonly IImageryService _imageryService;
         private readonly IElevationService _elevationService;
         private readonly SharpGltfService _gltfService;
         private readonly IMeshService _meshService;
         private readonly ILogger _logger;
 
-        private float ZScale = 2.5f;
+        private float ZScale = 1.5f;
 
         public OsmExtensionSample(BuildingService buildingService
+                , WayService wayService
                 , IImageryService imageryService
                 , IElevationService elevationService
                 , SharpGltfService gltfService
@@ -36,6 +39,7 @@ namespace SampleApp
                 , ILogger<OsmExtensionSample> logger)
         {
             this._buildingService = buildingService;
+            this._wayService = wayService;
             this._imageryService = imageryService;
             this._elevationService = elevationService;
             this._gltfService = gltfService;
@@ -119,6 +123,13 @@ namespace SampleApp
             //bbox = GeometryService.GetBoundingBox("POLYGON((5.418905095715298 43.55466923119226,5.419768767018094 43.55466923119226,5.419768767018094 43.55411328949576,5.418905095715298 43.55411328949576,5.418905095715298 43.55466923119226))");
             //GetBuildings3D(bbox);
 
+            bbox = GeometryService.GetBoundingBox("POLYGON((6.801003508029977 45.5157770504273,7.074631742893258 45.5157770504273,7.074631742893258 45.405728861083176,6.801003508029977 45.405728861083176,6.801003508029977 45.5157770504273))");
+            GetSkiResort3D(bbox, "resort_untextured", null);
+            GetSkiResort3D(bbox, "resort_esri", ImageryProvider.EsriWorldImagery,20);
+            //GetSkiResort3D(bbox, "resort_mapbox", ImageryProvider.EsriWorldImagery, 12);
+            //GetSkiResort3D(bbox, "resort_opentopo", ImageryProvider.OpenTopoMap, 12);
+            GetSkiResort3D(bbox, "resort_toner", ImageryProvider.StamenToner, 12);
+
             // Aix / ZA les Milles
             bbox = GeometryService.GetBoundingBox("POLYGON((5.337387271772482 43.49858292942485,5.3966104468213105 43.49858292942485,5.3966104468213105 43.46781823961212,5.337387271772482 43.46781823961212,5.337387271772482 43.49858292942485))");
             GetBuildings3D(bbox);
@@ -134,17 +145,17 @@ namespace SampleApp
             // NYC
             bbox = GeometryService.GetBoundingBox("POLYGON((-74.13052054589312 40.870104734160016,-73.85723563378374 40.870104734160016,-73.85723563378374 40.580779411463624,-74.13052054589312 40.580779411463624,-74.13052054589312 40.870104734160016))");
             GetBuildings3D(bbox, "NYC");
-            
+
             // Chicago
             bbox = GeometryService.GetBoundingBox("POLYGON((-87.93682314060652 42.097186773093576,-87.50560976170027 42.097186773093576,-87.50560976170027 41.64314045894196,-87.93682314060652 41.64314045894196,-87.93682314060652 42.097186773093576))");
             GetBuildings3D(bbox, "Chicago");
 
             // SF
             bbox = GeometryService.GetBoundingBox("POLYGON((-122.45396156906122 37.838401558170304, -122.37637062667841 37.838401558170304, -122.37637062667841 37.771400298497376, -122.45396156906122 37.771400298497376, -122.45396156906122 37.838401558170304))");
-            GetBuildings3D(bbox , "San Francisco");
+            GetBuildings3D(bbox, "San Francisco");
 
             bbox = GeometryService.GetBoundingBox("POLYGON((-122.45430489181513 37.819961931258945,-122.35577126144403 37.819961931258945,-122.35577126144403 37.750229379397204,-122.45430489181513 37.750229379397204,-122.45430489181513 37.819961931258945))");
-            GetBuildings3D(bbox, "San Francisco (large)", 10);
+            GetBuildings3D(bbox, "San Francisco (large)");
 
             // Aix en provence / rotonde
             bbox = new BoundingBox(5.444927726471018, 5.447502647125315, 43.52600685540608, 43.528138282848076);
@@ -152,11 +163,11 @@ namespace SampleApp
 
             // La Paz
             bbox = GeometryService.GetBoundingBox("POLYGON((-68.17064463180934 -16.4766837193842,-68.09339701218043 -16.4766837193842,-68.09339701218043 -16.542681928856904,-68.17064463180934 -16.542681928856904,-68.17064463180934 -16.4766837193842))");
-            GetBuildings3D(bbox, "La Paz", 10);
+            GetBuildings3D(bbox, "La Paz");
 
             // Capri
             bbox = GeometryService.GetBoundingBox("POLYGON((10.085373456087536 42.88137857375818, 10.505600506868786 42.88137857375818, 10.505600506868786 42.63737387552473, 10.085373456087536 42.63737387552473, 10.085373456087536 42.88137857375818))");
-            GetBuildings3D(bbox, "Capri", 20, tinMesh: true);
+            GetBuildings3D(bbox, "Capri", numTiles: 20, tinMesh: true);
 
             //Task.Delay(1000).GetAwaiter().GetResult();
             // Aix en provence / slope
@@ -176,7 +187,7 @@ namespace SampleApp
 
         }
 
-        private void GetBuildings3D(BoundingBox bbox, string modelName = "buildings", int numTiles = 4, bool tinMesh = false)
+        private void GetBuildings3D(BoundingBox bbox, string modelName = "buildings", ImageryProvider provider = null, int numTiles = 4, bool tinMesh = false)
         {
             try
             {
@@ -184,7 +195,32 @@ namespace SampleApp
                 //File.WriteAllText("buildings.json", JsonConvert.SerializeObject(buildingService.GetBuildingsGeoJson(bbox)));
 
                 var model = _buildingService.GetBuildings3DModel(bbox, DEMDataSet.ASTER_GDEMV3, downloadMissingFiles: true, ZScale);
-                model = AddTerrainModel(model, bbox, DEMDataSet.ASTER_GDEMV3, withTexture: true, numTiles, tinMesh);
+                model = AddTerrainModel(model, bbox, DEMDataSet.ASTER_GDEMV3, withTexture: true, provider, numTiles, tinMesh);
+
+                model.SaveGLB(Path.Combine(Directory.GetCurrentDirectory(), modelName + ".glb"));
+
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
+        private void GetSkiResort3D(BoundingBox bbox, string modelName = "skiresort", ImageryProvider provider = null, int numTiles = 4, bool tinMesh = false)
+        {
+            try
+            {
+                // debug: write geojson to file
+                //File.WriteAllText("buildings.json", JsonConvert.SerializeObject(buildingService.GetBuildingsGeoJson(bbox)));
+
+
+                var model = _wayService.GetWays3DModel(bbox, "piste:type", DEMDataSet.ASTER_GDEMV3, downloadMissingFiles: true, ZScale);
+
+                var triangulationNormals = _buildingService.GetBuildings3DTriangulation(bbox, DEMDataSet.ASTER_GDEMV3, downloadMissingFiles: true, ZScale);
+                var indexedTriangulation = new IndexedTriangulation(triangulationNormals);
+                _gltfService.AddMesh(model, indexedTriangulation, null, null, doubleSided: true);
+
+
+                model = AddTerrainModel(model, bbox, DEMDataSet.ASTER_GDEMV3, withTexture: provider != null, provider, numTiles, tinMesh);
 
                 model.SaveGLB(Path.Combine(Directory.GetCurrentDirectory(), modelName + ".glb"));
 
@@ -196,7 +232,7 @@ namespace SampleApp
         }
 
 
-        private ModelRoot AddTerrainModel(ModelRoot model, BoundingBox bbox, DEMDataSet dataset, bool withTexture = true, int numTiles = 4, bool tinMesh = false)
+        private ModelRoot AddTerrainModel(ModelRoot model, BoundingBox bbox, DEMDataSet dataset, bool withTexture = true, ImageryProvider provider = null, int numTiles = 4, bool tinMesh = false)
         {
             try
             {
@@ -204,8 +240,7 @@ namespace SampleApp
                 string outputDir = Directory.GetCurrentDirectory();
                 using (TimeSpanBlock timer = new TimeSpanBlock("Terrain", _logger))
                 {
-                    ImageryProvider provider = ImageryProvider.MapBoxSatellite;// new TileDebugProvider(new GeoPoint(43.5,5.5));
-
+                    provider = provider ?? ImageryProvider.EsriWorldImagery;
                     _logger.LogInformation($"Getting height map data...");
 
                     var heightMap = _elevationService.GetHeightMap(ref bbox, dataset);
