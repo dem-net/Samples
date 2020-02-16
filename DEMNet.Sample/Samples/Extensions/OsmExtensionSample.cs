@@ -28,7 +28,7 @@ namespace SampleApp
         private readonly IMeshService _meshService;
         private readonly ILogger _logger;
 
-        private float ZScale = 1.5f;
+        private float ZScale = 3f;
 
         public OsmExtensionSample(BuildingService buildingService
                 , WayService wayService
@@ -123,12 +123,17 @@ namespace SampleApp
             //bbox = GeometryService.GetBoundingBox("POLYGON((5.418905095715298 43.55466923119226,5.419768767018094 43.55466923119226,5.419768767018094 43.55411328949576,5.418905095715298 43.55411328949576,5.418905095715298 43.55466923119226))");
             //GetBuildings3D(bbox);
 
+            // Ski resort - Val d'Isère
             bbox = GeometryService.GetBoundingBox("POLYGON((6.801003508029977 45.5157770504273,7.074631742893258 45.5157770504273,7.074631742893258 45.405728861083176,6.801003508029977 45.405728861083176,6.801003508029977 45.5157770504273))");
             GetSkiResort3D(bbox, "resort_untextured", null);
-            GetSkiResort3D(bbox, "resort_esri", ImageryProvider.EsriWorldImagery,20);
+            GetSkiResort3D(bbox, "resort_esri", ImageryProvider.EsriWorldImagery, 20);
             //GetSkiResort3D(bbox, "resort_mapbox", ImageryProvider.EsriWorldImagery, 12);
             //GetSkiResort3D(bbox, "resort_opentopo", ImageryProvider.OpenTopoMap, 12);
             GetSkiResort3D(bbox, "resort_toner", ImageryProvider.StamenToner, 12);
+
+            // Ski resort -  Les Arcs
+            bbox = GeometryService.GetBoundingBox("POLYGON((6.722226712932899 45.63700796432442,6.898007962932899 45.63700796432442,6.898007962932899 45.51925909655606,6.722226712932899 45.51925909655606,6.722226712932899 45.63700796432442))");
+            GetSkiResort3D(bbox, "LesArcs_resort_toner", ImageryProvider.StamenToner, 14);
 
             // Aix / ZA les Milles
             bbox = GeometryService.GetBoundingBox("POLYGON((5.337387271772482 43.49858292942485,5.3966104468213105 43.49858292942485,5.3966104468213105 43.46781823961212,5.337387271772482 43.46781823961212,5.337387271772482 43.49858292942485))");
