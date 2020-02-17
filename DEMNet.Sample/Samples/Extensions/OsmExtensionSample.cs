@@ -28,7 +28,7 @@ namespace SampleApp
         private readonly IMeshService _meshService;
         private readonly ILogger _logger;
 
-        private float ZScale = 1f;
+        private float ZScale = 2f;
 
         public OsmExtensionSample(BuildingService buildingService
                 , PisteSkiService pisteSkiService
@@ -51,7 +51,7 @@ namespace SampleApp
 
             //RunOsmPbfSample(@"D:\Temp\provence-alpes-cote-d-azur-latest.osm.pbf");
 
-            Run3DModelSamples_Buildings();
+            // Run3DModelSamples_Buildings();
             Run3DModelSamples_SkiResortsAndBuildings();
 
             //RunTesselationSample();
@@ -127,15 +127,15 @@ namespace SampleApp
 
             // Aix en provence / rotonde
             bbox = new BoundingBox(5.444927726471018, 5.447502647125315, 43.52600685540608, 43.528138282848076);
-            GetBuildings3D(bbox);
+            GetBuildings3D(bbox, "Aix_Rotonde");
 
-            //// Aix / ZA les Milles
-            //bbox = GeometryService.GetBoundingBox("POLYGON((5.337387271772482 43.49858292942485,5.3966104468213105 43.49858292942485,5.3966104468213105 43.46781823961212,5.337387271772482 43.46781823961212,5.337387271772482 43.49858292942485))");
-            //GetBuildings3D(bbox);
+            // Aix / ZA les Milles
+            bbox = GeometryService.GetBoundingBox("POLYGON((5.337387271772482 43.49858292942485,5.3966104468213105 43.49858292942485,5.3966104468213105 43.46781823961212,5.337387271772482 43.46781823961212,5.337387271772482 43.49858292942485))");
+            GetBuildings3D(bbox, "Aix_ZA_Milles");
 
-            //// Aix Mignet / polygon with inner ring
-            //bbox = GeometryService.GetBoundingBox("POLYGON((5.448310034686923 43.52504334503996,5.44888402741611 43.52504334503996,5.44888402741611 43.524666052953144,5.448310034686923 43.524666052953144,5.448310034686923 43.52504334503996))");
-            //GetBuildings3D(bbox);
+            // Aix Mignet / polygon with inner ring
+            bbox = GeometryService.GetBoundingBox("POLYGON((5.448310034686923 43.52504334503996,5.44888402741611 43.52504334503996,5.44888402741611 43.524666052953144,5.448310034686923 43.524666052953144,5.448310034686923 43.52504334503996))");
+            GetBuildings3D(bbox, "Aix_Mignet");
 
             //// Manhattan
             //bbox = GeometryService.GetBoundingBox("POLYGON((-74.02606764542348 40.74041375581217,-73.97697249161489 40.74041375581217,-73.97697249161489 40.699301026594576,-74.02606764542348 40.699301026594576,-74.02606764542348 40.74041375581217))");
@@ -187,17 +187,24 @@ namespace SampleApp
             BoundingBox bbox;
 
 
+            bbox = GeometryService.GetBoundingBox("POLYGON((6.168505020891946 45.29983821918378,6.314073868548196 45.29983821918378,6.314073868548196 45.19444990202436,6.168505020891946 45.19444990202436,6.168505020891946 45.29983821918378))");
+
+            GetSkiResort3D(bbox, "Saint Sorlin d'Arves", numTiles: 10, tinMesh: false, null, ImageryProvider.MapTilerHillshades, ImageryProvider.StamenToner, ImageryProvider.StamenTerrain);
+
             // Ski resort - Val d'Isère
             bbox = GeometryService.GetBoundingBox("POLYGON((6.801003508029977 45.5157770504273,7.074631742893258 45.5157770504273,7.074631742893258 45.405728861083176,6.801003508029977 45.405728861083176,6.801003508029977 45.5157770504273))");
-            //GetSkiResort3D(bbox, "resort_untextured", null);
-            GetSkiResort3D(bbox, "resort_esri", ImageryProvider.EsriWorldImagery, 4);
+            GetSkiResort3D(bbox, "Val d'Isère_Untextured", null);
+            //GetSkiResort3D(bbox, "resort_esri", ImageryProvider.EsriWorldImagery, 4);
             //GetSkiResort3D(bbox, "resort_mapbox", ImageryProvider.EsriWorldImagery, 12);
             //GetSkiResort3D(bbox, "resort_opentopo", ImageryProvider.OpenTopoMap, 12);
             //GetSkiResort3D(bbox, "resort_toner", ImageryProvider.StamenToner, 12);
 
             //// Ski resort -  Les Arcs
-            //bbox = GeometryService.GetBoundingBox("POLYGON((6.722226712932899 45.63700796432442,6.898007962932899 45.63700796432442,6.898007962932899 45.51925909655606,6.722226712932899 45.51925909655606,6.722226712932899 45.63700796432442))");
+            bbox = GeometryService.GetBoundingBox("POLYGON((6.722226712932899 45.63700796432442,6.898007962932899 45.63700796432442,6.898007962932899 45.51925909655606,6.722226712932899 45.51925909655606,6.722226712932899 45.63700796432442))");
             //GetSkiResort3D(bbox, "LesArcs_resort_toner", ImageryProvider.StamenToner, 4);
+            GetSkiResort3D(bbox, "LesArcs_resort_notexture");
+
+
         }
 
         private void GetBuildings3D(BoundingBox bbox, string modelName = "buildings", ImageryProvider provider = null, int numTiles = 4, bool tinMesh = false)
@@ -210,7 +217,7 @@ namespace SampleApp
                     //File.WriteAllText("buildings.json", JsonConvert.SerializeObject(buildingService.GetBuildingsGeoJson(bbox)));
 
                     var model = _buildingService.GetBuildings3DModel(bbox, DEMDataSet.ASTER_GDEMV3, downloadMissingFiles: true, ZScale);
-                    model = AddTerrainModel(model, bbox, DEMDataSet.ASTER_GDEMV3, withTexture: true, provider, numTiles, tinMesh);
+                    model = AddTerrainModel(model, bbox, DEMDataSet.ASTER_GDEMV3, withTexture: provider != null, provider, numTiles, tinMesh);
 
                     model.SaveGLB(Path.Combine(Directory.GetCurrentDirectory(), modelName + ".glb"));
                 }
@@ -230,7 +237,7 @@ namespace SampleApp
                     //File.WriteAllText("buildings.json", JsonConvert.SerializeObject(buildingService.GetBuildingsGeoJson(bbox)));
 
 
-                    var model = _pisteSkiService.GetWays3DModel(bbox, "piste:type", DEMDataSet.ASTER_GDEMV3, downloadMissingFiles: true, ZScale);
+                    var model = _pisteSkiService.GetPiste3DModel(bbox, "piste:type", DEMDataSet.ASTER_GDEMV3, downloadMissingFiles: true, ZScale);
 
                     var triangulationNormals = _buildingService.GetBuildings3DTriangulation(bbox, DEMDataSet.ASTER_GDEMV3, downloadMissingFiles: true, ZScale);
                     var indexedTriangulation = new IndexedTriangulation(triangulationNormals);
@@ -240,6 +247,42 @@ namespace SampleApp
                     model = AddTerrainModel(model, bbox, DEMDataSet.ASTER_GDEMV3, withTexture: provider != null, provider, numTiles, tinMesh);
 
                     model.SaveGLB(Path.Combine(Directory.GetCurrentDirectory(), modelName + ".glb"));
+                }
+
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
+
+        private void GetSkiResort3D(BoundingBox bbox, string modelName = "skiresort", int numTiles = 4, bool tinMesh = false, params ImageryProvider[] providers)
+        {
+            try
+            {
+                using (TimeSpanBlock timer = new TimeSpanBlock($"{nameof(GetSkiResort3D)} {modelName}", _logger))
+                {
+                    // debug: write geojson to file
+                    //File.WriteAllText("buildings.json", JsonConvert.SerializeObject(buildingService.GetBuildingsGeoJson(bbox)));
+
+
+                    var pistes = _pisteSkiService.GetPisteModels(bbox, "piste:type", DEMDataSet.ASTER_GDEMV3, downloadMissingFiles: true, ZScale);
+
+                    var triangulationNormals = _buildingService.GetBuildings3DTriangulation(bbox, DEMDataSet.ASTER_GDEMV3, downloadMissingFiles: true, ZScale);
+                    var indexedTriangulation = new IndexedTriangulation(triangulationNormals);
+
+                    foreach (var provider in providers)
+                    {
+
+                        var model = _pisteSkiService.GetPiste3DModel(pistes);
+                        _gltfService.AddMesh(model, indexedTriangulation, null, null, doubleSided: true);
+
+                        model = AddTerrainModel(model, bbox, DEMDataSet.ASTER_GDEMV3, withTexture: provider != null, provider, numTiles, tinMesh);
+
+                        model.SaveGLB(Path.Combine(Directory.GetCurrentDirectory(), $"{modelName}_{provider?.Name}.glb"));
+                    }
+
+
                 }
 
             }
