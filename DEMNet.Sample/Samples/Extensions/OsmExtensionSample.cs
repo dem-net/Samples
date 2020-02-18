@@ -51,7 +51,7 @@ namespace SampleApp
 
             //RunOsmPbfSample(@"D:\Temp\provence-alpes-cote-d-azur-latest.osm.pbf");
 
-            // Run3DModelSamples_Buildings();
+            Run3DModelSamples_Buildings();
             Run3DModelSamples_SkiResortsAndBuildings();
 
             //RunTesselationSample();
@@ -120,10 +120,22 @@ namespace SampleApp
         {
             BoundingBox bbox;
 
-            // Simple 4 vertex poly
+            //// Simple 4 vertex poly
             //bbox = GeometryService.GetBoundingBox("POLYGON((5.418905095715298 43.55466923119226,5.419768767018094 43.55466923119226,5.419768767018094 43.55411328949576,5.418905095715298 43.55411328949576,5.418905095715298 43.55466923119226))");
             //GetBuildings3D(bbox);
 
+            /// Empire State Building
+            bbox = GeometryService.GetBoundingBox("POLYGON((-73.98608718293481 40.74874603106414,-73.9851484097796 40.74874603106414,-73.9851484097796 40.748213648614474,-73.98608718293481 40.748213648614474,-73.98608718293481 40.74874603106414))");
+            GetBuildings3D(bbox, "Empire State Buiding", terrain: false);
+
+            //// NYC
+            bbox = GeometryService.GetBoundingBox("POLYGON((-74.02211943375356 40.80112562628496,-73.92427244889028 40.80112562628496,-73.92427244889028 40.69878044956189,-74.02211943375356 40.69878044956189,-74.02211943375356 40.80112562628496))");
+            GetBuildings3D(bbox, "NYC", ImageryProvider.StamenWaterColor, 10);
+
+
+            // Manhattan
+            bbox = GeometryService.GetBoundingBox("POLYGON((-74.02606764542348 40.74041375581217,-73.97697249161489 40.74041375581217,-73.97697249161489 40.699301026594576,-74.02606764542348 40.699301026594576,-74.02606764542348 40.74041375581217))");
+            GetBuildings3D(bbox, "Manhattan");
 
             // Aix en provence / rotonde
             bbox = new BoundingBox(5.444927726471018, 5.447502647125315, 43.52600685540608, 43.528138282848076);
@@ -137,14 +149,9 @@ namespace SampleApp
             bbox = GeometryService.GetBoundingBox("POLYGON((5.448310034686923 43.52504334503996,5.44888402741611 43.52504334503996,5.44888402741611 43.524666052953144,5.448310034686923 43.524666052953144,5.448310034686923 43.52504334503996))");
             GetBuildings3D(bbox, "Aix_Mignet");
 
-            //// Manhattan
-            //bbox = GeometryService.GetBoundingBox("POLYGON((-74.02606764542348 40.74041375581217,-73.97697249161489 40.74041375581217,-73.97697249161489 40.699301026594576,-74.02606764542348 40.699301026594576,-74.02606764542348 40.74041375581217))");
-            //GetBuildings3D(bbox, "Manhattan");
 
-            //// NYC
-            //bbox = GeometryService.GetBoundingBox("POLYGON((-74.13052054589312 40.870104734160016,-73.85723563378374 40.870104734160016,-73.85723563378374 40.580779411463624,-74.13052054589312 40.580779411463624,-74.13052054589312 40.870104734160016))");
-            //GetBuildings3D(bbox, "NYC");
 
+        
             //// Chicago
             //bbox = GeometryService.GetBoundingBox("POLYGON((-87.93682314060652 42.097186773093576,-87.50560976170027 42.097186773093576,-87.50560976170027 41.64314045894196,-87.93682314060652 41.64314045894196,-87.93682314060652 42.097186773093576))");
             //GetBuildings3D(bbox, "Chicago");
@@ -207,7 +214,7 @@ namespace SampleApp
 
         }
 
-        private void GetBuildings3D(BoundingBox bbox, string modelName = "buildings", ImageryProvider provider = null, int numTiles = 4, bool tinMesh = false)
+        private void GetBuildings3D(BoundingBox bbox, string modelName = "buildings", ImageryProvider provider = null, int numTiles = 4, bool tinMesh = false, bool terrain = true)
         {
             try
             {
@@ -217,7 +224,10 @@ namespace SampleApp
                     //File.WriteAllText("buildings.json", JsonConvert.SerializeObject(buildingService.GetBuildingsGeoJson(bbox)));
 
                     var model = _buildingService.GetBuildings3DModel(bbox, DEMDataSet.ASTER_GDEMV3, downloadMissingFiles: true, ZScale);
-                    model = AddTerrainModel(model, bbox, DEMDataSet.ASTER_GDEMV3, withTexture: provider != null, provider, numTiles, tinMesh);
+                    if (terrain)
+                    {
+                        model = AddTerrainModel(model, bbox, DEMDataSet.ASTER_GDEMV3, withTexture: provider != null, provider, numTiles, tinMesh);
+                    }
 
                     model.SaveGLB(Path.Combine(Directory.GetCurrentDirectory(), modelName + ".glb"));
                 }
