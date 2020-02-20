@@ -122,8 +122,24 @@ namespace SampleApp
 
             // Simple 4 vertex poly
             bbox = GeometryService.GetBoundingBox("POLYGON((5.418905095715298 43.55466923119226,5.419768767018094 43.55466923119226,5.419768767018094 43.55411328949576,5.418905095715298 43.55411328949576,5.418905095715298 43.55466923119226))");
-            GetBuildings3D(bbox);
+            var b = _buildingService.GetBuildingsModel(bbox);
+            GetBuildings3D(b.Buildings,bbox,"Test white", terrain:false);
+            b = _buildingService.GetBuildingsModel(bbox);
+            b.Buildings.First().RoofColor = new System.Numerics.Vector4(1, 0, 0, 1);
+            GetBuildings3D(b.Buildings, bbox, "Test roof red", terrain: false);
+            b = _buildingService.GetBuildingsModel(bbox);
+            b.Buildings.First().RoofColor = null;
+            b.Buildings.First().Color = new System.Numerics.Vector4(0, 1, 0, 1);
+            GetBuildings3D(b.Buildings, bbox, "Test wall green", terrain: false);
+            b = _buildingService.GetBuildingsModel(bbox);
+            b.Buildings.First().RoofColor = new System.Numerics.Vector4(0, 0, 1, 1);
+            b.Buildings.First().Color = new System.Numerics.Vector4(0, 1, 0, 1);
+            GetBuildings3D(b.Buildings, bbox, "Test roof blue wall green", terrain: false);
 
+            // NYC < 50mo
+            bbox = GeometryService.GetBoundingBox("POLYGON((-74.024179370277 40.73462567898996,-73.97062102066762 40.73462567898996,-73.97062102066762 40.698455082879136,-74.024179370277 40.698455082879136,-74.024179370277 40.73462567898996))");
+            GetBuildings3D(bbox, "NYC_testcolor");
+            
             // NYC < 50mo
             bbox = GeometryService.GetBoundingBox("POLYGON((-74.02040281998403 40.79079422191712,-73.93937865006215 40.79079422191712,-73.93937865006215 40.69923595071656,-74.02040281998403 40.69923595071656,-74.02040281998403 40.79079422191712))");
             GetBuildings3D(bbox, "NYC", ImageryProvider.MapBoxSatelliteStreet, 12);
@@ -141,10 +157,17 @@ namespace SampleApp
             //bbox = GeometryService.GetBoundingBox("POLYGON((-74.02211943375356 40.80112562628496,-73.92427244889028 40.80112562628496,-73.92427244889028 40.69878044956189,-74.02211943375356 40.69878044956189,-74.02211943375356 40.80112562628496))");
             //GetBuildings3D(bbox, "NYC", ImageryProvider.MapBoxSatelliteStreet, 12);
 
+            // Aix centre
+            bbox = GeometryService.GetBoundingBox("POLYGON((5.4350868411385145 43.536450929895565,5.461093539746913 43.536450929895565,5.461093539746913 43.51834167296956,5.4350868411385145 43.51834167296956,5.4350868411385145 43.536450929895565))");
+            GetBuildings3D(bbox, "Aix centre", ImageryProvider.MapBoxSatelliteStreet);
+
+            // Paris seine
+            bbox = GeometryService.GetBoundingBox("POLYGON((2.316319715808053 48.87347870746406,2.3764011977416466 48.87347870746406,2.3764011977416466 48.83586694581099,2.316319715808053 48.83586694581099,2.316319715808053 48.87347870746406))");
+            GetBuildings3D(bbox, "Paris Seine", ImageryProvider.MapBoxSatelliteStreet);
 
             // Aix en provence / rotonde
             bbox = new BoundingBox(5.444927726471018, 5.447502647125315, 43.52600685540608, 43.528138282848076);
-            GetBuildings3D(bbox, "Aix_Rotonde");
+            GetBuildings3D(bbox, "Aix_Rotonde", ImageryProvider.MapBoxSatelliteStreet);
 
             // Aix / ZA les Milles
             bbox = GeometryService.GetBoundingBox("POLYGON((5.337387271772482 43.49858292942485,5.3966104468213105 43.49858292942485,5.3966104468213105 43.46781823961212,5.337387271772482 43.46781823961212,5.337387271772482 43.49858292942485))");
@@ -218,7 +241,29 @@ namespace SampleApp
 
 
         }
+        private void GetBuildings3D(List<BuildingModel> buildingModels, BoundingBox bbox, string modelName = "buildings", ImageryProvider provider = null, int numTiles = 4, bool tinMesh = false, bool terrain = true)
+        {
+            try
+            {
+                using (TimeSpanBlock timer = new TimeSpanBlock($"{nameof(GetBuildings3D)} {modelName}", _logger))
+                {
+                    // debug: write geojson to file
+                    //File.WriteAllText("buildings.json", JsonConvert.SerializeObject(buildingService.GetBuildingsGeoJson(bbox)));
 
+                    var model = _buildingService.GetBuildings3DModel(buildingModels, DEMDataSet.ASTER_GDEMV3, downloadMissingFiles: true, ZScale);
+                    if (terrain)
+                    {
+                        model = AddTerrainModel(model, bbox, DEMDataSet.ASTER_GDEMV3, withTexture: provider != null, provider, numTiles, tinMesh);
+                    }
+
+                    model.SaveGLB(Path.Combine(Directory.GetCurrentDirectory(), modelName + ".glb"));
+                }
+            }
+            catch (Exception ex)
+            {
+                throw;
+            }
+        }
         private void GetBuildings3D(BoundingBox bbox, string modelName = "buildings", ImageryProvider provider = null, int numTiles = 4, bool tinMesh = false, bool terrain = true)
         {
             try
