@@ -123,7 +123,7 @@ namespace SampleApp
             // Simple 4 vertex poly
             bbox = GeometryService.GetBoundingBox("POLYGON((5.418905095715298 43.55466923119226,5.419768767018094 43.55466923119226,5.419768767018094 43.55411328949576,5.418905095715298 43.55411328949576,5.418905095715298 43.55466923119226))");
             var b = _buildingService.GetBuildingsModel(bbox);
-            GetBuildings3D(b.Buildings,bbox,"Test white", terrain:false);
+            GetBuildings3D(b.Buildings, bbox, "Test white", terrain: false);
             b = _buildingService.GetBuildingsModel(bbox);
             b.Buildings.First().RoofColor = new System.Numerics.Vector4(1, 0, 0, 1);
             GetBuildings3D(b.Buildings, bbox, "Test roof red", terrain: false);
@@ -139,7 +139,7 @@ namespace SampleApp
             // NYC < 50mo
             bbox = GeometryService.GetBoundingBox("POLYGON((-74.024179370277 40.73462567898996,-73.97062102066762 40.73462567898996,-73.97062102066762 40.698455082879136,-74.024179370277 40.698455082879136,-74.024179370277 40.73462567898996))");
             GetBuildings3D(bbox, "NYC_testcolor");
-            
+
             // NYC < 50mo
             bbox = GeometryService.GetBoundingBox("POLYGON((-74.02040281998403 40.79079422191712,-73.93937865006215 40.79079422191712,-73.93937865006215 40.69923595071656,-74.02040281998403 40.69923595071656,-74.02040281998403 40.79079422191712))");
             GetBuildings3D(bbox, "NYC", ImageryProvider.MapBoxSatelliteStreet, 12);
@@ -179,7 +179,7 @@ namespace SampleApp
 
 
 
-        
+
             //// Chicago
             //bbox = GeometryService.GetBoundingBox("POLYGON((-87.93682314060652 42.097186773093576,-87.50560976170027 42.097186773093576,-87.50560976170027 41.64314045894196,-87.93682314060652 41.64314045894196,-87.93682314060652 42.097186773093576))");
             //GetBuildings3D(bbox, "Chicago");
@@ -273,7 +273,7 @@ namespace SampleApp
                     // debug: write geojson to file
                     //File.WriteAllText("buildings.json", JsonConvert.SerializeObject(buildingService.GetBuildingsGeoJson(bbox)));
 
-                    var model = _buildingService.GetBuildings3DModel(bbox, DEMDataSet.ASTER_GDEMV3, downloadMissingFiles: true, ZScale);
+                    var model = _buildingService.GetBuildings3DModel(bbox, DEMDataSet.ASTER_GDEMV3, downloadMissingFiles: true, ZScale, useOsmColors: true);
                     if (terrain)
                     {
                         model = AddTerrainModel(model, bbox, DEMDataSet.ASTER_GDEMV3, withTexture: provider != null, provider, numTiles, tinMesh);
@@ -299,7 +299,7 @@ namespace SampleApp
 
                     var model = _pisteSkiService.GetPiste3DModel(bbox, "piste:type", DEMDataSet.ASTER_GDEMV3, downloadMissingFiles: true, ZScale);
 
-                    var triangulationNormals = _buildingService.GetBuildings3DTriangulation(bbox, DEMDataSet.ASTER_GDEMV3, downloadMissingFiles: true, ZScale);
+                    var triangulationNormals = _buildingService.GetBuildings3DTriangulation(bbox, DEMDataSet.ASTER_GDEMV3, downloadMissingFiles: true, ZScale, useOsmColors: true); ;
                     var indexedTriangulation = new IndexedTriangulation(triangulationNormals);
                     _gltfService.AddMesh(model, indexedTriangulation, null, null, doubleSided: true);
 
@@ -328,7 +328,7 @@ namespace SampleApp
 
                     var pistes = _pisteSkiService.GetPisteModels(bbox, "piste:type", DEMDataSet.ASTER_GDEMV3, downloadMissingFiles: true, ZScale);
 
-                    var triangulationNormals = _buildingService.GetBuildings3DTriangulation(bbox, DEMDataSet.ASTER_GDEMV3, downloadMissingFiles: true, ZScale);
+                    var triangulationNormals = _buildingService.GetBuildings3DTriangulation(bbox, DEMDataSet.ASTER_GDEMV3, downloadMissingFiles: true, ZScale, useOsmColors: true);
                     var indexedTriangulation = new IndexedTriangulation(triangulationNormals);
 
                     foreach (var provider in providers)
