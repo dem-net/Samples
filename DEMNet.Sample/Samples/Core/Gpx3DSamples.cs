@@ -44,13 +44,13 @@ namespace SampleApp
         private readonly IRasterService _rasterService;
         private readonly IElevationService _elevationService;
         private readonly SharpGltfService _sharpGltfService;
-        private readonly IImageryService _imageryService;
+        private readonly ImageryService _imageryService;
 
         public Gpx3DSamples(ILogger<Gpx3DSamples> logger
                 , IRasterService rasterService
                 , IElevationService elevationService
                 , SharpGltfService sharpGltfService
-                , IImageryService imageryService)
+                , ImageryService imageryService)
         {
             _logger = logger;
             _rasterService = rasterService;

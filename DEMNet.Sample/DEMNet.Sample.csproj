@@ -25,6 +25,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="GeoJSON.Net" Version="1.2.15" />
     <PackageReference Include="Microsoft.Extensions.Configuration.CommandLine" Version="3.1.0" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="3.1.0" />
     <PackageReference Include="Microsoft.Extensions.Hosting" Version="3.1.0" />
@@ -38,7 +39,6 @@
 
   <ItemGroup>
     <ProjectReference Include="..\..\DEM.Net\DEM.Net.Core\DEM.Net.Core.csproj" />
-    <ProjectReference Include="..\..\DEM.Net\DEM.Net.Extension.Osm\DEM.Net.Extension.Osm.csproj" />
     <ProjectReference Include="..\..\DEM.Net\DEM.Net.glTF\DEM.Net.glTF.csproj" />
   </ItemGroup>
 

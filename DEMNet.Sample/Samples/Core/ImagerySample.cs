@@ -39,12 +39,12 @@ namespace SampleApp
         private readonly ILogger<glTF3DSamples> _logger;
         private readonly IElevationService _elevationService;
         private readonly SharpGltfService _sharpGltfService;
-        private readonly IImageryService _imageryService;
+        private readonly ImageryService _imageryService;
 
         public ImagerySample(ILogger<glTF3DSamples> logger
                 , IElevationService elevationService
                 , SharpGltfService sharpGltfService
-                , IImageryService imageryService)
+                , ImageryService imageryService)
         {
             _logger = logger;
             _elevationService = elevationService;

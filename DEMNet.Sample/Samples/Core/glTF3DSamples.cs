@@ -42,14 +42,14 @@ namespace SampleApp
     {
         private readonly ILogger<glTF3DSamples> _logger;
         private readonly IElevationService _elevationService;
-        private readonly IImageryService _imageryService;
+        private readonly ImageryService _imageryService;
         private readonly SharpGltfService _sharpGltfService;
         private int TEXTURE_TILES = 2; // 4: med, 8: high
 
         public glTF3DSamples(ILogger<glTF3DSamples> logger
                 , IElevationService elevationService
                 , SharpGltfService sharpGltfService
-                , IImageryService imageryService)
+                , ImageryService imageryService)
         {
             _logger = logger;
             _elevationService = elevationService;
