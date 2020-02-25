@@ -56,7 +56,6 @@ namespace SampleApp
         private readonly AerialGpxSample aerialGpxSample;
         private readonly ImagerySample imagerySample;
         private readonly IntervisibilitySample intervisibilitySample;
-        private readonly OsmExtensionSample osmSample;
         private const string DATA_FILES_PATH = null; //@"C:\Users\ElevationAPI\AppData\Local"; // Leave to null for default location (Environment.SpecialFolder.LocalApplicationData)
 
         public SampleApplication(ILogger<SampleApplication> logger,
@@ -72,8 +71,7 @@ namespace SampleApp
             CustomSamples customSamples,
             AerialGpxSample aerialGpxSample,
             ImagerySample imagerySample,
-            IntervisibilitySample intervisibilitySample,
-            OsmExtensionSample osmSample)
+            IntervisibilitySample intervisibilitySample)
         {
             _logger = logger;
             this.rasterService = rasterService;
@@ -89,7 +87,6 @@ namespace SampleApp
             this.aerialGpxSample = aerialGpxSample;
             this.imagerySample = imagerySample;
             this.intervisibilitySample = intervisibilitySample;
-            this.osmSample = osmSample;
         }
 
 
@@ -109,15 +106,7 @@ namespace SampleApp
             }
 
             
-            using (_logger.BeginScope($"Running {nameof(OsmExtensionSample)}.."))
-            {
-                osmSample.Run();
-               
-                _logger.LogInformation($"Sample {nameof(OsmExtensionSample)} done. Press any key to run the next sample...");
-                if (pauseAfterEachSample) Console.ReadLine();
-                if (cancellationToken.IsCancellationRequested) return Task.FromCanceled(cancellationToken);
-            }
-            using (_logger.BeginScope($"Running {nameof(IntervisibilitySample)}.."))
+           using (_logger.BeginScope($"Running {nameof(IntervisibilitySample)}.."))
             {
                 intervisibilitySample.Run(cancellationToken);
                 _logger.LogInformation($"Sample {nameof(IntervisibilitySample)} done. Press any key to run the next sample...");
