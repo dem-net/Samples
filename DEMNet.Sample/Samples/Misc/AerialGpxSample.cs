@@ -49,7 +49,7 @@ namespace SampleApp
         private readonly ILogger<Gpx3DSamples> _logger;
         private readonly IRasterService _rasterService;
         private readonly IElevationService _elevationService;
-        private readonly IImageryService _imageryService;
+        private readonly ImageryService _imageryService;
         private readonly SharpGltfService _sharpGltfService;
         private readonly int outputSrid = Reprojection.SRID_PROJECTED_MERCATOR;
         private readonly int imageryNbTiles = 4;
@@ -57,7 +57,7 @@ namespace SampleApp
         public AerialGpxSample(ILogger<Gpx3DSamples> logger
                 , IRasterService rasterService
                 , IElevationService elevationService
-                , IImageryService imageryService
+                , ImageryService imageryService
                 , SharpGltfService sharpGltfService)
         {
             _logger = logger;

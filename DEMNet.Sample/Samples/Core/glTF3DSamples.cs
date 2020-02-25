@@ -42,13 +42,14 @@ namespace SampleApp
     {
         private readonly ILogger<glTF3DSamples> _logger;
         private readonly IElevationService _elevationService;
-        private readonly IImageryService _imageryService;
+        private readonly ImageryService _imageryService;
         private readonly SharpGltfService _sharpGltfService;
+        private int TEXTURE_TILES = 2; // 4: med, 8: high
 
         public glTF3DSamples(ILogger<glTF3DSamples> logger
                 , IElevationService elevationService
                 , SharpGltfService sharpGltfService
-                , IImageryService imageryService)
+                , ImageryService imageryService)
         {
             _logger = logger;
             _elevationService = elevationService;
@@ -59,25 +60,24 @@ namespace SampleApp
         {
             try
             {
-
-
+                //_rasterService.GenerateDirectoryMetadata(dataset, false);
                 Stopwatch sw = Stopwatch.StartNew();
                 string modelName = $"Montagne Sainte Victoire {dataset.Name}";
                 string outputDir = Directory.GetCurrentDirectory();
-                
+
                 ImageryProvider provider = ImageryProvider.MapBoxSatelliteStreet;// new TileDebugProvider(new GeoPoint(43.5,5.5));
 
                 // You can get your boox from https://geojson.net/ (save as WKT)
-                //string bboxWKT = "POLYGON((5.54888 43.519525, 5.61209 43.519525, 5.61209 43.565225, 5.54888 43.565225, 5.54888 43.519525))";
-//                string bboxWKT =
-//                    "POLYGON((5.594457381483949 43.545276557046044,5.652135604140199 43.545276557046044,5.652135604140199 43.52038635099936,5.594457381483949 43.52038635099936,5.594457381483949 43.545276557046044))";
-//                _logger.LogInformation($"Processing model {modelName}...");
-//
-//
-//                _logger.LogInformation($"Getting bounding box geometry...");
-//                var bbox = GeometryService.GetBoundingBox(bboxWKT);
+                string bboxWKT = "POLYGON((5.54888 43.519525, 5.61209 43.519525, 5.61209 43.565225, 5.54888 43.565225, 5.54888 43.519525))";
+                //                string bboxWKT =
+                //                    "POLYGON((5.594457381483949 43.545276557046044,5.652135604140199 43.545276557046044,5.652135604140199 43.52038635099936,5.594457381483949 43.52038635099936,5.594457381483949 43.545276557046044))";
+                //                _logger.LogInformation($"Processing model {modelName}...");
+                //
+                //
+                //                _logger.LogInformation($"Getting bounding box geometry...");
+                var bbox = GeometryService.GetBoundingBox(bboxWKT);
 
-                var bbox = new BoundingBox(5.5613898348431485,5.597185285307553,43.49372969433046,43.50939068558466);
+                //var bbox = new BoundingBox(5.5613898348431485,5.597185285307553,43.49372969433046,43.50939068558466);
                 _logger.LogInformation($"Getting height map data...");
 
                 var heightMap = _elevationService.GetHeightMap(ref bbox, dataset);
@@ -96,7 +96,7 @@ namespace SampleApp
 
 
                     Console.WriteLine("Download image tiles...");
-                    TileRange tiles = _imageryService.DownloadTiles(bbox, provider, 8);
+                    TileRange tiles = _imageryService.DownloadTiles(bbox, provider, TEXTURE_TILES);
                     string fileName = Path.Combine(outputDir, "Texture.jpg");
 
                     Console.WriteLine("Construct texture...");
@@ -112,7 +112,7 @@ namespace SampleApp
 
                     //hMap = hMap.CenterOnOrigin().ZScale(Z_FACTOR);
                     var normalMap = _imageryService.GenerateNormalMap(heightMap, outputDir);
-    
+
                     pbrTexture = PBRTexture.Create(texInfo, normalMap);
 
                     //hMap = hMap.CenterOnOrigin(Z_FACTOR);
@@ -123,7 +123,7 @@ namespace SampleApp
                 // and add base and sides
                 _logger.LogInformation($"Triangulating height map and generating 3D mesh...");
 
-                var model = _sharpGltfService.CreateTerrainMesh(heightMap);
+                var model = _sharpGltfService.CreateTerrainMesh(heightMap, pbrTexture);
                 model.SaveGLB(Path.Combine(Directory.GetCurrentDirectory(), modelName + ".glb"));
 
                 model = _sharpGltfService.CreateTerrainMesh(heightMap, GenOptions.Normals | GenOptions.BoxedBaseElevationMin);
