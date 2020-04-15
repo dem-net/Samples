@@ -49,7 +49,7 @@ namespace SampleApp
             _logger = logger;
             _elevationService = elevationService;
         }
-        public void Run(CancellationToken cancellationToken)
+        public void Run()
         {
             try
             {
@@ -65,7 +65,6 @@ namespace SampleApp
                 Parallel.ForEach(DEMDataSet.RegisteredNonLocalDatasets, (dataSet, loopState) =>
                 //foreach (var dataSet in DEMDataSet.RegisteredNonSingleFileDatasets)
                 {
-                    if (cancellationToken.IsCancellationRequested) loopState.Stop();
                     sw.Restart();
 
                     _elevationService.DownloadMissingFiles(dataSet, lat1, lon1);
@@ -75,7 +74,6 @@ namespace SampleApp
                 }
                 );
 
-                if (cancellationToken.IsCancellationRequested) return;
                 _logger.LogInformation("Multiple point elevation");
 
                 sw.Restart();
@@ -86,14 +84,12 @@ namespace SampleApp
                 Parallel.ForEach(DEMDataSet.RegisteredNonLocalDatasets, (dataSet, loopState) =>
                 //foreach (var dataSet in DEMDataSet.RegisteredNonSingleFileDatasets)
                 {
-                    if (cancellationToken.IsCancellationRequested) loopState.Stop();
                     sw.Restart();
                     var geoPoints = _elevationService.GetPointsElevation(points, dataSet);
                     _logger.LogInformation($"{dataSet.Name} elevation: {string.Join(" / ", geoPoints.Select(e => e.Elevation.GetValueOrDefault().ToString("N2")))} (time taken: {sw.Elapsed.TotalMilliseconds:N1}ms)");
                 }
                 );
 
-                if (cancellationToken.IsCancellationRequested) return;
                 _logger.LogInformation("Line elevation");
 
                 sw.Restart();
@@ -102,7 +98,6 @@ namespace SampleApp
                 Parallel.ForEach(DEMDataSet.RegisteredNonLocalDatasets, (dataSet, loopState) =>
                 //foreach (var dataSet in DEMDataSet.RegisteredNonSingleFileDatasets)
                 {
-                    if (cancellationToken.IsCancellationRequested) loopState.Stop();
                     _elevationService.DownloadMissingFiles(dataSet, elevationLine.GetBoundingBox());
                     var geoPoints = _elevationService.GetLineGeometryElevation(elevationLine, dataSet);
                     var metrics = geoPoints.ComputeMetrics();

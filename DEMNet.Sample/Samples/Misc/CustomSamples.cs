@@ -51,7 +51,7 @@ namespace SampleApp
             _elevationService = elevationService;
             _rasterService = rasterService;
         }
-        public void Run(CancellationToken cancellationToken)
+        public void Run()
         {
             try
             {

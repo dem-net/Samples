@@ -50,40 +50,46 @@ namespace SampleApp
     class Program
     {
 
-        static async Task Main(string[] args)
+        static void Main(string[] args)
         {
-            var hostBuilder = Host.CreateDefaultBuilder(args)
-                .ConfigureAppConfiguration((context, builder) =>
-                {
-                    builder.SetBasePath(AppContext.BaseDirectory)
+
+            var config = new ConfigurationBuilder()
+                        .SetBasePath(AppContext.BaseDirectory)
                         .AddJsonFile("appsettings.json", optional: false)
-                        .AddJsonFile($"appsettings.{context.HostingEnvironment.EnvironmentName}.json", optional: true)
-                        .AddJsonFile("secrets.json", optional: true, reloadOnChange: false);
-                })
-                .ConfigureServices((context, builder) =>
-                {
-                    RegisterServices(context.Configuration, builder);
-                });
+                        .AddJsonFile("secrets.json", optional: true, reloadOnChange: false)
+                        .Build();
+            var serviceCollection = new ServiceCollection();
 
-            try
-            {
-                await hostBuilder.RunConsoleAsync();
-            }
-            catch (TaskCanceledException)
-            {
-                Console.Write("End of DEM.Net Samples after cancelation.");
-            }
-            catch (Exception ex)
-            {
-                Console.Write(ex.ToString());
-            }
-            finally
-            {
-                Console.Write("Press any key to contine...");
-                Console.ReadLine();
-            }
-           
+            RegisterServices(config, serviceCollection);
 
+            var services = serviceCollection.BuildServiceProvider();
+
+            services.GetService<SampleApplication>().Start(services);
+        }
+
+
+        /// <summary>
+        /// Register additionnal samples here
+        /// </summary>
+        /// <param name="services"></param>
+        private static void RegisterSamples(IServiceCollection services)
+        {
+            services.AddTransient<STLSamples>()
+                    .AddTransient<ElevationSamples>()
+                    .AddTransient<GpxSamples>()
+                    .AddTransient<Gpx3DSamples>()
+                    .AddTransient<DatasetSamples>()
+                    .AddTransient<TINSamples>()
+                    .AddTransient<glTF3DSamples>()
+                    .AddTransient<DownloaderSample>()
+                    .AddTransient<CustomSamples>()
+                    .AddTransient<AerialGpxSample>()
+                    .AddTransient<ImagerySample>()
+                    .AddTransient<IntervisibilitySample>();
+
+
+            services.AddTransient<SampleApplication>();
+            // .. more samples here
         }
 
         private static void RegisterServices(IConfiguration config, IServiceCollection services)
@@ -114,28 +120,5 @@ namespace SampleApp
 
         }
 
-        /// <summary>
-        /// Register additionnal samples here
-        /// </summary>
-        /// <param name="services"></param>
-        private static void RegisterSamples(IServiceCollection services)
-        {
-            services.AddTransient<STLSamples>()
-                    .AddTransient<ElevationSamples>()
-                    .AddTransient<GpxSamples>()
-                    .AddTransient<Gpx3DSamples>()
-                    .AddTransient<DatasetSamples>()
-                    .AddTransient<TINSamples>()
-                    .AddTransient<glTF3DSamples>()
-                    .AddTransient<DownloaderSample>()
-                    .AddTransient<CustomSamples>()
-                    .AddTransient<AerialGpxSample>()
-                    .AddTransient<ImagerySample>()
-                    .AddTransient<IntervisibilitySample>();
-
-
-            services.AddHostedService<SampleApplication>();
-            // .. more samples here
-        }
     }
 }

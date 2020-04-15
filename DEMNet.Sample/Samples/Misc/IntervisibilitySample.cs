@@ -50,7 +50,7 @@ namespace SampleApp
             _logger = logger;
             _elevationService = elevationService;
         }
-        public void Run(CancellationToken cancellationToken)
+        public void Run()
         {
             try
             {
@@ -91,7 +91,6 @@ namespace SampleApp
 
                 Stopwatch sw = new Stopwatch();
 
-                if (cancellationToken.IsCancellationRequested) return;
                 _logger.LogInformation("Line elevation");
 
                 sw.Restart();
