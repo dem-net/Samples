@@ -70,7 +70,6 @@ namespace SampleApp
                 rasterService.SetLocalDirectory(DATA_FILES_PATH);
             }
 
-
             using (_logger.BeginScope($"Running {nameof(AerialGpxSample)}.."))
             {
                 var aerialGpxSample = services.GetService<AerialGpxSample>();

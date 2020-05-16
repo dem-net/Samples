@@ -40,6 +40,7 @@
   </ItemGroup>
 
 
+
   <ItemGroup>
     <None Update="SampleData\20191022-Puch-Pöllau.gpx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
@@ -80,8 +81,5 @@
     <Compile Condition=" '$(EnableDefaultCompileItems)' == 'true' " Update="Samples\Core\Gpx3DSamples.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Compile>
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Samples\Misc\" />
   </ItemGroup>
 </Project>

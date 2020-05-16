@@ -46,7 +46,7 @@ namespace SampleApp
     using VERTEX = SharpGLTF.Geometry.VertexTypes.VertexPosition;
     public class AerialGpxSample
     {
-        private readonly ILogger<Gpx3DSamples> _logger;
+        private readonly ILogger<AerialGpxSample> _logger;
         private readonly IRasterService _rasterService;
         private readonly IElevationService _elevationService;
         private readonly ImageryService _imageryService;
@@ -54,7 +54,7 @@ namespace SampleApp
         private readonly int outputSrid = Reprojection.SRID_PROJECTED_MERCATOR;
         private readonly int imageryNbTiles = 4;
 
-        public AerialGpxSample(ILogger<Gpx3DSamples> logger
+        public AerialGpxSample(ILogger<AerialGpxSample> logger
                 , IRasterService rasterService
                 , IElevationService elevationService
                 , ImageryService imageryService

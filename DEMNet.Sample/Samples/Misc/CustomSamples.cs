@@ -39,11 +39,11 @@ namespace SampleApp
 {
     public class CustomSamples
     {
-        private readonly ILogger<ElevationSamples> _logger;
+        private readonly ILogger<CustomSamples> _logger;
         private readonly IElevationService _elevationService;
         private readonly IRasterService _rasterService;
 
-        public CustomSamples(ILogger<ElevationSamples> logger
+        public CustomSamples(ILogger<CustomSamples> logger
                 , IElevationService elevationService
                 , IRasterService rasterService)
         {

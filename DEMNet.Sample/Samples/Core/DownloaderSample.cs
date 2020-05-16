@@ -38,12 +38,12 @@ namespace SampleApp
     /// </summary>
     public class DownloaderSample
     {
-        private readonly ILogger<DatasetSamples> _logger;
+        private readonly ILogger<DownloaderSample> _logger;
         private readonly IRasterService _rasterService;
         private readonly IElevationService _elevationService;
 
 
-        public DownloaderSample(ILogger<DatasetSamples> logger
+        public DownloaderSample(ILogger<DownloaderSample> logger
                 , IRasterService rasterService
                 , IElevationService elevationService)
         {
