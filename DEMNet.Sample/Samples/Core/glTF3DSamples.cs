@@ -90,7 +90,7 @@ namespace SampleApp
                 _logger.LogInformation($"Getting height map data...");
 
                 var heightMap = _elevationService.GetHeightMap(ref bbox, dataset);
-                ModelGenerationTransform transform = new ModelGenerationTransform(bbox, 3857, true, 1.5f);
+                ModelGenerationTransform transform = new ModelGenerationTransform(bbox, 3857, true, 1.5f, true);
 
                 _logger.LogInformation($"Processing height map data ({heightMap.Count} coordinates)...");
                 heightMap = transform.TransformHeightMap(heightMap);
