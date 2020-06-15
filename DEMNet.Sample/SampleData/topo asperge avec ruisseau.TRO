@@ -1,0 +1,1029 @@
+Version 5.12
+Verification 1
+
+Trou ASPERGE ,492.28800,4818.79400,465.00,UTM31
+Club SCBAM
+Surface C:\Users\lga_m\source\repos\VTOPO\_tests\asperge2.sur
+Entree A
+Toporobot 0
+Couleur 0,0,0
+
+Param Deca Deg Clino Deg 0.0000 Dir,Dir,Dir Inc 255,0,0 --/--/---- M ;réseau entrée asperge ;
+
+A          A                         0.00    0.00    0.00   2.00   2.00   2.00   2.00 N I * N ;ENTREE;
+A          B                         3.95  319.00  -45.00   2.00   2.00   2.00   2.00 N I * N ;1° SALLE, SALLE DU FAUX PLANCHER;
+B          B'                        8.75  337.00  -25.00   2.00   2.00   2.00   2.00 N I * N ;SALLE DU FAUX PLANCHER;
+B          C                         6.48  249.00   -8.00   2.00   2.00   2.00   2.00 N I * N
+C          D                         1.59  193.00  -22.00   2.00   2.00   2.00   2.00 I I * N ;PASSAGE DANS L'EBOULIS;
+D          E                         2.65  235.00  -55.00   2.00   2.00   2.00   2.00 N I * N ;PASSAGE EBOULIS;
+E          F                         3.57  168.00  -77.00   2.00   2.00   2.00   2.00 N I * N ;PASSAGE EBOULIS;
+F          G                         2.33  151.00  -31.00   2.00   2.00   2.00   2.00 N I * N ;BOYAU D'ACCES AU PETIT PUITS;
+G          H                         2.85  120.00  -10.00   2.00   2.00   2.00   2.00 N I * N ;SUITE BOYAU;
+H          I                         6.10    0.00  -90.00   2.00   2.00   2.00   2.00 N I * N ;PUITS ETROIT DE 6 METRES;
+I          J                         1.58  280.00  -32.00   2.00   2.00   2.00   2.00 N I * N ;CONDUITE FORCEE EQUIPEE ;
+J          K                         3.57  300.00  -43.00   2.00   2.00   2.00   2.00 N I * N ;CONDUITE FORCEE EQUIPEE;
+K          L                         3.27  262.00  -64.00   2.00   2.00   2.00   2.00 N I * N
+L          M                         2.70  304.00  -58.00   2.00   2.00   2.00   2.00 N I * N ;GALERIE;
+M          N                         3.66  269.00  -50.00   2.00   2.00   2.00   2.00 N I * N ;SUITE DECOUVERTE EN 1978;
+N          O                         1.69  239.00    6.00   2.00   2.00   2.00   2.00 N I * N ;O EST LE DEPART DE LA SUITE DECOUVERTE EN 1978;
+N          O'                        8.00   26.00  -20.00   2.00   2.00   2.00   2.00 N I * N ;O' EST LE TERMINUS DECOUVERT PAR LES ANCIENS EN 1954. A CE POINT DEPART D'UN MEANDRE ETROIT. ;
+
+Param Deca Deg Clino Deg 0.0000 Dir,Dir,Dir Inc 0,64,0 --/--/---- M ;réseau 1978;
+
+O          P                         7.15  275.00  -20.00   2.00   2.00   2.00   2.00 N I * N
+P          Q                         4.12  273.00  -21.00   2.00   2.00   2.00   2.00 N I * N ;SUR LA GAUCHE PUITS PROFOND DE 5 M DE 3X2 COMMUNIQUE A UN NIVEAU INFERIEUR PAR UNE FISSURE IMPENETRABLE;
+Q          R                         3.15  282.00  -28.00   2.00   2.00   2.00   2.00 N I * N ;DEPART DU PUITS POUR LA SUITE DE LA CAVITE;
+R          S                         3.72  311.00   -1.00   2.00   2.00   2.00   2.00 N I * N ;RESEAU 1978;
+S          T                         5.64  349.00   13.00   2.00   2.00   2.00   2.00 N I * N
+T          B1                        4.21  280.00   64.00   2.00   2.00   2.00   2.00 N I * N ;DEPART CHEMINEE GALERIE DU STAGE TOPO;
+B1         C1                        2.19    0.00   90.00   2.00   2.00   2.00   2.00 N I * N
+C1         D1                        2.14  220.00   30.00   2.00   2.00   2.00   2.00 N I * N
+D1         E1                        7.44  297.00   20.00   2.00   2.00   2.00   2.00 N I * N
+E1         F1                        6.71  290.00  -32.00   2.00   2.00   2.00   2.00 N I * N ;PUITS DE 6M DE 3X2 DESOBSTRUE SUR LE FOND POUR ACCEDER A LA SUITE;
+F1         G1                        4.59    0.00  -90.00   2.00   2.00   2.00   2.00 N I * N
+G1         H1                        1.40  280.00   -5.00   2.00   2.00   2.00   2.00 N I * N
+H1         I1                       10.00  290.00    0.00   2.00   2.00   2.00   2.00 N I * N ;DANS CETTE PARTIE IL Y A DES PUITS TRES ETROIT PROFOND D'UNE DIZAINE DE METRES PAS EXPLORES;
+R          B2                        3.86  175.00  -32.00   2.00   2.00   2.00   2.00 N I * N
+B2         C2                        6.11  205.00  -72.00   2.00   2.00   2.00   2.00 N I * N
+C2         D2                        3.47   88.00   50.00   2.00   2.00   2.00   2.00 N I * N
+D2         E2                        4.46  143.00   -6.00   2.00   2.00   2.00   2.00 N I * N
+E2         F2                        2.29  198.00  -45.00   2.00   2.00   2.00   2.00 N I * N
+F2         G2                        4.83  208.00  -17.00   2.00   2.00   2.00   2.00 N I * N
+G2         H2                        2.54  152.00  -11.00   2.00   2.00   2.00   2.00 N I * N
+H2         I2                        2.54  209.00   -2.00   2.00   2.00   2.00   2.00 N I * N
+I2         J2                        6.28  194.00  -15.00   2.00   2.00   2.00   2.00 N I * N
+J2         K2                        3.21  213.00  -18.00   2.00   2.00   2.00   2.00 N I * N
+K2         L2                        1.62  275.00   18.00   2.00   2.00   2.00   2.00 N I * N ;étroiture agrandie en 1979 par Christian et Jacky;
+L2         M2                        3.38  236.00   -6.00   2.00   2.00   2.00   2.00 N I * N
+M2         N2                        1.00  220.00   24.00   2.00   2.00   2.00   2.00 N I * N
+N2         O2                        4.13  195.00    2.00   2.00   2.00   2.00   2.00 N I * N
+O2         P2                        1.76  250.00    0.00   2.00   2.00   2.00   2.00 N I * N
+P2         Q2                        3.16  197.00   32.00   2.00   2.00   2.00   2.00 N I * N
+Q2         R2                        3.44  186.00   -7.00   2.00   2.00   2.00   2.00 N I * N ;R EST LA BOITE A LETTRE QUI A ETE AGRANDIE PAR PAUL JACKY GERARD VALERIE VINCENT;
+R2         S2                        2.75  233.00  -54.00   2.00   2.00   2.00   2.00 N I * N ;S EST LE BAS DU RESSAUT QUI FAIT SUITE A LA BOITE A LETTRE;
+T          U3                        4.70    5.00    1.00   2.00   2.00   2.00   2.00 N I * N ;SUITE GALERIE RESEAU 1978;
+U3         V3                        2.90  305.00  -12.00   2.00   2.00   2.00   2.00 N I * N
+V3         W3                        4.23   78.00    2.00   2.00   2.00   2.00   2.00 N I * N
+W3         X3                        8.46   58.00   14.00   2.00   2.00   2.00   2.00 N I * N
+X3         Y3                        5.06  340.00    5.00   2.00   2.00   2.00   2.00 N I * N
+Y3         A3                        4.00   52.00  -16.00   2.00   1.50   3.00   0.10 N I * N
+A3         B3                        2.94  305.00  -12.00   2.00   2.00   2.00   2.00 N I * N
+B3         C3                        1.50   46.00   -9.00   2.00   2.00   2.00   2.00 N I * N ;PASSAGE SOUS LE FAUX PLANCHER DESOBSTRUER;
+C3         D3                        2.23   61.00  -40.00   2.00   2.00   2.00   2.00 N I * N
+D3         E3                        2.96  329.00    3.00   2.00   2.00   2.00   2.00 N I * N
+E3         F3                        1.60  359.00   -9.00   2.00   2.00   2.00   2.00 N I * N ;FIN DU PASSAGE ETROIT SOUS LE FAUX PLANCHER;
+F3         G3                        2.93   54.00   -8.00   2.00   2.00   2.00   2.00 N I * N
+G3         H3                        2.34  289.00  -34.00   2.00   2.00   2.00   2.00 N I * N
+H3         I3                        3.63  351.00   10.00   2.00   2.00   2.00   2.00 N I * N
+I3         J3                        5.73  302.00  -13.00   2.00   2.00   2.00   2.00 N I * N ;DEPART DE CHEMINEES NON REMONTEES;
+
+Param Deca Deg Clino Deg 0.0000 Dir,Dir,Dir Inc 255,0,128 --/--/---- M ;galerie du petit ruisseau;
+
+S2         B4                        4.30  178.00  -66.00   2.00   2.00   2.00   2.00 N I * N ;PUITS DYNAMITE AU DEPARTQUI PERMET D'ACCEDER AU PETIT RUISSEAU;
+B4         C4                        2.90   69.00  -69.00   2.00   2.00   2.00   2.00 N I * N ;SUITE PUITS ;
+C4         D4                        1.20  345.00  -56.00   2.00   2.00   2.00   2.00 N I * N ;PASSAGE DESOBSTRUE PAR GERARD ET PAUL;
+D4         E4                        7.80  265.00   -9.00   2.00   2.00   2.00   2.00 N I * N
+E4         F4                        4.90  260.00   -3.00   2.00   2.00   2.00   2.00 N I * N
+F4         G4                        5.00  265.00  -18.00   2.00   2.00   2.00   2.00 N I * N
+G4         H4                        8.10  268.00  -12.00   2.00   2.00   2.00   2.00 N I * N ;PASSAGE ETROIT ET INCLINE DANS LE PETIT RUISSEAU;
+H4         I4                        3.90  245.00   -6.00   2.00   2.00   2.00   2.00 N I * N
+I4         J4                        2.80  187.00  -16.00   2.00   2.00   2.00   2.00 N I * N
+J4         K4                        2.40  272.00  -17.00   2.00   2.00   2.00   2.00 N I * N
+K4         L4                        1.80  266.00  -12.00   2.00   2.00   2.00   2.00 N I * N
+L4         M4                        2.50  331.00  -16.00   2.00   2.00   2.00   2.00 N I * N ;DEPART DU PASSAGE SUPERIEUR QUI AMENE VERS LA CHEMINEE DES CALAMARS;
+M4         N4                        6.00  337.00  -12.00   2.00   2.00   2.00   2.00 N I * N ;SUITE DU PETIT RUISSEAU;
+N4         O4                        2.20  325.00  -42.00   2.00   2.00   2.00   2.00 N I * N
+O4         P4                        2.90  280.00  -11.00   2.00   2.00   2.00   2.00 N I * N
+P4         Q4                        3.50  280.00  -10.00   2.00   2.00   2.00   2.00 N I * N
+Q4         R4                        6.20  278.00   -8.00   2.00   2.00   2.00   2.00 N I * N
+R4         S4                        3.00  298.00  -32.00   2.00   2.00   2.00   2.00 N I * N
+S4         T4                        1.80  255.00   -7.00   2.00   2.00   2.00   2.00 N I * N
+T4         U4                        4.30  335.00  -15.00   2.00   2.00   2.00   2.00 N I * N
+U4         V4                        3.50  330.00  -17.00   2.00   2.00   2.00   2.00 N I * N
+V4         W4                        4.70  317.00   -2.00   2.00   2.00   2.00   2.00 N I * N
+W4         X4                        2.20  295.00  -41.00   2.00   2.00   2.00   2.00 N I * N
+X4         Y4                        2.70  280.00   -7.00   2.00   2.00   2.00   2.00 N I * N ;A CE NIVEAU LE PLAFOND DEVIENT TROP BAS POUR POUVOIR POURSUIVRE LA PROGRESSION;
+
+Param Deca Deg Clino Deg 0.0000 Dir,Dir,Dir Inc 128,255,0 --/--/---- M ;galerie allant du ruisseau au bas de la cheminée des Calamars;
+
+M4         B5                        2.00   22.00   63.00   2.00   2.00   2.00   2.00 N I * N ;GALERIE D'ACCES A LA CHEMINEE DES CALAMARS;
+B5         C5                        3.44  316.00   10.00   2.00   2.00   2.00   2.00 N I * N
+C5         D5                        3.60  289.00   -6.00   2.00   2.00   2.00   2.00 N I * N
+D5         E5                        6.50  248.00    0.00   2.00   2.00   2.00   2.00 N I * N
+E5         F5                        3.70  320.00    0.00   2.00   2.00   2.00   2.00 N I * N
+F5         G5                        6.36  280.00    0.00   2.00   2.00   2.00   2.00 N I * N
+
+Param Deca Deg Clino Deg 0.0000 Dir,Dir,Dir Inc 255,217,198 --/--/---- M ;galerie de la trémie merdique;
+
+E5         D6                        3.90  103.00   43.00   2.00   2.00   2.00   2.00 N I * N
+D6         E6                        2.20   51.00   55.00   2.00   2.00   2.00   2.00 N I * N ;EN E DEPART DE LA GALERIE DE LA TREMIE MERDIQUE;
+E6         F6                        5.40  125.00   33.00   2.00   2.00   2.00   2.00 N I * N
+F6         G6                        8.00  128.00   15.00   2.00   2.00   2.00   2.00 N I * N
+G6         H6                        7.70   80.00    0.00   2.00   2.00   2.00   2.00 N I * N
+H6         I6                        5.20   65.00   46.00   2.00   2.00   2.00   2.00 N I * N
+I6         J6                        2.90  165.00   20.00   2.00   2.00   2.00   2.00 N I * N
+J6         K6                        3.00  140.00   13.00   2.00   2.00   2.00   2.00 N I * N
+K6         L6                        3.10  100.00    5.00   2.00   2.00   2.00   2.00 N I * N
+L6         M6                        2.60  190.00  -17.00   2.00   2.00   2.00   2.00 N I * N
+M6         N6                        3.50   90.00   29.00   2.00   2.00   2.00   2.00 N I * N
+N6         O6                        5.40  225.00   33.00   2.00   2.00   2.00   2.00 N I * N ;TREMIE DE GROS BLOCS PEU ENGAGEANTE;
+
+Param Deca Deg Clino Deg 0.0000 Dir,Dir,Dir Inc 128,0,255 --/--/---- M ;galerie supérieure ;
+
+G5         H7                        2.70    0.00  -90.00   2.00   2.00   2.00   2.00 N I * N ;BAS DE LA CHEMINEE DES CALAMARS;
+H7         I7                       11.70    0.00   90.00   2.00   2.00   2.00   2.00 N I * N ;HAUT DE LA CHEMINEE ET DEBUT DE LA GALERIE SUPERIEURE;
+I7         J7                        2.44  205.00  -20.00   2.00   2.00   2.00   2.00 N I * N
+J7         K7                        2.83  278.00  -22.00   2.00   2.00   2.00   2.00 N I * N
+K7         L7                        2.18  290.00  -12.00   2.00   2.00   2.00   2.00 N I * N ;SALLE JOLIMENT DECOREE AVEC TRES BEAU GOURS;
+L7         M7                        8.87   10.00   24.00   2.00   2.00   2.00   2.00 N I * N
+M7         N7                        6.52  345.00   33.00   2.00   2.00   2.00   2.00 N I * N ;SUITE GALERIE SUPERIEURE;
+N7         O7                        5.26  311.00   15.00   2.00   2.00   2.00   2.00 N I * N
+O7         P7                        4.00  343.00    3.00   2.00   2.00   2.00   2.00 N I * N
+P7         Q7                        5.21  341.00    8.00   2.00   2.00   2.00   2.00 N I * N
+Q7         R7                        4.83  328.00   -4.00   2.00   2.00   2.00   2.00 N I * N
+R7         S7                        6.32  316.00    3.00   2.00   2.00   2.00   2.00 N I * N
+S7         T7                        4.00   31.00   -7.00   2.00   2.00   2.00   2.00 N I * N
+T7         U7                        5.66  357.00   -3.00   2.00   2.00   2.00   2.00 N I * N
+U7         V7                        9.49  356.00   -4.00   2.00   2.00   2.00   2.00 N I * N ;PASSAGE EN OPPOSITION AU DESSUS D'UN PUITS;
+V7         W7                        4.95   15.00    2.00   2.00   2.00   2.00   2.00 N I * N
+W7         X7                        7.13  330.00   -2.00   2.00   2.00   2.00   2.00 N I * N
+X7         Y7                        6.10  341.00    0.00   2.00   2.00   2.00   2.00 N I * N
+Y7         Z7                        6.80  358.00    5.00   2.00   2.00   2.00   2.00 N I * N
+Z7         Z'7                       8.36   15.00   -7.00   2.00   2.00   2.00   2.00 N I * N ;DEPART LONG LAMINOIR;
+
+Param Deca Deg Clino Deg 0.0000 Dir,Dir,Dir Inc 255,0,0 --/--/---- M ;Remonter sur les points les plus haut de la cheminée des calamars;
+
+J7         1B7                       2.47   52.00   23.00      *      *      *      * N I * N ;départ topo des calamars (partie cheminées du barreau magnétique) : point A correspond à J7 du cheminement principal de la gal. supérieure (point topo sur stalagmite après sortie de l'échelle).;
+1B7        1C7                       5.48  132.00   10.00      *      *      *      * N I * N ;1b7 : puits des calamars;
+1C7        1D7                       2.38   96.00   61.00      *      *      *      * N I * N
+1D7        1E7                       1.44    1.00    4.00      *      *      *      * N I * N ;1E7 : départ cheminées sud des calamars;
+1E7        1F7                       1.59  282.00   29.00      *      *      *      * N I * N ;F : gours (loir crevé) - base de la cheminée du barreau magnétique d'une hauteur de 10.18 m;
+1F7        1G7                       9.02  333.00   62.00      *      *      *      * N I * N ;G :Palier 4-5 m au dessus du gours;
+1G7        1H7                       4.90  283.00   75.00      *      *      *      * N I * N
+1H7        1I7                       2.10  343.00   19.00      *      *      *      * N I * N
+1I7        1J7                       6.30    5.00   53.00      *      *      *      * N I * N
+1J7        1K7                       0.50  105.00   90.00      *      *      *      * N I * N
+1K7        1L7                       3.35  105.00   48.00      *      *      *      * N I * N
+1L7        1M7                       2.94   98.00   -8.00      *      *      *      * N I * N
+1M7        1N7                       1.44   79.00   21.00      *      *      *      * N I * N
+1N7        1O7                       3.99  280.00   54.00      *      *      *      * N I * N
+1O7        1P7                       2.34  142.00   39.00      *      *      *      * N I * N ;point O : nous entendons les coups de massette du trou à Paul - l'arva indique 62 m - P : dernière visée vers le point le plus haut : petite conduite après l'étroiture;
+
+Param Deca Deg Clino Deg 0.0000 Dir,Dir,Dir Inc 72,0,72 --/--/---- M ;salle de la Tyrolienne;
+
+Z'7        B8                        8.65   12.00   -7.00   2.00   2.00   2.00   2.00 N I * N ;LAMINOIR;
+B8         C8                        2.92  348.00    0.00   2.00   2.00   2.00   2.00 N I * N
+C8         D8                        8.27   13.00    0.00   2.00   2.00   2.00   2.00 N I * N
+D8         E8                        5.35  325.00  -30.00   2.00   2.00   2.00   2.00 N I * N ;SALLE DE LA TYROLIENNE CHEMINEMENT MAIN COURANTE;
+E8         F8                        3.39  320.00   -2.00   2.00   2.00   2.00   2.00 N I * N
+F8         G8                        3.30   19.00   -4.00   2.00   2.00   2.00   2.00 N I * N
+G8         H8                        2.64  353.00   43.00   2.00   2.00   2.00   2.00 N I * N ;BOUQUET ARAGONITE BLEU;
+H8         I8                        5.82  338.00  -35.00   2.00   2.00   2.00   2.00 N I * N
+I8         J8                        3.36  305.00    3.00   2.00   2.00   2.00   2.00 N I * N
+J8         K8                       14.29  325.00   -5.00   2.00   2.00   2.00   2.00 N I * N ;SALLE DELA TYROLIENNE CARREFOUR DU DEPART VERS LA GRANDE MEDUSE RESEAU ROGER GALERIE GERARD LES FAGOTS;
+K8         L8                        9.30    0.00  -15.00   2.00   2.00   2.00   2.00 N I * N
+L8         M8                       14.70  266.00  -22.00   2.00   2.00   2.00   2.00 N I * N
+
+Param Deca Deg Clino Deg 0.0000 Dir,Dir,Dir Inc 0,0,128 --/--/---- M ;galerie de la salle des schistes;
+
+L8         B08                       4.95  350.00   11.00   2.00   2.00   2.00   2.00 N I * N
+B08        C08                       3.15   22.00   12.00   2.00   2.00   2.00   2.00 N I * N ;PASSAGE PERMETTANT D'ACCEDER A LA SALLE DES SHISTES;
+C08        D08                       7.91  356.00  -29.00   2.00   2.00   2.00   2.00 N I * N ;SALLE DES SHISTES;
+D08        E08                       4.85  328.00  -12.00   2.00   2.00   2.00   2.00 N I * N ;DEPART DU PUITS D'ACCES AU RESEAU ROGER;
+
+Param Deca Deg Clino Deg 0.0000 Dir,Dir,Dir Inc 64,128,128 --/--/---- M ;galerie en face main courante salle de la tyrolienne;
+
+D8         B/8                       8.00  315.00    5.00   2.00   2.00   2.00   2.00 N I * N ;GALERIE EN FACE LE 1° PASSAGE EN MAIN COURANTE DANS LA SALLE DE LA TYROLLIENNE;
+B/8        C/8                       3.80  304.00   31.00   2.00   2.00   2.00   2.00 N I * N
+C/8        D/8                       9.10  154.00   34.00   2.00   2.00   2.00   2.00 N I * N
+D/8        E/8                       5.85  148.00   18.00   2.00   2.00   2.00   2.00 N I * N
+E/8        F/8                       5.40  191.00    8.00   2.00   2.00   2.00   2.00 N I * N
+F/8        G/8                       7.30  155.00   -8.00   2.00   2.00   2.00   2.00 N I * N
+G/8        H/8                       3.00  144.00   22.00   2.00   2.00   2.00   2.00 N I * N
+
+Param Deca Deg Clino Deg 0.0000 Dir,Dir,Dir Inc 255,255,0 --/--/---- M ;partie inférieure salle de la tyrolienne;
+
+L8         1B8                       5.50  187.00  -10.00   2.00   2.00   2.00   2.00 N I * N ;PARTIE INFERIEURE DE LA SALLE DE LA TYROLIENNE;
+1B8        1C8                       2.30    0.00  -90.00   2.00   2.00   2.00   2.00 N I * N
+1C8        1D8                      11.30  140.00  -37.00   2.00   2.00   2.00   2.00 N I * N
+1D8        1E8                       6.60  135.00   14.00   2.00   2.00   2.00   2.00 N I * N
+1E8        1F8                       5.70  208.00   22.00   2.00   2.00   2.00   2.00 N I * N
+1F8        1G8                       6.60  182.00  -12.00   2.00   2.00   2.00   2.00 N I * N
+
+Param Deca Deg Clino Deg 0.0000 Dir,Dir,Dir Inc 255,128,128 --/--/---- M ;galerie des grandes aragonites bleu à la salle de la tyrolienne;
+
+L8         2B8                       7.11  103.00   21.00   2.00   2.00   2.00   2.00 N I * N ;COULOIR DES CONCRETIONS BLEU DE LA SALLE DE LA TYROLIENNE EN CONTINUANT LA GALERIE NOUS ARRIVONS AUX FAGOTS CONCRETION D'ARAGONITE COROLOIDE DONT LA PLUPART DES EXENTRIQUES DEPASSENT LES 30 CM;
+2B8        2C8                       4.74  154.00    4.00   2.00   2.00   2.00   2.00 N I * N
+2C8        2D8                       4.60  127.00   21.00   2.00   2.00   2.00   2.00 N I * N
+2D8        2E8                       2.70  157.00    2.00   2.00   2.00   2.00   2.00 N I * N
+2E8        2F8                       2.30  280.00   -7.00   2.00   2.00   2.00   2.00 N I * N
+2F8        2G8                       4.10  206.00   -3.00   2.00   2.00   2.00   2.00 N I * N
+
+Param Deca Deg Clino Deg 0.0000 Dir,Dir,Dir Inc 128,0,64 --/--/---- M ;galerie Gérard;
+
+M8         N9                        3.16  329.00   28.00   2.00   2.00   2.00   2.00 N I * N ;DEPART GALERIE GERARD;
+N9         O9                        5.75  321.00    0.00   2.00   2.00   2.00   2.00 N I * N ;SUR LA DROITE UN MAGNIFIQUE BOUQUET D'ARAGONITE;
+O9         P9                        2.46  212.00    3.00   2.00   2.00   2.00   2.00 N I * N
+P9         Q9                        7.45  271.00  -14.00   2.00   2.00   2.00   2.00 N I * N ;PASSAGE AU MILIEU DE MONOCRISTAUX DE CALCITE;
+Q9         R9                        4.80  271.00    0.00   2.00   2.00   2.00   2.00 N I * N
+R9         S9                        6.40  270.00    3.00   2.00   2.00   2.00   2.00 N I * N
+S9         T9                        4.33  273.00  -11.00   2.00   2.00   2.00   2.00 N I * N
+T9         U9                        4.57  291.00  -19.00   2.00   2.00   2.00   2.00 N I * N ;CONCRETIONS D'ARAGONITE BLEU;
+U9         V9                        4.88  343.00  -14.00   2.00   2.00   2.00   2.00 N I * N
+V9         W9                        2.64  298.00   -3.00   2.00   2.00   2.00   2.00 N I * N
+W9         X9                        8.46  239.00   -4.00   2.00   2.00   2.00   2.00 N I * N ;LE DEBOUCHEE DE LA GALERIE GERARD DANS LA SALLE GERALDINE;
+
+Param Deca Deg Clino Deg 0.0000 Dir,Dir,Dir Inc 0,255,255 --/--/---- M ;salle géraldine;
+
+X9         Y10                      12.00  313.00  -42.00   2.00   2.00   2.00   2.00 N I * N ;SALLE GERALDINE;
+Y10        Z10                       8.53  235.00   55.00   2.00   2.00   2.00   2.00 N I * N ;A CET ENDROIT NOUS SOMMES SUR LA TERRASSE QUI DOMINE LA SALLE GERALDINE LE PLAFOND EST RECOUVERT D'ARAGONITE;
+Z10        D10                       4.00  236.00    0.00   2.00   2.00   2.00   2.00 N I * N
+D10        E10                       9.00  317.00  -34.00   2.00   2.00   2.00   2.00 N I * N
+E10        F10                       8.13  345.00  -22.00   2.00   2.00   2.00   2.00 N I * N ;GRANDE COULEE DE CALCITE;
+F10        F'10                     10.00  350.00    0.00   2.00   2.00   2.00   2.00 N I * N
+Y10        C10                      10.00  346.00  -35.00   2.00   2.00   2.00   2.00 N I * N
+Y10        A10                       9.46  295.00   19.00   2.00   2.00   2.00   2.00 N I * N
+Y10        B10                      12.53  324.00    9.00   2.00   2.00   2.00   2.00 N I * N
+B10        B'10                     12.00  300.00    0.00   2.00   2.00   2.00   2.00 N I * N ;PUITS DE 60 M;
+
+Param Deca Deg Clino Deg 0.0000 Dir,Dir,Dir Inc 0,0,0 --/--/---- M ;accès et galerie du RER;
+
+E10        F11                       5.58  179.00    0.00   2.00   2.00   2.00   2.00 N I * N ;DEPART ETROIT QUI NOUS AMENE DANS LA GALERIE DU RER;
+F11        G11                       2.72  165.00    0.00   2.00   2.00   2.00   2.00 N I * N
+G11        H11                       2.22  184.00  -22.00   2.00   2.00   2.00   2.00 N I * N ;PETITE SALLE CONCRETIONNEE EN PETITES COLONNES ET EXENTRIQUES DE CALCITE ;
+H11        I11                       2.80  175.00   -5.00   2.00   2.00   2.00   2.00 N I * N
+I11        J11                       5.67  225.00   -3.00   2.00   2.00   2.00   2.00 N I * N
+J11        K11                       1.20  266.00  -32.00   2.00   2.00   2.00   2.00 N I * N ;SALLE DU FAUX PLANCHER;
+K11        L11                       2.20  255.00  -34.00   2.00   2.00   2.00   2.00 N I * N
+L11        M11                       4.87  230.00  -29.00   2.00   2.00   2.00   2.00 N I * N
+M11        N11                       3.52  171.00  -28.00   2.00   2.00   2.00   2.00 N I * N ;GALERIE DU RER;
+N11        O11                       5.70  335.00  -32.00   2.00   2.00   2.00   2.00 N I * N
+O11        P11                       3.64  305.00  -49.00   2.00   2.00   2.00   2.00 N I * N
+P11        Q11                      10.74  339.00  -38.00   2.00   2.00   2.00   2.00 N I * N
+Q11        R11                      12.59  342.00  -36.00   2.00   2.00   2.00   2.00 N I * N
+R11        S11                      11.86  348.00  -39.00   2.00   2.00   2.00   2.00 N I * N
+S11        T11                       7.39   76.00  -35.00   2.00   2.00   2.00   2.00 N I * N ;DEPART DE LA GALERIE DES PARISIENS;
+T11        U11                       9.22  306.00  -37.00   2.00   2.00   2.00   2.00 N I * N
+U11        V11                       8.91  325.00  -56.00   2.00   2.00   2.00   2.00 N I * N
+V11        W11                       3.29   79.00  -33.00   2.00   2.00   2.00   2.00 N I * N
+W11        X11                       7.56   32.00    5.00   2.00   2.00   2.00   2.00 N I * N
+X11        Y11                       8.11  124.00  -31.00   2.00   2.00   2.00   2.00 N I * N
+Y11        Z11                       7.60   78.00    7.00   2.00   2.00   2.00   2.00 N I * N ;SIPHON PLONGE PAR REMY LUCAS;
+Z11        Z'11                     10.00   85.00   -4.00   2.00   2.00   2.00   2.00 N I * N ;SIPHON;
+
+Param Deca Deg Clino Deg 0.0000 Dir,Dir,Dir Inc 0,128,255 --/--/---- M ;galerie des parisiens;
+
+T11        B12                       7.83  177.00   42.00   2.00   2.00   2.00   2.00 N I * N ; DEPART DE LA GALERIE DES PARISIENS;
+B12        C12                       1.18    0.00  -90.00   2.00   2.00   2.00   2.00 N I * N
+C12        D12                       5.72  161.00  -21.00   2.00   2.00   2.00   2.00 N I * N
+D12        E122                      3.99  227.00    3.00   2.00   2.00   2.00   2.00 N I * N
+E122       F12                       6.08  295.00    4.00   2.00   2.00   2.00   2.00 N I * N
+F12        G12                       5.48  262.00    2.00   2.00   2.00   2.00   2.00 N I * N
+G12        H12                       9.49  174.00    3.00   2.00   2.00   2.00   2.00 N I * N
+H12        I12                       6.74  188.00    0.00   2.00   2.00   2.00   2.00 N I * N ;DEPART SUR LA GAUCHE AVEC PETITE CASCADE;
+I12        J12                      11.77  227.00  -19.00   2.00   2.00   2.00   2.00 N I * N
+J12        K12                       5.72  309.00  -15.00   2.00   2.00   2.00   2.00 N I * N
+K12        L12                       4.62  260.00    0.00   2.00   2.00   2.00   2.00 N I * N ;EN L12 DEPART PERMETTANT D'ACCEDER A LA RIVIERE;
+L12        M12                      12.52  178.00   25.00   2.00   2.00   2.00   2.00 N I * N
+M12        N12                       7.33  216.00    2.00   2.00   2.00   2.00   0.10 N I * N ;DEPART SUR LA DROITE;
+N12        O12                      10.49  175.00   -1.00   2.00   2.00   2.00   2.00 N I * N ;PASSAGE EN DIACLASE LARGEUR DE 0.50;
+O12        P12                       5.18  176.00    4.00   2.00   2.00   2.00   2.00 N I * N
+P12        1B12                      6.32  160.00    4.00   2.00   2.00   2.00   2.00 N I * N
+1B12       1C12                      3.43  235.00    3.00   2.00   2.00   2.00   2.00 N I * N
+1C12       1D12                      1.93  183.00   14.00   2.00   2.00   2.00   2.00 N I * N
+1D12       1E12                      6.13  227.00    1.00   2.00   2.00   2.00   2.00 N I * N ;REMONTER SOL CALCIFIE DALLE DE SHISTE DEPASSANT DES PAROIS;
+1E12       1F12                      5.31  235.00  -22.00   2.00   2.00   2.00   2.00 N I * N
+1F12       1G12                      4.48  305.00   15.00   2.00   2.00   2.00   2.00 N I * N
+1G12       1H12                      3.63  254.00    3.00   2.00   2.00   2.00   2.00 N I * N
+1H12       1I12                      3.77  266.00    3.00   2.00   2.00   2.00   2.00 N I * N
+1I12       1J12                      9.51  237.00  -22.00   2.00   2.00   2.00   2.00 N I * N ;EN 1J12 DEPART SUR LA DROITE A EXPLORER;
+1J12       1K12                     11.17  187.00   -2.00   2.00   2.00   2.00   2.00 N I * N ;PASSAGE AVEC DE TRES BEAUX GOURS ORANGE;
+1K12       1M12                      6.48  122.00   10.00   2.00   2.00   2.00   2.00 N I * N
+1M12       1N12                      7.68  186.00    9.00   2.00   2.00   2.00   2.00 N I * N
+1N12       1O12                      6.56  215.00   -2.00   2.00   2.00   2.00   2.00 N I * N ;LA GALERIE A A CET ENDROIT UN SURCREUSEMENT IMPORTANT;
+1O12       1P12                      9.04  207.00    6.00   2.00   2.00   2.00   2.00 N I * N
+1P12       1Q12                     10.71  171.00   10.00   2.00   2.00   2.00   2.00 N I * N
+1Q12       1R12                      4.36  208.00  -15.00   2.00   2.00   2.00   2.00 N I * N
+1R12       1S12                      6.80  244.00   14.00   2.00   2.00   2.00   2.00 N I * N
+1S12       1T12                      4.15  250.00   -4.00   2.00   2.00   2.00   2.00 N I * N
+1T12       1U12                      8.64  206.00  -10.00   2.00   2.00   2.00   2.00 N I * N ;DEBUT DU SIPHON TEMPORAIRE;
+1U12       1V12                      5.58  167.00  -10.00   2.00   2.00   2.00   2.00 N I * N
+1V12       1W12                      7.10  162.00    2.00   2.00   2.00   2.00   2.00 N I * N ;FIN DU SIPHON TEMPORAIRE STALACTITES AVEC COUPELLE QUI CORRESPONDENT AU DIFFERENT NIVEAU DU SIPHON;
+1W12       1X12                      7.59  170.00   11.00   2.00   2.00   2.00   2.00 N I * N
+1X12       1Y12                      7.69  233.00    4.00   2.00   2.00   2.00   2.00 N I * N
+1Y12       1Z12                      7.75  264.00    6.00   2.00   2.00   2.00   2.00 N I * N ;PARTIE CONCRETIONNEE AVEC COULEE DRAPERIE ET ARAGONITE CORALLOIDE;
+1Z12       2A12                      2.22  265.00   -6.00   2.00   2.00   2.00   2.00 N I * N
+2A12       2B12                      2.37  193.00    4.00   2.00   2.00   2.00   2.00 N I * N
+2B12       2C12                      6.67  216.00    6.00   2.00   2.00   2.00   2.00 N I * N
+2C12       2D12                      3.41  260.00    2.00   2.00   2.00   2.00   2.00 N I * N
+2D12       2E12                      4.21  260.00   -1.00   2.00   2.00   2.00   2.00 N I * N ;BARRAGE CONSTRUIT POUR EVITER LE REMPLISSAGE DU SIPHON TEMPORAIRE BARRAGE QUI N'A PAS REMPLI LE ROLE QUE NOUS AVIONS ESPERE D'AUTRES ALIMENTATIONS D'EAU REMPLISSENT LE SIPHON;
+2E12       2F12                      2.46  247.00   11.00   2.00   2.00   2.00   2.00 N I * N
+2F12       2G12                      2.28  204.00   -5.00   2.00   2.00   2.00   2.00 N I * N
+2G12       2H12                      2.33  272.00    8.00   2.00   2.00   2.00   2.00 N I * N ;DEPART RIVIERE BLANCHE;
+2H12       2I12                      5.10  212.00    2.00   2.00   2.00   2.00   2.00 N I * N
+2I12       2J12                      6.94  115.00    0.00   2.00   2.00   2.00   2.00 N I * N
+2J12       2K12                      6.56  189.00    7.00   2.00   2.00   2.00   2.00 N I * N ;CARREFOUR AU NIVEAU DE L'ENCLUME QUI PERMET DE REJOINDRE LA GALERIE ANDRE GUIRAL;
+2K12       2L12                      3.08  140.00  -15.00   2.00   2.00   2.00   2.00 N I * N
+2L12       2M12                      1.60  119.00   -5.00   2.00   2.00   2.00   2.00 N I * N ;PARTIE COMPLEXE AVEC DIFFERENTES GALERIE AVEC DES NIVEAUX DECALLES ET DES PARTIES AVEC DES PETITS CRISTAUX DE CALCITE QUI TAPISSENT LES GOURS CET ENSEMBLE N'A PAS ETE TOPOGRAPHIE;
+2M12       2N12                      6.00  130.00    0.00   2.00   2.00   2.00   2.00 N I * N
+2N12       2O12                      9.10  156.00   -8.00   2.00   2.00   2.00   2.00 N I * N
+2O12       2P12                      4.80  119.00  -17.00   2.00   2.00   2.00   2.00 N I * N ;A CET ENDROIT LA GALERIE EST SURCREUSEE AVEC UNE PETITE CIRCULATION D'EAU;
+2P12       2Q12                      9.50  155.00    1.00   2.00   2.00   2.00   2.00 N I * N
+2Q12       2R12                      5.80  178.00    0.00   2.00   2.00   2.00   2.00 N I * N
+2R12       2T12                      6.70   95.00    2.00   2.00   2.00   2.00   2.00 N I * N ;2T12 A CET ENDROIT UN PASSAGE REMONTANT ET GLISSANT PERMET D'ACCEDER A LA SUITE DE LA GROTTE EN ALLANT VERS LA GALERIE ANDRE GUIRAL;
+2T12       2U12                     15.00  100.00    2.00   2.00   2.00   2.00   2.00 N I * N ;FIN DE LA GALERIE PASSAGE IMPENETRABLE SUITE A REMPLISSAGE;
+
+Param Deca Deg Clino Deg 0.0000 Dir,Dir,Dir Inc 0,0,94 --/--/---- M ;galerie andré guiral;
+
+2T12       A13                       0.45  355.00   45.00   2.00   2.00   2.00   2.00 N I * N ;DEPART DE LA GALERIE ANDRE GUIRAL;
+A13        B13                       6.00   35.00   23.00   2.00   2.00   2.00   2.00 N I * N
+B13        C13                       3.20   90.00    0.00   2.00   2.00   2.00   2.00 N I * N
+C13        D13                       2.20   15.00   10.00   2.00   2.00   2.00   2.00 N I * N
+D13        E13                       6.30   94.00  -20.00   2.00   2.00   2.00   2.00 N I * N
+E13        F13                       4.85  188.00   -3.00   2.00   2.00   2.00   2.00 N I * N
+F13        G13                       6.20  222.00   -4.00   2.00   2.00   2.00   2.00 N I * N ;LA GALERIE EST EN FORME DE DIACLASE AVEC DES SURCREUSEMENTS LATERAUX DE 0.5 DE HAUTEUR POUR UNE PROFONDEUR DE PLUSIEURS METRES;
+G13        H13                       9.65  238.00    5.00   2.00   2.00   2.00   2.00 N I * N
+H13        I13                       9.60  223.00    0.00   2.00   2.00   2.00   2.00 N I * N
+I13        J13                       9.80  267.00   -7.00   2.00   2.00   2.00   2.00 N I * N
+J13        K13                       3.70  171.00    2.00   2.00   2.00   2.00   2.00 N I * N
+K13        L13                       7.05  242.00    2.00   2.00   2.00   2.00   2.00 N I * N
+L13        M13                       6.90  233.00    9.00   2.00   2.00   2.00   2.00 N I * N
+M13        N13                      11.60  214.00  -25.00   2.00   2.00   2.00   2.00 N I * N
+N13        O13                       2.60  155.00   -7.00   2.00   2.00   2.00   2.00 N I * N ;A CET ENDROIT LA GALERIE REPREND UN PROFIL PLUS CLASSIQUE ELLE EST DESCENDANTE AVEC UN SURCREUSEMENT;
+O13        P13                      10.30  200.00  -12.00   2.00   2.00   2.00   2.00 N I * N ;DANS LA PARTIE PQ NOUS AVONS L'ARRIVEE DU RESEAU DU BALCON;
+P13        Q13                       5.25   59.00  -10.00   2.00   2.00   2.00   2.00 N I * N ;CARREFOUR ENTRE L'AVAL DU RUISSEAU DE LA GALERIE ANDRE GUIRAL ET L'AMONT;
+Q13        R13                       8.93  232.00    3.00   2.00   2.00   2.00   2.00 N I * N
+R13        S13                       5.25   59.00  -10.00   2.00   2.00   2.00   2.00 N I * N ;LA GALERIE EST SPACIEUSE AVEC UNE SECTION CARRE ;
+R13        T13                       7.38   37.00   13.00   2.00   2.00   2.00   2.00 N I * N
+T13        U13                      10.32   66.00   13.00   2.00   2.00   2.00   2.00 N I * N
+U13        V13                       9.37   57.00   -5.00   2.00   2.00   2.00   2.00 N I * N
+V13        W13                      11.11   63.00    8.50   2.00   2.00   2.00   2.00 N I * N ;LA GALERIE CHANGE DE DIRECTION EN TOURNANT A 90° SUR LA DROITE;
+
+Param Deca Deg Clino Deg 0.0000 Dir,Dir,Dir Inc 245,10,239 --/--/---- M ;rivière aval andré guiral;
+
+Q13        A14                       3.60  222.00   -3.00   2.00   2.00   2.00   2.00 N I * N ;L'AVAL DE LA RIVIERE ANDRE GUIRAL A PERMIT LA JONCTION AVEC LA RIVIERE BLANCHE;
+A14        B14                       6.85  293.00    3.00   2.00   2.00   2.00   2.00 N I * N
+B14        C14                      17.40  234.00   -5.00   2.00   2.00   2.00   2.00 N I * N
+C14        D14                       9.50  258.00   -1.00   2.00   2.00   2.00   2.00 N I * N
+D14        E14                       6.80  247.00    0.00   2.00   2.00   2.00   2.00 N I * N
+E14        F14                       3.70  297.00    3.00   2.00   2.00   2.00   2.00 N I * N
+F14        G14                       6.40  222.00    5.00   2.00   2.00   2.00   2.00 N I * N
+G14        H14                       4.50  285.00   -5.00   2.00   2.00   2.00   2.00 N I * N
+H14        I14                       5.70  358.00   -7.00   2.00   2.00   2.00   2.00 N I * N ;LES PASSAGES RESTENT DIFFICILES ET AQUATIQUE;
+I14        J14                      10.20  245.00    7.00   2.00   2.00   2.00   2.00 N I * N
+J14        K14                       7.20  340.00    7.00   2.00   2.00   2.00   2.00 N I * N
+K14        L14                       8.60  232.00   -3.00   2.00   2.00   2.00   2.00 N I * N
+L14        M14                       3.10  282.00  -11.00   2.00   2.00   2.00   2.00 N I * N
+M14        N14                       3.20  357.00  -26.00   2.00   2.00   2.00   2.00 N I * N
+N14        O14                       3.00  331.00  -14.00   2.00   2.00   2.00   2.00 N I * N
+
+Param Deca Deg Clino Deg 0.0000 Dir,Dir,Dir Inc 255,215,0 --/--/---- M ;galerie d'accès à la cascade des schistes;
+
+W13        B15                      13.40  197.00   10.00   2.00   2.00   2.00   2.00 N I * N ;LA PROGRESSION DEVIENT PLUS DIFFICILE SUITE AUX EFFONDREMENTS SUCCESSIFS. LA SUITE N'EST TOUJOURS PAS EVIDENTE A TROUVER. LA SECTION DE LA GALERIE RESTE IMPORTANTE MEME SI AU COURS DE LA PROGRESSION NOUS N'AVONS PAS CETTE PERCEPTION.;
+B15        C15                       9.10  177.00    8.00   2.00   2.00   2.00   2.00 N I * N
+C15        D15                       3.70  136.00    0.00   2.00   2.00   2.00   2.00 N I * N
+D15        E15                       2.90  163.00    0.00   2.00   2.00   2.00   2.00 N I * N
+E15        E'15                      0.50    0.00   90.00   2.00   2.00   2.00   2.00 N I * N
+E'15       F15                       2.40  130.00   17.00   2.00   2.00   2.00   2.00 N I * N
+F15        G15                       5.30   70.00    5.00   2.00   2.00   2.00   2.00 N I * N
+G15        H15                       7.60   89.00    2.00   2.00   2.00   2.00   2.00 N I * N
+H15        I15                       6.90   60.00    0.00   2.00   2.00   2.00   2.00 N I * N
+I15        J15                       3.90   63.00   -1.00   2.00   2.00   2.00   2.00 N I * N
+J15        K15                       3.70   26.00  -24.00   2.00   2.00   2.00   2.00 N I * N
+K15        L15                       1.60   30.00  -11.00   2.00   2.00   2.00   2.00 N I * N
+L15        L'15                      1.00   40.00    0.00   2.00   2.00   2.00   2.00 N I * N
+L15        L"15                      1.00  315.00    0.00   2.00   2.00   2.00   2.00 N I * N
+L15        M15                       6.70  116.00    6.00   2.00   2.00   2.00   2.00 N I * N
+M15        N15                       2.80   66.00    6.00   2.00   2.00   2.00   2.00 N I * N
+N15        O15                       2.30   25.00    0.00   2.00   2.00   2.00   2.00 N I * N
+O15        P15                       7.20   80.00    8.00   2.00   2.00   2.00   2.00 N I * N
+P15        Q15                       5.30   47.00   19.00   2.00   2.00   2.00   2.00 N I * N
+Q15        R15                       5.60  137.00   -8.00   2.00   2.00   2.00   2.00 N I * N
+R15        S15                       9.80   64.00    4.00   2.00   2.00   2.00   2.00 N I * N ;NOUS SORTONS DE LA PARTIE EFFONDREE LA PROGRESSION DEVIENT PLUS FACILE.;
+S15        T15                       5.50   90.00    8.00   2.00   2.00   2.00   2.00 N I * N
+T15        U15                       6.10   92.00    9.00   2.00   2.00   2.00   2.00 N I * N
+U15        V15                       8.40   90.00   12.00   2.00   2.00   2.00   2.00 N I * N
+V15        W15                       3.30  164.00   31.00   2.00   2.00   2.00   2.00 N I * N ;C'EST LE BAS DE LA CASCADE DES SHISTES HAUTE DE 4 METRES ET TOMBANT DANS UNE VASQUE PROFONDE;
+
+Param Deca Deg Clino Deg 0.0000 Dir,Dir,Dir Inc 1,1,254 --/--/---- M ;galerie suivant cascade des schistes;
+
+W15        X16                       5.30   94.00    9.00   2.00   2.00   2.00   2.00 N I * N ;NOUS REMONTONS LE RUISSEAU CE PASSAGE EST IMPRATICABLE LORS DES HAUTES EAUX ;
+X16        Y16                      11.30   93.00    7.00   2.00   2.00   2.00   2.00 N I * N
+Y16        Z16                       8.75   58.00    7.00   2.00   2.00   2.00   2.00 N I * N ;LA GALERIE DEVIENT PLUS IMPORTANTE;
+Z16        A16                       8.30   99.00    9.00   2.00   2.00   2.00   2.00 N I * N
+A16        B16                       6.60   95.00   18.00   2.00   2.00   2.00   2.00 N I * N
+B16        C16                       3.80   38.00   16.00   2.00   2.00   2.00   2.00 N I * N
+C16        D16                       5.65  348.00    9.00   2.00   2.00   2.00   2.00 N I * N ;DEPART SUR LA GAUCHE;
+D16        E16                       8.45   58.00    4.00   2.00   2.00   2.00   2.00 N I * N ;JONCTION AVEC LE GRAND MEANDRE QUI VIENT DU RESEAU DU BALCON;
+E16        F16                       4.70   84.00   14.00   2.00   2.00   2.00   2.00 N I * N
+F16        G16                      10.80   72.00    2.00   2.00   2.00   2.00   2.00 N I * N
+G16        H16                       6.45   85.00    9.00   2.00   2.00   2.00   2.00 N I * N
+H16        I16                       2.25  110.00    2.00   2.00   2.00   2.00   2.00 N I * N
+I16        J16                       3.70   66.00   24.00   2.00   2.00   2.00   2.00 N I * N
+J16        J'16                     13.00   70.00   32.00   2.00   2.00   2.00   2.00 N I * N
+J16        K16                       4.90  152.00   19.00   2.00   2.00   2.00   2.00 N I * N
+K16        L16                       5.45  150.00    0.00   2.00   2.00   2.00   2.00 N I * N
+L16        M16                       6.00  167.00   25.00   2.00   2.00   2.00   2.00 N I * N ;A CE NIVEAU NOUS AVONS LE CHOIX ENTRE LE RESEAU INFERIEUR QUI EST CREUSE DANS LES SHISTES ET LE RESEAU SUPERIEUR OU LA PROGRESSION RESTE DELICATE EN RAISON DE LA CORROSION IMPORTANTE QUI RENDE LES PAROIS ET LES EBOULIS TRES INSTABLE;
+M16        N16                      12.65  204.00   11.00   2.00   2.00   2.00   2.00 N I * N
+
+Param Deca Deg Clino Deg 0.0000 Dir,Dir,Dir Inc 255,0,0 --/--/---- M ;galerie de la rivière des schistes;
+
+N16        O16                       5.05  110.00   52.00   2.00   2.00   2.00   2.00 N I * N ;NOUS SOMMES DANS LE SECTEUR DES CATHEDRALES;
+O16        P16                       2.20   72.00    9.00   2.00   2.00   2.00   2.00 N I * N
+P16        Q16                       3.60   24.00   10.00   2.00   2.00   2.00   2.00 N I * N
+Q16        R16                       5.20   70.00    0.00   2.00   2.00   2.00   2.00 N I * N
+R16        S16                       2.80   30.00   33.00   2.00   2.00   2.00   2.00 N I * N
+S16        T'16                     11.75  353.00   27.00   2.00   2.00   2.00   2.00 N I * N
+S16        T16                       4.05  128.00   40.00   2.00   2.00   2.00   2.00 N I * N
+T16        U16                       9.90  166.00   18.00   2.00   2.00   2.00   2.00 N I * N
+T16        V16                       5.00  133.00   22.00   2.00   2.00   2.00   2.00 N I * N
+V16        W16                       3.80  120.00   31.00   2.00   2.00   2.00   2.00 N I * N
+W16        X16                       5.90  127.00   -7.00   2.00   2.00   2.00   2.00 N I * N
+X16        Y16                       6.00  170.00    7.00   2.00   2.00   2.00   2.00 N I * N
+X16        Z16                      12.50    9.00  -14.00   2.00   2.00   2.00   2.00 N I * N
+
+Param Deca Deg Clino Deg 0.0000 Dir,Dir,Dir Inc 1,1,254 --/--/---- M ;partie inférieure de la galerie de la rivière des schistes;
+
+M16        A17                       9.80  105.00    4.00   2.00   2.00   2.00   2.00 N I * N ;DEPART DU RESEAU INFERIEUR;
+A17        B17                       2.40   20.00    6.00   2.00   2.00   2.00   2.00 N I * N
+B17        C17                       3.70   70.00    6.00   2.00   2.00   2.00   2.00 N I * N
+C17        D17                       4.70  147.00   25.00   2.00   2.00   2.00   2.00 N I * N
+D17        E17                       9.40   85.00   15.00   2.00   2.00   2.00   2.00 N I * N
+E17        F17                       3.70   99.00  -12.00   2.00   2.00   2.00   2.00 N I * N
+F17        G17                       9.20   58.00    3.00   2.00   2.00   2.00   2.00 N I * N
+G17        H17                       5.60   10.00   11.00   2.00   2.00   2.00   2.00 N I * N
+H17        I17                       6.10   47.00   15.00   2.00   2.00   2.00   2.00 N I * N
+I17        J17                       3.00    2.00  -17.00   2.00   2.00   2.00   2.00 N I * N
+J17        K17                      11.40   79.00    8.00   2.00   2.00   2.00   2.00 N I * N
+K17        L17                      15.10   63.00    4.00   2.00   2.00   2.00   2.00 N I * N
+L17        M17                       6.60   48.00   -2.00   2.00   2.00   2.00   2.00 N I * N
+M17        N17                       7.90   85.00    5.00   2.00   2.00   2.00   2.00 N I * N
+N17        O17                       4.70   63.00    3.00   2.00   2.00   2.00   2.00 N I * N
+O17        P17                       3.10  108.00    3.00   2.00   2.00   2.00   2.00 N I * N
+
+Param Deca Deg Clino Deg 0.0000 Dir,Dir,Dir Inc 255,0,0 --/--/---- M ;partie supérieure de la galerie de la rivière des schistes;
+
+L17        M'17                      3.40  125.00   40.00   2.00   2.00   2.00   0.10 N I * N
+M'17       N'17                      9.50   90.00   45.00   2.00   2.00   2.00   2.00 N I * N
+N'17       O'17                     11.50  260.00   -4.00   2.00   2.00   2.00   2.00 N I * N
+O'17       P'17                      4.00  253.00   10.00   2.00   2.00   2.00   2.00 N I * N
+P'17       Q'17                      2.90  254.00  -10.00   2.00   2.00   2.00   2.00 N I * N
+Q'17       R'17                     14.70  250.00   -3.00   2.00   2.00   2.00   2.00 N I * N
+R'17       S'17                     12.20  187.00   -1.00   2.00   2.00   2.00   2.00 N I * N
+S'17       T'17                      8.70  230.00  -15.00   2.00   2.00   2.00   2.00 N I * N
+T'17       U'17                     11.50  271.00  -19.00   2.00   2.00   2.00   2.00 N I * N
+U'17       V'17                      7.40  200.00   42.00   2.00   2.00   2.00   2.00 N I * N
+
+Param Deca Deg Clino Deg 0.0000 Dir,Dir,Dir Inc 0,255,0 --/--/---- M ; RESEAU ROGER;
+
+E08        B18                       5.70  320.00  -54.00   2.00   2.00   2.00   2.00 N I * N ;DEPART RESEAU ROGER;
+B18        C18                      11.50   45.00  -68.00   2.00   2.00   2.00   2.00 N I * N
+C18        D18                      17.20  340.00  -16.00   2.00   2.00   2.00   2.00 N I * N
+D18        E18                       9.00   12.00  -12.00   2.00   2.00   2.00   2.00 N I * N
+E18        F18                       3.20   80.00  -42.00   2.00   2.00   2.00   2.00 N I * N
+F18        G18                       7.20  108.00  -58.00   2.00   2.00   2.00   2.00 N I * N
+G18        H18                       7.90  348.00  -36.00   2.00   2.00   2.00   2.00 N I * N
+H18        I18                       5.10    8.00  -24.00   2.00   2.00   2.00   2.00 N I * N
+I18        J18                       4.50   22.00  -46.00   2.00   2.00   2.00   2.00 N I * N
+J18        K18                      13.00   65.00  -68.00   2.00   2.00   2.00   2.00 N I * N
+K18        M18                       6.00    0.00  -90.00   2.00   2.00   2.00   2.00 N I * N
+M18        N18                       7.00  153.00   31.00   2.00   2.00   2.00   2.00 N I * N
+N18        O18                       5.30  150.00    3.00   2.00   2.00   2.00   2.00 N I * N
+N18        OA18                      5.10  178.00  -28.00   2.00   2.00   2.00   2.00 N I * N
+M18        P18                       6.90  325.00   44.00   2.00   2.00   2.00   2.00 N I * N
+P18        Q18                      12.05  311.00   19.00   2.00   2.00   2.00   2.00 N I * N
+Q18        R18                      20.30  314.00   36.00   2.00   2.00   2.00   2.00 N I * N
+
+Param Deca Deg Clino Deg 0.0000 Dir,Dir,Dir Inc 255,0,128 --/--/---- M ;réseau de la grande méduses;
+
+M8         B19                       6.50  260.00  -14.00   2.00   2.00   2.00   0.10 N I * N ;DEPART VERS LE RESEAU DE LA GRANDE MEDUSE;
+B19        C19                       2.62  251.00   -6.00   2.00   2.00   2.00   2.00 N I * N
+C19        D19                       2.69  301.00  -25.00   2.00   2.00   2.00   2.00 N I * N ;PASSAGE DANS LES BLOCS EFFONDRES POUR ACCEDER A LA SUITE DE LA GALERIE;
+D19        E19                       4.71  214.00   -8.00   2.00   2.00   2.00   2.00 N I * N
+E19        F19                       4.50  168.00   -5.00   2.00   2.00   2.00   2.00 N I * N
+F19        G19                       6.90  240.00    0.00   2.00   2.00   2.00   2.00 N I * N ;GALERIE EN CONDUITE FORCEE;
+G19        H19                       5.20  290.00    0.00   2.00   2.00   2.00   2.00 N I * N
+H19        I19                       4.27  271.00    0.00   2.00   2.00   2.00   2.00 N I * N
+I19        J19                       3.42  293.00   -5.00   2.00   2.00   2.00   2.00 N I * N
+J19        K19                       5.01  245.00   -5.00   2.00   2.00   2.00   2.00 N I * N
+K19        L19                       4.24  250.00   -1.00   2.00   2.00   2.00   2.00 N I * N
+L19        M19                       1.52  207.00   25.00   2.00   2.00   2.00   2.00 N I * N ;PASSAGE ETROIT ET REMONTANT NOUS INTRODUISANT DANS LA PETITE SALLE AVEC DES GOURS DECORES DE PETITS NENUPHARS CRISTALLISES;
+M19        N19                       3.50  180.00   25.00   2.00   2.00   2.00   2.00 N I * N
+N19        O19                       5.70  171.00   21.00   2.00   2.00   2.00   2.00 N I * N
+O19        P19                       7.85  184.00    0.00   2.00   2.00   2.00   2.00 N I * N
+P19        Q19                       3.40  210.00   -9.00   2.00   2.00   2.00   2.00 N I * N
+Q19        R19                       5.19  222.00    6.00   2.00   2.00   2.00   2.00 N I * N ;PASSAGE DANS UNE ZONE DE BROYAGEQUI A ETE AGRANDIE ET CONSOLIDEE;
+R19        S19                       4.96  130.00   19.00   2.00   2.00   2.00   2.00 N I * N
+S19        T19                       1.80  180.00   29.00   2.00   2.00   2.00   2.00 N I * N
+T19        U19                       3.75  243.00   45.00   2.00   2.00   2.00   2.00 N I * N
+U19        V19                       4.13  237.00   12.00   2.00   2.00   2.00   2.00 N I * N
+V19        W19                       6.90  222.00   -3.00   2.00   2.00   2.00   2.00 N I * N
+W19        X19                       3.10    0.00  -90.00   2.00   2.00   2.00   2.00 N I * N ;PETIT PUITS TRES ETROIT QUI A ETE AGRANDI;
+X19        Y19                       4.25  221.00    0.00   2.00   2.00   2.00   2.00 N I * N ;PASSAGE ETROIT;
+Y19        Z19                       2.14  195.00  -19.00   2.00   2.00   2.00   2.00 N I * N
+Z19        1A19                      1.34  137.00  -65.00   2.00   2.00   2.00   2.00 N I * N
+1A19       1B19                      3.36   40.00   -5.00   2.00   2.00   2.00   2.00 N I * N
+1B19       1C19                      4.55  144.00  -46.00   2.00   2.00   2.00   2.00 N I * N ;SALLE DU DECOLLEMENT A CET ENDROIT LES VOLUMES DEVIENNENT IMPORTANTS;
+1C19       1D19                      5.71  206.00    0.00   2.00   2.00   2.00   2.00 N I * N
+1D19       1E19                      5.25  118.00  -41.00   2.00   2.00   2.00   2.00 N I * N
+1E19       1F19                     11.61  220.00    3.00   2.00   2.00   2.00   2.00 N I * N ;GALERIE IMPORTANTE ET HORZONTALE;
+1F19       1G19                     10.58  230.00   -2.00   2.00   2.00   2.00   2.00 N I * N
+1G19       1H19                      6.18  171.00    4.00   2.00   2.00   2.00   2.00 N I * N
+1H19       1I19                      6.30  133.00   -3.00   2.00   2.00   2.00   2.00 N I * N
+1I19       1J19                      5.40  264.00   60.00   2.00   2.00   2.00   2.00 N I * N ;REMONTE DELICATE QUI NOUS AMENE SOUS LA DRAPERIE BLEU;
+1J19       1K19                      4.65  255.00   32.00   2.00   2.00   2.00   2.00 N I * N
+1K19       1L19                      4.68  319.00    5.00   2.00   2.00   2.00   2.00 N I * N
+1L19       1M19                      7.71   10.00    0.00   2.00   2.00   2.00   2.00 N I * N ;PASSAGE BAS ET LABYRINTIQUE;
+1M19       1N19                      2.15  325.00  -45.00   2.00   2.00   2.00   2.00 N I * N
+1N19       1O19                      2.82  280.00  -18.00   2.00   2.00   2.00   2.00 N I * N
+1O19       1P19                      5.55  230.00    4.00   2.00   2.00   2.00   2.00 N I * N
+1P19       1Q19                     11.44  176.00   29.00   2.00   2.00   2.00   2.00 N I * N ;GALERIE DE LA GRANDE MEDUSE;
+1Q19       1R19                      6.68  236.00   30.00   2.00   2.00   2.00   2.00 N I * N
+1R19       1S19                     12.40  187.00   25.00   2.00   2.00   2.00   2.00 N I * N
+1S19       1T19                     10.85  143.00   29.00   2.00   2.00   2.00   2.00 N I * N
+1T19       1U19                      5.66  145.00   28.00   2.00   2.00   2.00   2.00 N I * N
+1U19       1V19                      8.35  155.00   27.00   2.00   2.00   2.00   2.00 N I * N
+
+Param Deca Deg Clino Deg 0.0000 Dir,Dir,Dir Inc 255,255,0 --/--/---- M ;réseau salle paul secteur du réseau de la grande méduse;
+
+1E19       2A19                      4.00  172.00   -7.00   2.00   2.00   2.00   2.00 N I * N ;GALERIE VERS LA SALLE PAUL;
+2A19       2B19                      8.75  125.00  -16.00   2.00   2.00   2.00   2.00 N I * N
+2B19       2B'19                     4.00  173.00   -1.00   2.00   2.00   2.00   2.00 N I * N
+2B19       2C19                      6.85  146.00   32.00   2.00   2.00   2.00   2.00 N I * N
+2C19       2D19                      3.35   53.00   29.00   2.00   2.00   2.00   2.00 N I * N
+2D19       2E19                      2.90   80.00   28.00   2.00   2.00   2.00   2.00 N I * N
+2E19       2F19                      5.30  118.00   43.00   2.00   2.00   2.00   2.00 N I * N
+2F19       2G19                      6.35  175.00   30.00   2.00   2.00   2.00   2.00 N I * N
+2G19       2G'19                     4.00  133.00    2.00   2.00   2.00   2.00   2.00 N I * N
+2B19       2B"19                     5.60   74.00   13.00   2.00   2.00   2.00   2.00 N I * N
+2B19       2B219                     5.40  254.00  -21.00   2.00   2.00   2.00   2.00 N I * N
+2B219      2C219                     6.50  350.00    0.00   2.00   2.00   2.00   2.00 N I * N
+2C219      2D219                     4.50   11.00   -3.00   2.00   2.00   2.00   2.00 N I * N
+2D219      2E219                     4.60  326.00   -2.00   2.00   2.00   2.00   2.00 N I * N
+2B19       2B119                     4.80  344.00    1.00   2.00   2.00   2.00   2.00 N I * N
+2B119      2C119                     5.15  351.00   -9.00   2.00   2.00   2.00   2.00 N I * N
+2C119      2D119                     4.20  326.00  -15.00   2.00   2.00   2.00   2.00 N I * N
+2D119      2E119                     3.90  353.00   -3.00   2.00   2.00   2.00   2.00 N I * N
+
+Param Deca Deg Clino Deg 0.0000 Dir,Dir,Dir Inc 0,64,0 --/--/---- M ;réseau des pompons;
+
+Z'7        B'20                      8.17  189.00    6.00   2.00   2.00   2.00   2.00 N I * N ;RESEAU DES POMPONS;
+B'20       A20                       3.59  204.00  -19.00   2.00   2.00   2.00   2.00 N I * N
+A20        B20                       2.96  250.00   46.00   2.00   2.00   2.00   2.00 N I * N
+B20        C20                       5.07  298.00   29.00   2.00   2.00   2.00   2.00 N I * N
+C20        D20                       2.08    0.00   90.00   2.00   2.00   2.00   2.00 N I * N ;REMONTEE VERTICALE DE 2M DEBAUCHANT DANS UNE PETITE SALLE AVEC UN IMPORTANT BOUQUET D'ARAGONITE ACICULAIRE ET CORALLOIDE;
+D20        E20                       2.05  348.00   23.00   2.00   2.00   2.00   2.00 N I * N
+E20        F20                       5.22  260.00   55.00   2.00   2.00   2.00   2.00 N I * N ;REMONTEE DANS UN PASSAGE BAS ;
+F20        G20                       2.88  262.00   30.00   2.00   2.00   2.00   2.00 N I * N
+G20        H20                       2.63  228.00   33.00   2.00   2.00   2.00   2.00 N I * N
+H20        I20                       2.94  258.00   31.00   2.00   2.00   2.00   2.00 N I * N
+I20        J20                      14.74  335.00  -25.00   2.00   2.00   2.00   2.00 N I * N ;GALERIE DECOREE DE GROSSE BOULES D'ARAGONITE QUI ONT DONNE LE NOM AU RESEAU DES POMPOMS;
+I20        K20                       6.78  200.00   15.00   2.00   2.00   2.00   2.00 N I * N
+K20        L20                       8.01  150.00   30.00   2.00   2.00   2.00   2.00 N I * N ;POINT HAUT DU RESEAU DES POMPOMS;
+K20        L'20                      7.73  318.00   30.00   2.00   2.00   2.00   2.00 N I * N
+
+Param Deca Deg Clino Deg 0.0000 Dir,Dir,Dir Inc 255,0,0 --/--/---- M ;réseau du fagot;
+
+L8         B21                       9.80  112.00   15.00   2.00   2.00   2.00   2.00 N I * N ;RESEAU DU FAGOT;
+B21        C21                      10.14  128.00   15.00   2.00   2.00   2.00   2.00 N I * N
+C21        D21                       5.14   35.00  -13.00   2.00   2.00   2.00   2.00 N I * N
+D21        E21                       6.55   65.00   20.00   2.00   2.00   2.00   2.00 N I * N
+E21        F21                       4.70   75.00    9.00   2.00   2.00   2.00   2.00 N I * N
+F21        G21                       3.28   20.00    0.00   2.00   2.00   2.00   2.00 N I * N
+G21        H21                       6.00  185.00    0.00   2.00   2.00   2.00   2.00 N I * N ;EXENTRIQUES D'ARAGONITE CORALLOIDE DONT LA LONGUEUR POUR CERTAINS DEPASSE LES 40 CM POUR UNE SECTION NE DEPASSANT PAS 6MM DE DIAMETRE ET LE NOMBRE IMPORTANT FAIT PENSER A UN FAGOT DE SARMENT DE VIGNE;
+H21        I21                       6.30  160.00   10.00   2.00   2.00   2.00   2.00 N I * N
+I21        J21                      15.00  150.00   38.00   2.00   2.00   2.00   2.00 N I * N ;GALERIE REMONTANTE FERMEE PAR UN REMPLISSAGE D'ARGILE;
+
+Param Deca Deg Clino Deg 0.0000 Dir,Dir,Dir Inc 0,255,0 --/--/---- M ;réseau des satyres;
+
+K19        A22                       7.00  110.00    7.00   2.00   2.00   2.00   2.00 N I * N ;RESEAU DES SATYRES VOIR VINCENT OU ROGER POUR PLUS RENSEIGNEMENTS;
+A22        B22                       5.50  148.00    2.00   2.00   2.00   2.00   2.00 N I * N
+B22        C22                       1.80   96.00    3.00   2.00   2.00   2.00   2.00 N I * N
+C22        D22                       5.00  152.00    4.00   2.00   2.00   2.00   2.00 N I * N
+D22        E22                       4.00   67.00    3.00   2.00   2.00   2.00   2.00 N I * N
+E22        F22                       4.80   49.00    3.00   2.00   2.00   2.00   2.00 N I * N
+F22        G22                       3.00  123.00    0.00   2.00   2.00   2.00   2.00 N I * N
+G22        H22                       5.50  119.00    0.00   2.00   2.00   2.00   2.00 N I * N
+H22        I22                       7.00  117.00    0.00   2.00   2.00   2.00   2.00 N I * N
+I22        J22                       4.00  117.00    3.00   2.00   2.00   2.00   2.00 N I * N
+J22        J'22                      2.50   90.00    3.00   2.00   2.00   2.00   2.00 N I * N
+J'22       K22                       3.00   94.00    2.00   2.00   2.00   2.00   2.00 N I * N
+K22        L22                       2.10   50.00    0.00   2.00   2.00   2.00   2.00 N I * N
+L22        M22                       1.40  113.00    1.00   2.00   2.00   2.00   2.00 N I * N
+M22        N22                       2.20  130.00    0.00   2.00   2.00   2.00   2.00 N I * N
+N22        O22                       4.00   66.00    1.00   2.00   2.00   2.00   2.00 N I * N
+O22        P22                       3.00  120.00    1.00   2.00   2.00   2.00   2.00 N I * N
+P22        Q22                       3.00  136.00    5.00   2.00   2.00   2.00   2.00 N I * N
+Q22        R22                       3.60  139.00    5.00   2.00   2.00   2.00   2.00 N I * N
+R22        S22                       6.00  130.00    4.00   2.00   2.00   2.00   2.00 N I * N
+S22        T22                       2.80  162.00    2.00   2.00   2.00   2.00   2.00 N I * N
+T22        U22                       4.00  198.00    6.00   2.00   2.00   2.00   2.00 N I * N
+U22        V22                       5.70  190.00    6.00   2.00   2.00   2.00   2.00 N I * N
+V22        W22                       6.00  142.00   12.00   2.00   2.00   2.00   2.00 N I * N
+W22        X22                       3.30  179.00    1.00   2.00   2.00   2.00   2.00 N I * N
+X22        Y22                       2.60   68.00    0.00   2.00   2.00   2.00   2.00 N I * N
+Y22        Z22                       2.90  174.00  -10.00   2.00   2.00   2.00   2.00 N I * N
+Z22        1A22                      4.90  155.00    1.00   2.00   2.00   2.00   2.00 N I * N
+1A22       1B22                      2.60  210.00   10.00   2.00   2.00   2.00   2.00 N I * N
+1B22       1C22                      5.35  167.00    0.00   2.00   2.00   2.00   2.00 N I * N
+1C22       1D22                      2.00  236.00   -5.00   2.00   2.00   2.00   2.00 N I * N
+1D22       1E22                      1.50  167.00   -1.00   2.00   2.00   2.00   2.00 N I * N
+1E22       1F22                      3.50  245.00    0.00   2.00   2.00   2.00   2.00 N I * N
+1F22       1G22                      1.30  182.00    0.00   2.00   2.00   2.00   2.00 N I * N
+1G22       1H22                      3.60  245.00    1.00   2.00   2.00   2.00   2.00 N I * N
+1H22       1I22                      9.40  151.00   -2.00   2.00   2.00   2.00   2.00 N I * N
+1I22       1J22                      5.40  140.00    0.00   2.00   2.00   2.00   2.00 N I * N
+1J22       1K22                      2.70  215.00    0.00   2.00   2.00   2.00   2.00 N I * N
+1K22       1L22                      2.20  226.00    1.00   2.00   2.00   2.00   2.00 N I * N
+1L22       1M22                      6.10  222.00    1.00   2.00   2.00   2.00   2.00 N I * N
+
+Param Deca Deg Clino Deg 0.0000 Dir,Dir,Dir Inc 0,0,255 --/--/---- M ;galerie du baptême;
+
+Z11        A23                       5.70   53.00   23.00   2.00   2.00   2.00   2.00 N I * N ;GALERIE DU BAPTEME;
+A23        B23                       2.20   24.00   -2.00   2.00   2.00   2.00   2.00 N I * N ;TRAVERSEE EQUIPEE AU DESSUS DU GRAND SIPHON;
+B23        C23                       6.10    8.00  -31.00   2.00   2.00   2.00   2.00 N I * N ;SUITE DU PLAN D'EAU DERRIERE LA PAROI QUI SEPARE LE SIPHON;
+C23        D23                       2.50  336.00  -12.00   2.00   2.00   2.00   2.00 N I * N
+D23        E23                       2.30  311.00    1.00   2.00   2.00   2.00   2.00 N I * N ;GALERIE DE 1 PAR 2 EN MOYENNE REMONTANT UN PETIT RUISSEAU PEREN;
+E23        F23                       4.65  295.00    3.00   2.00   2.00   2.00   2.00 N I * N
+F23        G23                       8.30  341.00    0.00   2.00   2.00   2.00   2.00 N I * N
+G23        H23                       4.10  356.00    0.00   2.00   2.00   2.00   2.00 N I * N
+H23        I23                       3.90  290.00    2.00   2.00   2.00   2.00   2.00 N I * N
+I23        J23                       8.10  330.00    3.00   2.00   2.00   2.00   2.00 N I * N
+J23        K23                       3.10  301.00    4.00   2.00   2.00   2.00   2.00 N I * N
+K23        L23                       3.00  231.00    0.00   2.00   2.00   2.00   2.00 N I * N
+L23        M23                       5.20  344.00    3.00   2.00   2.00   2.00   2.00 N I * N
+M23        N23                       4.30   41.00    3.00   2.00   2.00   2.00   2.00 N I * N
+N23        O23                       4.80  289.00    2.00   2.00   2.00   2.00   2.00 N I * N
+O23        P23                       3.05  260.00    9.00   2.00   2.00   2.00   2.00 N I * N
+P23        Q23                       5.30  313.00    1.00   2.00   2.00   2.00   2.00 N I * N
+Q23        R23                       5.25  351.00    1.00   2.00   2.00   2.00   2.00 N I * N
+R23        S23                       9.80   24.00    0.00   2.00   2.00   2.00   2.00 N I * N
+S23        T23                       4.00  321.00    3.00   2.00   2.00   2.00   2.00 N I * N
+T23        U23                       5.60  350.00    0.00   2.00   2.00   2.00   2.00 N I * N
+U23        V23                       5.65  334.00    0.00   2.00   2.00   2.00   2.00 N I * N
+V23        W23                       5.90   63.00    4.00   2.00   2.00   2.00   2.00 N I * N
+W23        X23                       5.05  330.00    2.00   2.00   2.00   2.00   2.00 N I * N
+X23        Y23                       5.80  306.00    1.00   2.00   2.00   2.00   2.00 N I * N
+Y23        Z23                       7.10  299.00    1.00   2.00   2.00   2.00   2.00 N I * N
+O23        1O23                      7.00  204.00    8.00   2.00   2.00   2.00   2.00 N I * N ;SIPHON TERMINAL NON RECONNU A CE JOUR;
+
+Param Deca Deg Clino Deg 0.0000 Dir,Dir,Dir Inc 5,183,250 --/--/---- M ;galerie permettant d'aller au bas de la cheminée du réseau des cheminots, ;
+
+S7         B24                       4.56  125.00    4.00   2.00   2.00   2.00   2.00 N I * N
+B24        C'24                      4.32  129.00   -3.00   2.00   2.00   2.00   2.00 N I * N
+B24        C24                       4.60    0.00   90.00   2.00   2.00   2.00   2.00 N I * N
+C24        D24                       2.73  137.00   11.00   2.00   2.00   2.00   2.00 N I * N
+D24        E24                       3.49  120.00    9.00   2.00   2.00   2.00   2.00 N I * N
+E24        F24                       4.76  135.00   36.00   2.00   2.00   2.00   2.00 N I * N
+C24        1A24                      3.50  337.00    0.00   2.00   2.00   2.00   2.00 N I * N
+1A24       1B24                      5.50    0.00  -90.00   2.00   2.00   2.00   2.00 N I * N
+1B24       1C24                      3.10   95.00    2.00   2.00   2.00   2.00   2.00 N I * N
+1C24       1D24                      2.90  130.00    2.00   2.00   2.00   2.00   2.00 N I * N
+1D24       1E24                      3.60   53.00   38.00   2.00   2.00   2.00   2.00 N I * N
+1E24       1F24                      2.20   71.00   19.00   2.00   2.00   2.00   2.00 N I * N
+1F24       1G24                      3.20  172.00  -14.00   2.00   2.00   2.00   2.00 N I * N
+1G24       1H24                     11.10  127.00   10.00   2.00   2.00   2.00   2.00 N I * N
+1H24       1I24                      5.00   58.00   14.00   2.00   2.00   2.00   2.00 N I * N
+1I24       1J24                      4.70  122.00    4.00   2.00   2.00   2.00   2.00 N I * N
+1J24       1K24                      3.00   92.00    5.00   2.00   2.00   2.00   2.00 N I * N
+1K24       1L24                      3.70  132.00    2.00   2.00   2.00   2.00   2.00 N I * N
+1L24       1M24                      2.10  192.00   41.00   2.00   2.00   2.00   2.00 N I * N
+1M24       1N24                      1.90  145.00   41.00   2.00   2.00   2.00   2.00 N I * N
+
+Param Deca Deg Clino Deg 41.0000 Dir,Dir,Dir Inc 165,42,0 --/--/---- M ;réseau des cheminots;
+
+1F24       2G24                      1.00    6.00    0.00   2.00   2.00   2.00   2.00 N I * N ;cheminée permettant d'accéder au réseau des cheminots;
+2G24       2H24                      7.50    0.00   90.00   2.00   2.00   2.00   2.00 N I * N
+2H24       2I24                      5.30  146.00    3.00   2.00   2.00   2.00   2.00 N I * N
+2I24       2J24                      4.20  215.00   -2.00   2.00   2.00   2.00   2.00 N I * N
+2J24       2K24                      3.50  141.00    6.00   2.00   2.00   2.00   2.00 N I * N
+2K24       2L24                      4.20   97.00  -10.00   2.00   2.00   2.00   2.00 N I * N
+2H24       3I24                      7.00  328.00   15.00   2.00   2.00   2.00   2.00 N I * N
+3I24       3J24                      9.50  320.00   -1.00   2.00   2.00   2.00   2.00 N I * N
+3J24       3K24                      5.90  324.00    8.00   2.00   2.00   2.00   2.00 N I * N
+3K24       3L24                      1.80  283.00   60.00   2.00   2.00   2.00   2.00 N I * N
+3L24       3M24                      7.80  246.00    6.00   2.00   2.00   2.00   2.00 N I * N
+3M24       3N24                      3.70   90.00   15.00   2.00   2.00   2.00   2.00 N I * N
+3N24       3O24                     15.00  145.00    5.00   2.00   2.00   2.00   2.00 N I * N
+3M24       3P'24                    10.00  236.00    0.00   2.00   2.00   2.00   2.00 N I * N
+3M24       4N24                      3.50  305.00   11.00   2.00   2.00   2.00   2.00 N I * N
+4N24       4O24                      6.40  336.00  -38.00   2.00   2.00   2.00   2.00 N I * N
+4O24       4P24                      7.80   64.00    4.00   2.00   2.00   2.00   2.00 N I * N
+4P24       4Q24                      6.80  124.00   25.00   2.00   2.00   2.00   2.00 N I * N
+4Q24       4L24                      4.70  184.00  -14.00   2.00   2.00   2.00   2.00 N I * N
+3L24       5Q24                      4.70    4.00   14.00   2.00   2.00   2.00   2.00 N I * N
+5Q24       5P24                      6.80  304.00  -25.00   2.00   2.00   2.00   2.00 N I * N
+5P24       5A24                      5.50  313.00  -10.00   2.00   2.00   2.00   2.00 N I * N
+5A24       B24                      15.50  335.00    5.00   2.00   2.00   2.00   2.00 N I * N
+B24        5C24                     10.10   70.00   23.00   2.00   2.00   2.00   2.00 N I * N
+5C24       5D24                     13.30  140.00   39.00   2.00   2.00   2.00   2.00 N I * N
+5D24       5E24                      8.50  150.00   26.00   2.00   2.00   2.00   2.00 N I * N
+5E24       5F24                      6.70  112.00    4.00   2.00   2.00   2.00   2.00 N I * N
+5F24       5G24                      7.40   25.00   -6.00   2.00   2.00   2.00   2.00 N I * N ;point haut des cheminots avec puits surcreusé et cheminée au dessus;
+5G24       5H24                      8.50   38.00   -5.00   2.00   2.00   2.00   2.00 N I * N ;début de la grande galerie terminale des cheminots;
+5H24       5I24                      7.30   87.00   -4.00   2.00   2.00   2.00   2.00 N I * N
+5I24       5J24                      5.80   35.00   -9.00   2.00   2.00   2.00   2.00 N I * N ;grande coulée départ vers galerie blanche;
+5J24       5K24                      7.10   28.00   -8.00   2.00   2.00   2.00   2.00 N I * N
+5K24       5L24                     10.10   10.00  -23.00   2.00   2.00   2.00   2.00 N I * N
+5L24       5M24                      6.50  355.00  -29.00   2.00   2.00   2.00   2.00 N I * N
+5M24       5N24                      2.90   44.00   24.00   2.00   2.00   2.00   2.00 N I * N
+5N24       5O24                      3.00   90.00    3.00   2.00   2.00   2.00   2.00 N I * N
+5O24       5P24                     12.00  344.00  -30.00   2.00   2.00   2.00   2.00 N I * N
+5P24       5Q24                      3.90    0.00  -90.00   2.00   2.00   2.00   2.00 N I * N
+5Q24       5R24                      9.60  115.00   43.00   2.00   2.00   2.00   2.00 N I * N
+5R24       5S24                      4.80   75.00   34.00   2.00   2.00   2.00   2.00 N I * N
+5S24       5T24                      6.60  130.00   16.00   2.00   2.00   2.00   2.00 N I * N
+5T24       5U24                      3.30  105.00   13.00   2.00   2.00   2.00   2.00 N I * N
+5U24       5V24                      3.70   70.00  -15.00   2.00   2.00   2.00   2.00 N I * N
+5F24       6G24                      6.70  145.00    6.00   2.00   2.00   2.00   2.00 N I * N
+6G24       6H24                      5.00  200.00    4.00   2.00   2.00   2.00   2.00 N I * N
+6H24       6I24                      9.00  245.00    2.00   2.00   2.00   2.00   2.00 N I * N
+6I24       6J24                      4.20  195.00  -36.00   2.00   2.00   2.00   2.00 N I * N ;coulée bleu avec exentrique;
+5J24       7A24                     10.00  171.00    1.00   2.00   2.00   2.00   2.00 N I * N
+7A24       7B24                      6.00  118.00    7.00   2.00   2.00   2.00   2.00 N I * N
+7B24       7C24                     10.50  228.00   11.00   2.00   2.00   2.00   2.00 N I * N ;départ galerie blanche;
+7C24       7D24                      6.80  250.00    0.00   2.00   2.00   2.00   2.00 N I * N
+7D24       7E24                      3.00  218.00   12.00   2.00   2.00   2.00   2.00 N I * N
+7B24       8C24                      6.00  110.00  -24.00   2.00   2.00   2.00   2.00 N I * N
+8C24       8D24                      4.00  110.00    0.00   2.00   2.00   2.00   2.00 N I * N
+8D24       8E24                      7.00  132.00    4.00   2.00   2.00   2.00   2.00 N I * N
+8E24       8F24                      6.00  185.00    5.00   2.00   2.00   2.00   2.00 N I * N
+8D24       9F24                      5.60   29.00   14.00   2.00   2.00   2.00   2.00 N I * N
+9F24       9G24                      8.80   84.00   11.00   2.00   2.00   2.00   2.00 N I * N
+9G24       9H24                      4.00   29.00   21.00   2.00   2.00   2.00   2.00 N I * N
+9H24       9I24                     15.50   40.00   -1.00   2.00   2.00   2.00   2.00 N I * N
+9I24       9J24                      7.00  110.00  -35.00   2.00   2.00   2.00   2.00 N I * N ;point extrème galerie blanche;
+
+Param Deca Deg Clino Deg 41.0000 Dir,Dir,Dir Inc 0,0,255 --/--/---- M ;galerie des Pyjamas;
+
+3K24       J100                      4.00  323.00   40.00   0.50   0.50   0.50   0.50 N I * N
+J100       I100                      0.00    0.00  -90.00   0.50   0.50   0.50   0.50 N I * N
+I100       H100                      3.00  353.00    0.00   0.50   0.50   0.50   0.50 N I * N
+H100       G100                      4.00  297.00  -30.00   0.50   0.50   0.50   0.50 N I * N
+G100       F100                      5.00  315.00    3.00   0.50   0.50   0.50   0.50 N I * N
+F100       E100                     16.00  337.00    5.00   0.50   0.50   0.50   0.50 N I * N
+E100       D100                     15.00   77.00   23.00   0.50   0.50   0.50   0.50 N I * N
+D100       C100                      6.00  130.00   37.00   0.50   0.50   0.50   0.50 N I * N
+C100       B100                     11.00  142.00   28.00   0.50   0.50   0.50   0.50 N I * N
+B100       A100                      9.00  117.00    8.00   0.50   0.50   0.50   0.50 N I * N
+I100       J101                      5.00  220.00   15.00   0.50   0.50   0.50   0.50 N I * N
+J101       I101                      7.00  144.00    4.00   0.50   0.50   0.50   0.50 N I * N
+I101       H101                      5.00  171.00    0.00   0.50   0.50   0.50   0.50 N I * N
+H101       G101                      4.00  170.00   20.00   0.50   0.50   0.50   0.50 N I * N
+G101       1G101                     6.00  275.00   22.00   0.50   0.50   0.50   0.50 N I * N
+1G101      1H101                     2.00  315.00   20.00   0.50   0.50   0.50   0.50 N I * N
+1H101      1I101                     6.00  114.00   34.00   0.50   0.50   0.50   0.50 N I * N
+1H101      2I101                     5.00  269.00   28.00   0.50   0.50   0.50   0.50 N I * N
+G101       F101                      3.00  144.00    5.00   0.50   0.50   0.50   0.50 N I * N
+F101       E101                      2.00  168.00   34.00   0.50   0.50   0.50   0.50 N I * N
+E101       D101                      4.00  239.00  -26.00   0.50   0.50   0.50   0.50 N I * N
+D101       C101                      8.00  269.00    7.00   0.50   0.50   0.50   0.50 N I * N
+C101       3C101                     6.00  154.00    0.00   0.50   0.50   0.50   0.50 N I * N
+3C101      3D101                     6.00    0.00   90.00   0.50   0.50   0.50   0.50 N I * N
+C101       B101                      6.00  288.00   -1.00   0.50   0.50   0.50   0.50 N I * N
+B101       4B101                     6.00  175.00   64.00   0.50   0.50   0.50   0.50 N I * N
+B101       A101                      8.00  266.00    0.00   0.50   0.50   0.50   0.50 N I * N
+A101       AA101                     5.00  264.00    4.00   0.50   0.50   0.50   0.50 N I * N
+
+Param Deca Deg Clino Deg 0.0000 Dir,Dir,Dir Inc Std --/--/---- M ;CHEMINEMENT VERS CONFLUENT BALMES ET CROZES;
+
+A          50B                      16.00  139.00  -17.00      *      *      *      * N I * N ;CHEMINEMENT VERS CONFLUENT BALMES ET CROZES;
+50B        50C                      19.00   38.00  -12.00      *      *      *      * N I * N
+50C        50D                      19.00   74.00   -5.00      *      *      *      * N I * N
+50D        50E                      24.00   69.00   -1.00      *      *      *      * N I * N
+50E        50F                      17.00   71.00   -8.00      *      *      *      * N I * N
+
+Param Deca Deg Clino Deg 0.0000 Dir,Dir,Dir Inc 0,0,255 --/--/---- M ;relevé effectué par jean claude amiel jean sallele jacky faure juin et septembre 2002 RUISSEAU EXTERIEUR;
+
+50B        50CC                      4.00  144.00  -11.00      *      *      *      * N I * N
+50CC       50DD                     16.00  207.00    5.00   2.00   2.00      *      * N I * N
+50DD       50EE                     16.00  254.00   13.00   2.00   2.00      *      * N I * N
+50EE       50FF                     19.00  270.00    0.00   2.00   2.00      *      * N I * N
+50FF       50GG                     19.00  242.00    5.00   2.00   2.00      *      * N I * N
+50GG       50HH                      8.00  261.00    9.00   2.00   2.00      *      * N I * N
+50HH       50JJ                     18.00  249.00    1.00   2.00   2.00      *      * N I * N
+50JJ       50KK                     21.00  236.00    5.00   2.00   2.00      *      * N I * N
+50KK       50LL                     20.00  226.00   10.00   2.00   2.00      *      * N I * N
+50LL       50MM                     27.00  294.00   12.00   2.00   2.00      *      * N I * N
+50KK       50NN                     19.00  182.00    3.00   2.00   2.00      *      * N I * N
+50NN       50OO                      3.00  210.00   12.00   2.00   2.00      *      * N I * N
+
+Param Deca Deg Clino Deg 0.0000 Dir,Dir,Dir Inc Std --/--/---- M ; SITUATION DES DEPART 2 SEAUX TROU QUI SOUFFLE;
+
+50HH       50II                     13.00  331.00   14.00      *      *      *      * N I * N
+50KK       50PP                     14.00  332.00   26.00      *      *      *      * N I * N
+50JJ       50QQ                     22.00  327.00   28.00      *      *      *      * N I * N
+50QQ       50RR                      4.00  322.00   56.00      *      *      *      * N I * N
+50RR       50SS                     23.00  269.00   25.00      *      *      *      * N I * N
+50SS       50TT                      4.00  296.00   31.00      *      *      *      * N I * N
+50TT       50UU                     18.00  268.00    4.00      *      *      *      * N I * N
+50UU       50VV                      3.31  348.50   21.00      *      *      *      * N I * N
+
+Param Deca Deg Clino Deg 0.0000 Dir,Dir,Dir Inc 0,0,255 --/--/---- M ;SUITE TOPO RUISSEAU EXTERIEUR ;
+
+50KK       50LLL                    20.10  221.00    7.00   2.00   2.00      *      * N I * N
+50LLL      50MMM                    26.70  291.00   12.00   2.00   2.00      *      * N I * N
+50MMM      50NNN                    35.00  278.00    8.00   2.00   2.00      *      * N I * N ;FALAISE EN RIVE DROITE ET GAUCHE;
+50NNN      50OOO                    28.40  261.00   12.00   2.00   2.00      *      * N I * N ;DANS LE MILIEU DE CETTE VISEE NOUS AVONS SUR LA RIVE DROITE DES FALAISE AVEC DES CONCRETIONS ET UNE CHEMINEE REMPLIE ;
+50OOO      50PPP                    26.30  260.00    2.00   2.00   2.00      *      * N I * N
+50PPP      50QQQ                    15.00  218.00    9.00   2.00   2.00      *      * N I * N ;CONFLUENT DE DEUX RUISSEAU;
+50QQQ      50RRR                    23.60  221.00    4.00   2.00   2.00      *      * N I * N
+50RRR      50SSS                    20.50  214.00    9.00   2.00   2.00      *      * N I * N
+50QQQ      50TTT                    13.30  315.00   13.00   2.00   2.00      *      * N I * N
+50TTT      50UUU                    18.20  332.00   16.00   2.00   2.00      *      * N I * N
+50UUU      50VVV                    21.82  313.00   15.00   2.00   2.00      *      * N I * N ;RUISSEAU REMONTANT PLEIN NORD;
+50VVV      50WWW                    22.60  356.00   20.00   2.00   2.00      *      * N I * N
+50VVV      50XXX                    13.60  279.50   -3.00   2.00   2.00      *      * N I * N
+50XXX      50YYY                    38.40  278.00   22.50   2.00   2.00      *      * N I * N
+
+Param Deca Deg Clino Deg 0.0000 Dir,Dir,Dir Inc 255,128,64 --/--/---- M ;Départ du réseau qui se trouve entre la darperie bleu et le départ de la galerie du balcon nombreuse salle, nombreux départ , dans cette partie il reste beaucoup de choses à découvrir.;
+
+1J19       51A                       3.49  140.00   12.00   2.00   2.00   2.00   2.00 N I * N ;Départ du réseau qui se trouve entre la darperie bleu et le départ de la galerie du balcon nombreuse salle, nombreux départ , dans cette partie il reste beaucoup de choses à découvrir.;
+51A        51B                       3.83  197.00  -53.00   2.00   2.00   2.00   2.00 N I * N
+51B        51C                       2.46  190.00    3.00   2.00   2.00   2.00   2.00 N I * N
+51C        51D                       2.28  360.00  -90.00   2.00   2.00   2.00   2.00 N I * N
+51D        51E                       1.84  345.00  -21.00   2.00   2.00   2.00   2.00 N I * N
+51E        51F                       4.56  220.00  -34.00   2.00   2.00   2.00   2.00 N I * N
+51F        51F1                     12.00  340.00    0.00   2.00   2.00   2.00   2.00 N I * N
+51F        51G                       3.85  195.00   -2.00   2.00   2.00   2.00   2.00 N I * N ;Entre les points 51F et 51G départ galerie en laminoir et aussi on peut noter le départ d'une galerie supérieure;
+51G        51H                       3.10  234.00    7.00   2.00   2.00   2.00   2.00 N I * N
+51H        51I                       3.00  210.00   -7.00   2.00   2.00   2.00   2.00 N I * N
+51I        51J                       6.75  320.00    4.00   2.00   2.00   2.00   2.00 N I * N
+51J        51K                       9.04  272.00    4.00   2.00   2.00   2.00   2.00 N I * N
+51K        51L                      12.66  335.00  -23.00   2.00   2.00   2.00   2.00 N I * N
+51L        51M                       7.59  272.00   -8.00   2.00   2.00   2.00   2.00 N I * N
+51M        51N                       4.65  280.00   46.00   2.00   2.00   2.00   2.00 N I * N
+51N        51O                       6.87  245.00   13.00   2.00   2.00   2.00   2.00 N I * N
+51O        51P                       3.84  244.00  -18.00   2.00   2.00   2.00   2.00 N I * N
+51P        51Q                       2.05  222.00   24.00   2.00   2.00   2.00   2.00 N I * N ;Début de l'éboulis entre cette partie de grotte et le départ de la galerie du balcon;
+51Q        51R                       3.29  275.00   11.00   2.00   2.00   2.00   2.00 N I * N
+51R        51S                       0.24  360.00  -90.00   2.00   2.00   2.00   2.00 N I * N
+51S        51T                       6.48  237.00   -4.00   2.00   2.00   2.00   2.00 N I * N
+51T        51U                       2.25  340.00   27.00   2.00   2.00   2.00   2.00 N I * N
+51U        51V                       3.76  195.00  -14.00   2.00   2.00   2.00   2.00 N I * N
+51V        51W                       2.42  244.00   22.00   2.00   2.00   2.00   2.00 N I * N
+51W        51X                       3.72  262.00  -13.00   2.00   2.00   2.00   2.00 N I * N ;fin de l'éboulis nous débouchons dans la galerie du balcon;
+51X        51Y                       5.67  210.00   30.00   2.00   2.00   2.00   2.00 N I * N ;le point Y est le spit qui permet d'amarrer la corde pour descendre le ressaut;
+
+Param Deca Deg Clino Deg 0.0000 Dir,Dir,Dir Inc 255,0,0 --/--/---- M ;galerie du balcon;
+
+51Y        52A                       3.60  185.00  -52.00   2.00   2.00   2.00   2.00 N I * N ;départ de la galerie du balcon;
+52A        52B                      15.70  240.00   -3.00   2.00   2.00   2.00   2.00 N I * N
+52B        52C                      10.75  143.00  -21.00   2.00   2.00   2.00   2.00 N I * N
+52C        52D                      11.20  214.00  -22.00   2.00   2.00   2.00   2.00 N I * N
+52D        52E                       5.80  220.00   14.00   2.00   2.00   2.00   2.00 N I * N
+52E        52F                       5.50  332.00   28.00   2.00   2.00   2.00   2.00 N I * N
+52F        52G                       9.10  224.00    2.00   2.00   2.00   2.00   2.00 N I * N
+52G        52H                       4.00  192.00  -32.00   2.00   2.00   2.00   2.00 N I * N
+52H        52I                       6.45  230.00    0.00   2.00   2.00   2.00   2.00 N I * N
+52I        52J                       7.30  224.00  -23.00   2.00   2.00   2.00   2.00 N I * N
+52J        52K                       9.50  214.00   -5.00   2.00   2.00   2.00   2.00 N I * N
+52K        52L                       5.40  212.00   25.00   2.00   2.00   2.00   2.00 N I * N
+52L        52M                       9.70  220.00  -12.00   2.00   2.00   2.00   2.00 N I * N
+52M        52N                       5.30  220.00  -19.00   2.00   2.00   2.00   2.00 N I * N ;le balcon;
+
+Param Deca Deg Clino Deg 0.0000 Dir,Dir,Dir Inc 255,0,77 --/--/---- M ;grosse galerie qui fait suite au balcon;
+
+52N        53A                      12.30  180.00   29.00   2.00   2.00   2.00   2.00 N I * N ;grosse galerie qui fait suite au passage du balcon;
+53A        53B                       6.80  229.00    4.00   2.00   2.00   2.00   2.00 N I * N
+53B        53C                       6.60  189.00   11.00   2.00   2.00   2.00   2.00 N I * N
+53C        53D                      10.70  217.00    8.00   2.00   2.00   2.00   2.00 N I * N
+53D        53E                       5.30  121.00   20.00   2.00   2.00   2.00   2.00 N I * N
+53E        53F                       4.20  186.00  -11.00   2.00   2.00   2.00   2.00 N I * N
+53F        53G                       4.10  254.00    0.00   2.00   2.00   2.00   2.00 N I * N
+53G        53H                      12.20  172.00    2.00   2.00   2.00   2.00   2.00 N I * N
+53H        53I                       9.50  214.00    0.00   2.00   2.00   2.00   2.00 N I * N
+53I        53J                      14.90  190.00    9.00   2.00   2.00   2.00   2.00 N I * N
+53J        53K                      16.70  183.00  -12.00   2.00   2.00   2.00   2.00 N I * N
+53K        53L                      15.10  202.00   11.00   2.00   2.00   2.00   2.00 N I * N
+53L        53M                      11.40  164.00   22.00   2.00   2.00   2.00   2.00 N I * N
+53M        53N                       2.70  200.00   11.00   2.00   2.00   2.00   2.00 N I * N
+53N        53O                       4.80  260.00  -23.00   2.00   2.00   2.00   2.00 N I * N
+53O        53P                       3.70  320.00  -13.00   2.00   2.00   2.00   2.00 N I * N
+
+Param Deca Deg Clino Deg 0.0000 Dir,Dir,Dir Inc 146,245,10 --/--/---- M ;départ à partir de la galerie des parisiens pour rejoindre la rivière blanche;
+
+2H12       54A                       3.00  240.00  -18.00   2.00   2.00   2.00   2.00 N I * N ;départ à partir de la galerie des parisiens pour rejoindre la rivière blanche;
+54A        54B                       5.00  352.00   -2.00   2.00   2.00   2.00   2.00 N I * N
+54B        54C                       2.00  325.00    0.00   2.00   2.00   2.00   2.00 N I * N
+54C        54D                       3.00  353.00   -2.00   2.00   2.00   2.00   2.00 N I * N
+54D        54E                       3.00    0.00  -90.00   2.00   2.00   2.00   2.00 N I * N
+54E        54F                       0.00  310.00    0.00   2.00   2.00   2.00   2.00 N I * N
+54F        54G                       6.00  265.00    0.00   2.00   2.00   2.00   2.00 N I * N
+54G        54H                       7.00   21.00   -2.00   2.00   2.00   2.00   2.00 N I * N
+54H        54I                       0.00    0.00   90.00   2.00   2.00   2.00   2.00 N I * N
+54I        54J                       5.00  350.00  -40.00   2.00   2.00   2.00   2.00 N I * N
+54J        54K                       2.00   30.00   -7.00   2.00   2.00   2.00   2.00 N I * N
+54K        54L                      11.00  354.00   -5.00   2.00   2.00   2.00   2.00 N I * N
+54L        54M                       0.00    0.00   90.00   2.00   2.00   2.00   2.00 N I * N
+54M        54N                       5.00  261.00  -30.00   2.00   2.00   2.00   2.00 N I * N
+54N        54O                       2.00  319.00  -26.00   2.00   2.00   2.00   2.00 N I * N
+
+Param Deca Deg Clino Deg 0.0000 Dir,Dir,Dir Inc 248,193,7 --/--/---- M ;rivière blanche;
+
+54O        55A                       5.00  352.00  -11.00   2.00   2.00   2.00   2.00 N I * N ;aval rivière blanche;
+55A        55B                       4.00   25.00   -2.00   2.00   2.00   2.00   2.00 N I * N
+55B        55C                       0.00    0.00   90.00   2.00   2.00   2.00   2.00 N I * N
+55C        55D                      10.00   10.00   -3.00   2.00   2.00   2.00   2.00 N I * N
+55D        55E                       6.00   51.00   -3.00   2.00   2.00   2.00   2.00 N I * N
+55E        55F                       4.00   46.00    0.00   2.00   2.00   2.00   2.00 N I * N
+55F        55G                       3.00  343.00    0.00   2.00   2.00   2.00   2.00 N I * N
+55G        55H                       8.00   18.00  -11.00   2.00   2.00   2.00   2.00 N I * N
+55H        55I                      13.00   21.00   14.00   2.00   2.00   2.00   2.00 N I * N
+55I        55J                       7.00   20.00   -1.00   2.00   2.00   2.00   2.00 N I * N
+55J        55K                       2.00    0.00  -90.00   2.00   2.00   2.00   2.00 N I * N
+55K        55L                       2.00   25.00   -7.00   2.00   2.00   2.00   2.00 N I * N
+55L        55M                       4.00   25.00   -3.00   2.00   2.00   2.00   2.00 N I * N
+55M        55N                       1.00   35.00   -9.00   2.00   2.00   2.00   2.00 N I * N
+55N        55O                       2.00  348.00    0.00   2.00   2.00   2.00   2.00 N I * N
+55O        55P                       4.00   41.00   -5.00   2.00   2.00   2.00   2.00 N I * N
+55P        55Q                       4.00   95.00    2.00   2.00   2.00   2.00   2.00 N I * N
+55Q        55R                       4.00   39.00    0.00   2.00   2.00   2.00   2.00 N I * N
+55R        55S                       6.00  110.00    3.00   2.00   2.00   2.00   2.00 N I * N
+55S        55T                       4.00  115.00  -34.00   2.00   2.00   2.00   2.00 N I * N
+54O        55U                       7.00  215.00  -10.00   2.00   2.00   2.00   2.00 N I * N ;Rivière blanche partie amont;
+55U        55V                       6.00  228.00    0.00   2.00   2.00   2.00   2.00 N I * N
+55V        55W                      13.00  195.00    1.00   2.00   2.00   2.00   2.00 N I * N
+55W        55X                      11.00  215.00    3.00   2.00   2.00   2.00   2.00 N I * N
+55X        55Y                      10.00  190.00    1.00   2.00   2.00   2.00   2.00 N I * N
+55Y        55Z                       8.00  250.00    2.00   2.00   2.00   2.00   2.00 N I * N
+55Z        55Z1                      8.00  220.00    1.00   2.00   2.00   2.00   2.00 N I * N
+
+Param Deca Deg Clino Deg 0.0000 Dir,Dir,Dir Inc 255,128,0 --/--/---- M ;réseau qui s'ouvre dans le grand puits avec les grandes aragonites;
+
+Z11        56A                       2.00  120.00  -21.00   2.00   2.00   2.00   2.00 N I * N
+56A        56B                       6.00  129.00    9.00   2.00   2.00   2.00   2.00 N I * N
+56B        56C                       8.00  205.00   60.00   2.00   2.00   2.00   2.00 N I * N
+56C        56d                       2.00  113.00   30.00   2.00   2.00   2.00   2.00 N I * N
+56d        56E                      15.00  202.00   71.00   2.00   2.00   2.00   2.00 N I * N
+56E        56F                       8.00  206.00   -2.00   2.00   2.00   2.00   2.00 N I * N
+56F        56G                       5.00  188.00    0.00   2.00   2.00   2.00   2.00 N I * N
+56G        56H                       3.00   74.00   13.00   2.00   2.00   2.00   2.00 N I * N
+56H        56I                       2.00  146.00   32.00   2.00   2.00   2.00   2.00 N I * N
+56I        56J                       6.00  211.00   -6.00   2.00   2.00   2.00   2.00 N I * N
+56J        56K                       4.00  190.00    0.00   2.00   2.00   2.00   2.00 N I * N
+56K        56L                       4.00  195.00   -6.00   2.00   2.00   2.00   2.00 N I * N
+56L        56M                       2.00  195.00    0.00   2.00   2.00   2.00   2.00 N I * N
+56M        56N                       2.00  210.00   13.00   2.00   2.00   2.00   2.00 N I * N
+56N        56O                       2.00  252.00  -23.00   2.00   2.00   2.00   2.00 N I * N
+56O        56P                       3.00  182.00  -10.00   2.00   2.00   2.00   2.00 N I * N
+56P        56Q                       4.00  188.00   25.00   2.00   2.00   2.00   2.00 N I * N
+56Q        56R                       2.00  207.00    0.00   2.00   2.00   2.00   2.00 N I * N
+56R        56S                       2.00  275.00    0.00   2.00   2.00   2.00   2.00 N I * N
+56S        56T                       2.00   50.00   16.00   2.00   2.00   2.00   2.00 N I * N
+56T        56U                       6.00  137.00   34.00   2.00   2.00   2.00   2.00 N I * N
+56U        56V                       4.00   28.00   12.00   2.00   2.00   2.00   2.00 N I * N
+56V        56W                       5.00   78.00   30.00   2.00   2.00   2.00   2.00 N I * N
+56d        56A1                      8.00  257.00   74.00   2.00   2.00   2.00   2.00 N I * N
+56A1       56B1                      8.00  206.00   -2.00   2.00   2.00   2.00   2.00 N I * N
+56B1       56C1                      8.00  193.00   -1.00   2.00   2.00   2.00   2.00 N I * N
+56S        56C3                      9.00  249.00   -6.00   2.00   2.00   2.00   2.00 N I * N
+56C3       56D1                      4.00  259.00    4.00   2.00   2.00   2.00   2.00 N I * N
+56D1       56E1                      4.00  186.00   10.00   2.00   2.00   2.00   2.00 N I * N
+56E1       56F1                      4.00  154.00   -1.00   2.00   2.00   2.00   2.00 N I * N
+56F1       56G1                      3.00  162.00    0.00   2.00   2.00   2.00   2.00 N I * N
+56G1       56H1                      3.00  210.00   -5.00   2.00   2.00   2.00   2.00 N I * N
+56H1       56I1                      8.00  178.00    3.00   2.00   2.00   2.00   2.00 N I * N
+56I1       56J1                      3.00  227.00    0.00   2.00   2.00   2.00   2.00 N I * N
+56J1       56L1                      4.00  157.00    4.00   2.00   2.00   2.00   2.00 N I * N
+56L1       56M1                      4.00  205.00   -4.00   2.00   2.00   2.00   2.00 N I * N
+56M1       56N1                      1.00  201.00   -1.00   2.00   2.00   2.00   2.00 N I * N
+56N1       56O1                      1.00  151.00   -1.00   2.00   2.00   2.00   2.00 N I * N
+56O1       56P1                      6.00  241.00    1.00   2.00   2.00   2.00   2.00 N I * N
+56P1       56Q1                      4.00  268.00   -3.00   2.00   2.00   2.00   2.00 N I * N
+56J1       56R1                      2.00  252.00  -16.00   2.00   2.00   2.00   2.00 N I * N
+56I1       56S1                      2.00  268.00    0.00   2.00   2.00   2.00   2.00 N I * N
+56S1       56T1                      3.00  245.00   -5.00   2.00   2.00   2.00   2.00 N I * N
+56T1       56U1                      2.00  215.00  -32.00   2.00   2.00   2.00   2.00 N I * N
+56U1       56V1                      1.00  185.00   -5.00   2.00   2.00   2.00   2.00 N I * N
+56V1       56W1                      1.00  300.00   35.00   2.00   2.00   2.00   2.00 N I * N
+56W1       56X1                      3.00   10.00   31.00   2.00   2.00   2.00   2.00 N I * N
+56X1       56Y1                      4.00  333.00   33.00   2.00   2.00   2.00   2.00 N I * N
+56Y1       56Z1                      4.00   80.00   54.00   2.00   2.00   2.00   2.00 N I * N
+56Z1       56A2                      5.00  145.00   73.00   2.00   2.00   2.00   2.00 N I * N
+56A2       56B2                      2.00  158.00    1.00   2.00   2.00   2.00   2.00 N I * N
+56B2       56C2                      5.00  171.00  -14.00   2.00   2.00   2.00   2.00 N I * N
+56C2       56D2                     10.00  105.00   30.00   2.00   2.00   2.00   2.00 N I * N
+56Z1       56E2                      6.00  358.00  -30.00   2.00   2.00   2.00   2.00 N I * N
+56A2       56F2                      7.00  340.00  -23.00   2.00   2.00   2.00   2.00 N I * N
+56F2       56G2                     14.00  333.00  -31.00   2.00   2.00   2.00   2.00 N I * N
+56G2       56H2                      4.00    0.00   90.00   2.00   2.00   2.00   2.00 N I * N
+56H2       56I2                      4.00  315.00   15.00   2.00   2.00   2.00   2.00 N I * N
+56I2       56J2                      3.00  322.00    1.00   2.00   2.00   2.00   2.00 N I * N
+56J2       56K2                      4.00  350.00  -64.00   2.00   2.00   2.00   2.00 N I * N
+56K2       56L2                      2.00  276.00    4.00   2.00   2.00   2.00   2.00 N I * N
+56L2       56M2                      4.00  290.00  -23.00   2.00   2.00   2.00   2.00 N I * N
+56M2       56N2                      8.00  325.00  -30.00   2.00   2.00   2.00   2.00 N I * N
+56N2       56O2                      5.00  313.00  -23.00   2.00   2.00   2.00   2.00 N I * N
+
+[Configuration 5.12]
+
+Visual Topo=2,3,-1,-1,-1,-1,78,78,1278,702
+Options=1,1
+Calcul=0,1,-1,-1,-1,-1,26,26,1388,531
+Options=11,2,0,1,1
+ExportDxf=0,100,1295,0,0,1,6,7,4,4,3,3,2,7,9,9,3
+ExportSvg=0,100,1423,0,0,10917,8355711,16711680,37632,37632,9109504,9109504,255,0,8355711,7451452,6008319,12632256,9109504
+ExportKml=0
+ExportShp=0,0,0
+Colonnes=8.00,8.00,8.00,8.00,8.00,8.00,8.00,8.00,8.00,8.00,8.00,2.00,2.00,2.00,2.00,4.00,0.38,8.00,8.00,8.00,8.00,8.00,0.38,0.00,0.00

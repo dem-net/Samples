@@ -70,7 +70,13 @@ namespace SampleApp
                 rasterService.SetLocalDirectory(DATA_FILES_PATH);
             }
 
-
+            using (_logger.BeginScope($"Running {nameof(VisualTopoSample)}.."))
+            {
+                var sample = services.GetService<VisualTopoSample>();
+                sample.Run();
+                _logger.LogInformation($"Sample {sample.GetType().Name} done. Press any key to run the next sample...");
+                if (pauseAfterEachSample) Console.ReadLine();
+            }
             //using (_logger.BeginScope($"Running {nameof(AerialGpxSample)}.."))
             //{
             //    var aerialGpxSample = services.GetService<AerialGpxSample>();

@@ -41,10 +41,10 @@ namespace SampleApp
 {
     public class IntervisibilitySample
     {
-        private readonly ILogger<ElevationSamples> _logger;
+        private readonly ILogger<IntervisibilitySample> _logger;
         private readonly IElevationService _elevationService;
 
-        public IntervisibilitySample(ILogger<ElevationSamples> logger
+        public IntervisibilitySample(ILogger<IntervisibilitySample> logger
                 , IElevationService elevationService)
         {
             _logger = logger;
@@ -100,8 +100,8 @@ namespace SampleApp
 
                 // High level way
                 var metrics = _elevationService.GetIntervisibilityReport(new GeoPoint(lat1, lon1), new GeoPoint(lat2, lon2), dataSet
-                    , downloadMissingFiles: true, sourceVerticalOffset:0);
-                
+                    , downloadMissingFiles: true, sourceVerticalOffset: 0);
+
                 PlotVisibilityReport(metrics, 2048, 600, "VisReport.png");
 
 
@@ -135,10 +135,10 @@ namespace SampleApp
                 double[] distancesX = metrics.GeoPoints.Select(p => p.DistanceFromOriginMeters ?? 0).ToArray();
                 double[] elevationsY = metrics.GeoPoints.Select(p => p.Elevation ?? 0).ToArray();
 
-                
+
 
                 var plt = new Plot(width, height);
-                plt.PlotScatter(distancesX, elevationsY, lineWidth:2, markerSize:0, label: "profile");
+                plt.PlotScatter(distancesX, elevationsY, lineWidth: 2, markerSize: 0, label: "profile");
                 plt.PlotLine(0, elevationsY[0] + metrics.OriginVerticalOffset, distancesX.Last(), elevationsY.Last(), color: System.Drawing.Color.Red, 1, "ray");
                 plt.Title("Visiblity report");
                 plt.XLabel("Distance (meters)");
