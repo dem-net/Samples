@@ -102,11 +102,10 @@ namespace SampleApp
 
         private void ComputeVectors(VisualTopoModel model)
         {
+            model.GlobalPosPerSortie = new Dictionary<string, VisualTopoData>();
 
             foreach (var set in model.Sets)
-            {
-                set.GlobalPosPerSortie = new Dictionary<string, VisualTopoData>();
-                Vector3 lastGlobal = Vector3.Zero;
+            {   
                 foreach (var p in set.Data)
                 {
                     if (p.Entree == p.Sortie)
@@ -115,6 +114,7 @@ namespace SampleApp
                     }
                     else
                     {
+                        var lastGlobal = model.GlobalPosPerSortie[p.Entree].GlobalVector;
                         var current = Vector3.UnitX * (float)p.Longueur;
                         var matrix = Matrix4x4.CreateRotationZ((float)MathHelper.ToRadians(p.Cap))
                                     * Matrix4x4.CreateRotationY((float)MathHelper.ToRadians(-p.Pente));
@@ -122,10 +122,17 @@ namespace SampleApp
                         current = Vector3.Transform(current, matrix);
                         p.GlobalVector = lastGlobal + current;
 
-                        set.GlobalPosPerSortie.Add(p.Sortie, p);
                     }
+
+
                     p.GlobalGeoPoint = new GeoPoint(p.GlobalVector.X, p.GlobalVector.Y, p.GlobalVector.Z);
-                    lastGlobal = p.GlobalVector;
+
+                    if (model.GlobalPosPerSortie.ContainsKey(p.Sortie))
+                    {
+                        _logger.LogWarning($"Sortie {p.Sortie} already registered. Replacing it.");
+                    }
+                    model.GlobalPosPerSortie[p.Sortie] = p;
+                    
                 }
             }
 
@@ -138,14 +145,15 @@ namespace SampleApp
             public string EntryPointProjectionCode { get; internal set; }
 
             public List<VisualTopoSet> Sets { get; set; } = new List<VisualTopoSet>();
+
+            public Dictionary<string, VisualTopoData> GlobalPosPerSortie { get; internal set; }
         }
         public class VisualTopoSet
         {
             public List<VisualTopoData> Data { get; set; } = new List<VisualTopoData>();
             public string Name { get; internal set; }
             public Vector4 Color { get; internal set; }
-            public Dictionary<string, VisualTopoData> GlobalPosPerSortie { get; internal set; }
-
+            
             public override string ToString()
             {
                 return $"Set {Name} with {Data.Count} data entries";
