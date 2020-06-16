@@ -77,10 +77,10 @@
     <None Update="secrets.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="SampleData\topo asperge avec ruisseau.TRO">
+    <None Update="SampleData\VisualTopo\topo asperge avec ruisseau.TRO">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="SampleData\LA SALLE.tro">
+    <None Update="SampleData\VisualTopo\LA SALLE.tro">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>

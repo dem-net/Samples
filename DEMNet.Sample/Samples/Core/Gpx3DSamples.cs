@@ -181,7 +181,7 @@ namespace SampleApp
                                                             .ZScale(Z_FACTOR);
 
 
-                    model = _sharpGltfService.AddLine(model, "GPX", gpxPointsElevated, new Vector4(0, 1, 0, 0.5f), trailWidthMeters);
+                    model = _sharpGltfService.AddLine(model, "GPX", gpxPointsElevated, VectorsExtensions.CreateColor(255,0,0,128), trailWidthMeters);
 
                 }
 
