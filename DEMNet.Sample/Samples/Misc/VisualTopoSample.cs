@@ -43,6 +43,8 @@ using System.Numerics;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using DEM.Net.Graph;
+using DEM.Net.Graph.WeightedGraph;
 
 namespace SampleApp
 {
@@ -64,6 +66,7 @@ namespace SampleApp
 
         public void Run()
         {
+            
             string vtopoFile = Path.Combine("SampleData", "VisualTopo", "topo asperge avec ruisseau.TRO");
             //string vtopoFile = Path.Combine("SampleData", "LA SALLE.TRO");
 
@@ -79,6 +82,8 @@ namespace SampleApp
                 }
             }
             VisualTopoModel model = parser.Model;
+            CreateGraph(model);
+            GraphUtils.PrintMatrix(model.Graph);
 
             //VisualTopoModel modelTest = new VisualTopoModel();
             //var set = new VisualTopoSet();
@@ -100,12 +105,37 @@ namespace SampleApp
             gltfModel.SaveGLB("TopoViewGlob.glb");
         }
 
+        private void CreateGraph(VisualTopoModel model)
+        {
+            Dictionary<string, Node> nodesByName = new Dictionary<string, Node>();
+            Dictionary<int, Node> nodesByIndex = new Dictionary<int, Node>();
+            int i = 0;
+            
+            foreach (var data in model.Sets.SelectMany(s => s.Data))
+            {
+                if (data.Entree == data.Sortie && data.Entree == model.Entree )
+                {
+                    var node = model.Graph.CreateRoot(data.Entree);
+                    nodesByName[node.Name] = node;
+                    nodesByIndex[i++] = node;
+                }
+                else
+                {
+                    
+                    var node = model.Graph.CreateNode(data.Sortie);
+                    nodesByName[data.Entree].AddArc(node, data.Longueur);
+                    nodesByName[node.Name] = node;
+                    nodesByIndex[i++] = node;
+                }
+            }
+        }
+
         private void ComputeVectors(VisualTopoModel model)
         {
             model.GlobalPosPerSortie = new Dictionary<string, VisualTopoData>();
 
             foreach (var set in model.Sets)
-            {   
+            {
                 foreach (var p in set.Data)
                 {
                     if (p.Entree == p.Sortie)
@@ -132,7 +162,47 @@ namespace SampleApp
                         _logger.LogWarning($"Sortie {p.Sortie} already registered. Replacing it.");
                     }
                     model.GlobalPosPerSortie[p.Sortie] = p;
-                    
+
+                }
+            }
+
+        }
+
+        private void ComputeVectorsUsingGraph(VisualTopoModel model)
+        {
+            HashSet<string> visitedNodes = new HashSet<string>();
+
+            model.GlobalPosPerSortie = new Dictionary<string, VisualTopoData>();
+
+            foreach (var set in model.Sets)
+            {
+                foreach (var p in set.Data)
+                {
+                    if (p.Entree == p.Sortie)
+                    {
+                        p.GlobalVector = Vector3.Zero;
+                    }
+                    else
+                    {
+                        var lastGlobal = model.GlobalPosPerSortie[p.Entree].GlobalVector;
+                        var current = Vector3.UnitX * (float)p.Longueur;
+                        var matrix = Matrix4x4.CreateRotationZ((float)MathHelper.ToRadians(p.Cap))
+                                    * Matrix4x4.CreateRotationY((float)MathHelper.ToRadians(-p.Pente));
+
+                        current = Vector3.Transform(current, matrix);
+                        p.GlobalVector = lastGlobal + current;
+
+                    }
+
+
+                    p.GlobalGeoPoint = new GeoPoint(p.GlobalVector.X, p.GlobalVector.Y, p.GlobalVector.Z);
+
+                    if (model.GlobalPosPerSortie.ContainsKey(p.Sortie))
+                    {
+                        _logger.LogWarning($"Sortie {p.Sortie} already registered. Replacing it.");
+                    }
+                    model.GlobalPosPerSortie[p.Sortie] = p;
+
                 }
             }
 
@@ -144,16 +214,21 @@ namespace SampleApp
             public GeoPoint EntryPoint { get; internal set; }
             public string EntryPointProjectionCode { get; internal set; }
 
+            public Graph Graph { get; set; } = new Graph();
             public List<VisualTopoSet> Sets { get; set; } = new List<VisualTopoSet>();
 
             public Dictionary<string, VisualTopoData> GlobalPosPerSortie { get; internal set; }
+            public string Author { get; internal set; }
+            public bool TopoRobot { get; internal set; }
+            public Vector4 DefaultColor { get; internal set; }
+            public string Entree { get; internal set; }
         }
         public class VisualTopoSet
         {
             public List<VisualTopoData> Data { get; set; } = new List<VisualTopoData>();
             public string Name { get; internal set; }
             public Vector4 Color { get; internal set; }
-            
+
             public override string ToString()
             {
                 return $"Set {Name} with {Data.Count} data entries";
@@ -205,7 +280,12 @@ namespace SampleApp
             {
                 sr.Skip(3);
                 this.ParseEntryHeader(model, sr.ReadLine());
-                sr.Skip(6);
+                model.Author = sr.ReadLine();
+                sr.Skip(1);
+                model.Entree = sr.ReadLine().Replace("Entree ", "");
+                model.TopoRobot = sr.ReadLine() != "Toporobot 1";
+                model.DefaultColor = ParseColor(sr.ReadLine().Split(" ").Last());
+                sr.Skip(1);
             }
 
             internal void ParseSet(StreamReader sr)
@@ -239,7 +319,7 @@ namespace SampleApp
 
                     // Parse data line
                     topoData = this.ParseData(topoData, slots);
-
+                    
                     set.Data.Add(topoData);
                     dataLine = sr.ReadLine();
                 }
