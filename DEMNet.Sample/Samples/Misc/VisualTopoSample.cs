@@ -44,7 +44,8 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using DEM.Net.Graph;
-using DEM.Net.Graph.WeightedGraph;
+using DEM.Net.Graph.GenericWeightedGraph;
+using SharpGLTF.Schema2;
 
 namespace SampleApp
 {
@@ -66,8 +67,8 @@ namespace SampleApp
 
         public void Run()
         {
-            
-            string vtopoFile = Path.Combine("SampleData", "VisualTopo", "topo asperge avec ruisseau.TRO");
+
+            string vtopoFile = Path.Combine("SampleData", "VisualTopo", "topo asperge avec ruisseau - set1.TRO");
             //string vtopoFile = Path.Combine("SampleData", "LA SALLE.TRO");
 
             VisualTopoParser parser = new VisualTopoParser(decimalDegrees: true);
@@ -83,7 +84,7 @@ namespace SampleApp
             }
             VisualTopoModel model = parser.Model;
             CreateGraph(model);
-            GraphUtils.PrintMatrix(model.Graph);
+
 
             //VisualTopoModel modelTest = new VisualTopoModel();
             //var set = new VisualTopoSet();
@@ -99,32 +100,35 @@ namespace SampleApp
             //var gltfModel = _gltfService.AddLine(_gltfService.CreateNewModel(), "GPX", modelTest.Sets.First().Data.Select(d => d.GlobalGeoPoint), VectorsExtensions.CreateColor(255, 0, 0, 192), 0.25F);
             //gltfModel.SaveGLB("TopoViewGlob.glb");
 
-            ComputeVectors(model);
-            var gltfModel = _gltfService.AddLine(_gltfService.CreateNewModel(), "GPX1", model.Sets.First().Data.Select(d => d.GlobalGeoPoint), VectorsExtensions.CreateColor(255, 0, 0, 255), 0.25F);
-            gltfModel = _gltfService.AddLine(gltfModel, "GPX2", model.Sets.Skip(1).First().Data.Select(d => d.GlobalGeoPoint), VectorsExtensions.CreateColor(0, 255, 0, 255), 0.25F);
+            ComputeVectorsUsingGraph(model);
+
+            var gltfModel = _gltfService.CreateNewModel();
+            gltfModel = AddTopoModel(model, gltfModel);
+            //gltfModel = _gltfService.AddLine(gltfModel, "GPX1", model.Sets.First().Data.Select(d => d.GlobalGeoPoint), VectorsExtensions.CreateColor(255, 0, 0, 255), 0.25F);
+            //gltfModel = _gltfService.AddLine(gltfModel, "GPX2", model.Sets.Skip(1).First().Data.Select(d => d.GlobalGeoPoint), VectorsExtensions.CreateColor(0, 255, 0, 255), 0.25F);
             gltfModel.SaveGLB("TopoViewGlob.glb");
         }
 
         private void CreateGraph(VisualTopoModel model)
         {
-            Dictionary<string, Node> nodesByName = new Dictionary<string, Node>();
-            Dictionary<int, Node> nodesByIndex = new Dictionary<int, Node>();
+            Dictionary<string, Node<VisualTopoData>> nodesByName = new Dictionary<string, Node<VisualTopoData>>();
+            Dictionary<int, Node<VisualTopoData>> nodesByIndex = new Dictionary<int, Node<VisualTopoData>>();
             int i = 0;
-            
+
             foreach (var data in model.Sets.SelectMany(s => s.Data))
             {
-                if (data.Entree == data.Sortie && data.Entree == model.Entree )
+                if (data.Entree == data.Sortie && data.Entree == model.Entree)
                 {
-                    var node = model.Graph.CreateRoot(data.Entree);
-                    nodesByName[node.Name] = node;
+                    var node = model.Graph.CreateRoot(data, data.Entree);
+                    nodesByName[node.Key] = node;
                     nodesByIndex[i++] = node;
                 }
                 else
                 {
-                    
-                    var node = model.Graph.CreateNode(data.Sortie);
+
+                    var node = model.Graph.CreateNode(data, data.Sortie);
                     nodesByName[data.Entree].AddArc(node, data.Longueur);
-                    nodesByName[node.Name] = node;
+                    nodesByName[node.Key] = node;
                     nodesByIndex[i++] = node;
                 }
             }
@@ -170,42 +174,91 @@ namespace SampleApp
 
         private void ComputeVectorsUsingGraph(VisualTopoModel model)
         {
-            HashSet<string> visitedNodes = new HashSet<string>();
-
             model.GlobalPosPerSortie = new Dictionary<string, VisualTopoData>();
 
-            foreach (var set in model.Sets)
+            ComputeNodeVectors(model.Graph.Root, Vector3.Zero);
+        }
+
+        private ModelRoot AddTopoModel(VisualTopoModel model, ModelRoot gltf)
+        {
+            model.Graph.ResetVisits();
+
+            List<GeoPoint> line = new List<GeoPoint>();
+            int i = 0;
+            foreach (var line3D in AddTopoModel(model.Graph.Root, line))
             {
-                foreach (var p in set.Data)
+                gltf = _gltfService.AddLine(gltf, string.Concat("GPX",i++), line3D, VectorsExtensions.CreateColor(255, 0, 0, 255), 0.1F);
+            }
+            return gltf;
+        }
+
+        private IEnumerable<List<GeoPoint>> AddTopoModel(Node<VisualTopoData> node, List<GeoPoint> currentLine, Node<VisualTopoData> parent = null)
+        {
+            var arcs = node.Arcs.Where(a => a.Visited == false && !IsArc(a, node.Key, parent?.Key)).ToList();
+            bool isLeaf = arcs.Count == 0;
+            bool isRoot = parent == null;
+
+            if (isRoot)
+            {
+                currentLine.Add(node.Model.GlobalGeoPoint);
+            }
+
+            if (isLeaf)
+            {
+                yield return currentLine;
+                currentLine.Clear();
+            }
+            else
+            {
+                foreach (var arc in arcs)
                 {
-                    if (p.Entree == p.Sortie)
+                    var childNode = arc.Child.Key == node.Key ? arc.Parent : arc.Child;
+
+                    currentLine.Add(childNode.Model.GlobalGeoPoint);
+
+                    arc.Visited = true;
+
+                    foreach(var subLine in AddTopoModel(childNode, currentLine, node))
                     {
-                        p.GlobalVector = Vector3.Zero;
+                        yield return subLine;
                     }
-                    else
-                    {
-                        var lastGlobal = model.GlobalPosPerSortie[p.Entree].GlobalVector;
-                        var current = Vector3.UnitX * (float)p.Longueur;
-                        var matrix = Matrix4x4.CreateRotationZ((float)MathHelper.ToRadians(p.Cap))
-                                    * Matrix4x4.CreateRotationY((float)MathHelper.ToRadians(-p.Pente));
-
-                        current = Vector3.Transform(current, matrix);
-                        p.GlobalVector = lastGlobal + current;
-
-                    }
-
-
-                    p.GlobalGeoPoint = new GeoPoint(p.GlobalVector.X, p.GlobalVector.Y, p.GlobalVector.Z);
-
-                    if (model.GlobalPosPerSortie.ContainsKey(p.Sortie))
-                    {
-                        _logger.LogWarning($"Sortie {p.Sortie} already registered. Replacing it.");
-                    }
-                    model.GlobalPosPerSortie[p.Sortie] = p;
-
                 }
             }
 
+        }
+
+        private void ComputeNodeVectors(Node<VisualTopoData> node, Vector3 localTransform, Node<VisualTopoData> parent = null)
+        {
+            if (parent == null)
+            {
+                node.Model.GlobalVector = localTransform;
+                node.Model.GlobalGeoPoint = new GeoPoint(node.Model.GlobalVector.X, node.Model.GlobalVector.Y, node.Model.GlobalVector.Z);
+            }    
+
+            foreach (var arc in node.Arcs.Where(a => a.Visited == false && !IsArc(a, node.Key, parent?.Key)))
+            {
+                var childNode = arc.Child.Key == node.Key ? arc.Parent : arc.Child;
+                var p = childNode.Model;
+                var matrix = Matrix4x4.CreateRotationZ((float)MathHelper.ToRadians(p.Cap))
+                            * Matrix4x4.CreateRotationY((float)MathHelper.ToRadians(-p.Pente));
+
+                var current = Vector3.Transform(Vector3.UnitX * (float)p.Longueur, matrix);
+                p.GlobalVector = localTransform + current;
+                p.GlobalGeoPoint = new GeoPoint(p.GlobalVector.X, p.GlobalVector.Y, p.GlobalVector.Z);
+
+                arc.Visited = true;
+
+                ComputeNodeVectors(childNode, current, node);
+            }
+        }
+
+        // Returns true if key1->key2 or key2->key1
+        private bool IsArc(Arc<VisualTopoData> a, string key1, string key2)
+        {
+            if (key1 == null || key2 == null) return false;
+
+            return (a.Parent.Key == key1 && a.Child.Key == key2)
+                || (a.Parent.Key == key2 && a.Child.Key == key1);
         }
 
         public class VisualTopoModel
@@ -214,7 +267,7 @@ namespace SampleApp
             public GeoPoint EntryPoint { get; internal set; }
             public string EntryPointProjectionCode { get; internal set; }
 
-            public Graph Graph { get; set; } = new Graph();
+            public Graph<VisualTopoData> Graph { get; set; } = new Graph<VisualTopoData>();
             public List<VisualTopoSet> Sets { get; set; } = new List<VisualTopoSet>();
 
             public Dictionary<string, VisualTopoData> GlobalPosPerSortie { get; internal set; }
@@ -278,7 +331,7 @@ namespace SampleApp
 
             internal void ParseHeader(StreamReader sr)
             {
-                sr.Skip(3);
+                sr.SkipUntil(s => string.IsNullOrEmpty(s));
                 this.ParseEntryHeader(model, sr.ReadLine());
                 model.Author = sr.ReadLine();
                 sr.Skip(1);
@@ -319,7 +372,7 @@ namespace SampleApp
 
                     // Parse data line
                     topoData = this.ParseData(topoData, slots);
-                    
+
                     set.Data.Add(topoData);
                     dataLine = sr.ReadLine();
                 }
@@ -388,6 +441,15 @@ namespace SampleApp
             {
                 sr.ReadLine();
             }
+        }
+        public static void SkipUntil(this StreamReader sr, Predicate<string> match)
+        {
+            string line;
+            do
+            {
+                line = sr.ReadLine();
+            }
+            while (match(line) == false && !sr.EndOfStream);
         }
 
     }
