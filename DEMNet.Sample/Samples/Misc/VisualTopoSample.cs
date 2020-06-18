@@ -35,8 +35,6 @@ using Newtonsoft.Json;
 using ScottPlot;
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Numerics;
@@ -53,7 +51,7 @@ namespace SampleApp
     /// VisualTopo integration
     /// Goal: generate 3D model from visual topo file
     /// </summary>
-    public class VisualTopoSample
+    public partial class VisualTopoSample
     {
         private readonly ILogger<VisualTopoSample> _logger;
         private readonly SharpGltfService _gltfService;
@@ -68,21 +66,10 @@ namespace SampleApp
         public void Run()
         {
 
-            string vtopoFile = Path.Combine("SampleData", "VisualTopo", "topo asperge avec ruisseau - set1.TRO");
+            string vtopoFile = Path.Combine("SampleData", "VisualTopo", "topo asperge avec ruisseau.TRO");
             //string vtopoFile = Path.Combine("SampleData", "LA SALLE.TRO");
 
-            VisualTopoParser parser = new VisualTopoParser(decimalDegrees: true);
-
-            using (StreamReader sr = new StreamReader(vtopoFile, Encoding.GetEncoding("ISO-8859-1")))
-            {
-                parser.ParseHeader(sr);
-
-                while (!sr.EndOfStream)
-                {
-                    parser.ParseSet(sr);
-                }
-            }
-            VisualTopoModel model = parser.Model;
+            VisualTopoModel model = VisualTopoParser.ParseFile(vtopoFile, Encoding.GetEncoding("ISO-8859-1"), decimalDegrees: true);
             CreateGraph(model);
 
 
@@ -100,13 +87,17 @@ namespace SampleApp
             //var gltfModel = _gltfService.AddLine(_gltfService.CreateNewModel(), "GPX", modelTest.Sets.First().Data.Select(d => d.GlobalGeoPoint), VectorsExtensions.CreateColor(255, 0, 0, 192), 0.25F);
             //gltfModel.SaveGLB("TopoViewGlob.glb");
 
-            ComputeVectorsUsingGraph(model);
+            //ComputeVectorsUsingGraph(model);
+            var b = GetBranches(model);
+            var topo3DLine = GetBranchesVectors(model);
 
             var gltfModel = _gltfService.CreateNewModel();
-            gltfModel = AddTopoModel(model, gltfModel);
-            //gltfModel = _gltfService.AddLine(gltfModel, "GPX1", model.Sets.First().Data.Select(d => d.GlobalGeoPoint), VectorsExtensions.CreateColor(255, 0, 0, 255), 0.25F);
-            //gltfModel = _gltfService.AddLine(gltfModel, "GPX2", model.Sets.Skip(1).First().Data.Select(d => d.GlobalGeoPoint), VectorsExtensions.CreateColor(0, 255, 0, 255), 0.25F);
-            gltfModel.SaveGLB("TopoViewGlob.glb");
+            int i = 0;
+            foreach( var line in topo3DLine)
+            {
+                gltfModel = _gltfService.AddLine(gltfModel, "GPX" + (i++), line, VectorsExtensions.CreateColor(255, 0, 0, 255), 0.25F);
+            }
+            gltfModel.SaveGLB("TopoViewGlobFull.glb");
         }
 
         private void CreateGraph(VisualTopoModel model)
@@ -133,326 +124,96 @@ namespace SampleApp
                 }
             }
         }
-
-        private void ComputeVectors(VisualTopoModel model)
+        
+        private List<List<GeoPoint>> GetBranchesVectors(VisualTopoModel model)
         {
-            model.GlobalPosPerSortie = new Dictionary<string, VisualTopoData>();
-
-            foreach (var set in model.Sets)
-            {
-                foreach (var p in set.Data)
-                {
-                    if (p.Entree == p.Sortie)
-                    {
-                        p.GlobalVector = Vector3.Zero;
-                    }
-                    else
-                    {
-                        var lastGlobal = model.GlobalPosPerSortie[p.Entree].GlobalVector;
-                        var current = Vector3.UnitX * (float)p.Longueur;
-                        var matrix = Matrix4x4.CreateRotationZ((float)MathHelper.ToRadians(p.Cap))
-                                    * Matrix4x4.CreateRotationY((float)MathHelper.ToRadians(-p.Pente));
-
-                        current = Vector3.Transform(current, matrix);
-                        p.GlobalVector = lastGlobal + current;
-
-                    }
-
-
-                    p.GlobalGeoPoint = new GeoPoint(p.GlobalVector.X, p.GlobalVector.Y, p.GlobalVector.Z);
-
-                    if (model.GlobalPosPerSortie.ContainsKey(p.Sortie))
-                    {
-                        _logger.LogWarning($"Sortie {p.Sortie} already registered. Replacing it.");
-                    }
-                    model.GlobalPosPerSortie[p.Sortie] = p;
-
-                }
-            }
-
+            List<List<GeoPoint>> branches = new List<List<GeoPoint>>();
+            GetBranchesVectors(model.Graph.Root, branches, null, Vector3.Zero);
+            return branches;
         }
 
-        private void ComputeVectorsUsingGraph(VisualTopoModel model)
+        private void GetBranchesVectors(Node<VisualTopoData> node, List<List<GeoPoint>> branches, List<GeoPoint> current, Vector3 local)
         {
-            model.GlobalPosPerSortie = new Dictionary<string, VisualTopoData>();
 
-            ComputeNodeVectors(model.Graph.Root, Vector3.Zero);
-        }
+            var p = node.Model;
+            var currentVec = Vector3.UnitX * p.Longueur;
+            var matrix = Matrix4x4.CreateRotationZ((float)MathHelper.ToRadians(p.Cap))
+                        * Matrix4x4.CreateRotationY((float)MathHelper.ToRadians(-p.Pente));
+            currentVec = Vector3.Transform(currentVec, matrix);
+            currentVec += local;
+            p.GlobalVector = currentVec;
+            p.GlobalGeoPoint = new GeoPoint(p.GlobalVector.X, p.GlobalVector.Y, p.GlobalVector.Z);
 
-        private ModelRoot AddTopoModel(VisualTopoModel model, ModelRoot gltf)
-        {
-            model.Graph.ResetVisits();
-
-            List<GeoPoint> line = new List<GeoPoint>();
-            int i = 0;
-            foreach (var line3D in AddTopoModel(model.Graph.Root, line))
+            if (current == null) current = new List<GeoPoint>();
+            if (node.Arcs.Count == 0)
             {
-                gltf = _gltfService.AddLine(gltf, string.Concat("GPX",i++), line3D, VectorsExtensions.CreateColor(255, 0, 0, 255), 0.1F);
-            }
-            return gltf;
-        }
-
-        private IEnumerable<List<GeoPoint>> AddTopoModel(Node<VisualTopoData> node, List<GeoPoint> currentLine, Node<VisualTopoData> parent = null)
-        {
-            var arcs = node.Arcs.Where(a => a.Visited == false && !IsArc(a, node.Key, parent?.Key)).ToList();
-            bool isLeaf = arcs.Count == 0;
-            bool isRoot = parent == null;
-
-            if (isRoot)
-            {
-                currentLine.Add(node.Model.GlobalGeoPoint);
-            }
-
-            if (isLeaf)
-            {
-                yield return currentLine;
-                currentLine.Clear();
+                current.Add(node.Model.GlobalGeoPoint);
+                branches.Add(current);
+                return;
             }
             else
             {
-                foreach (var arc in arcs)
+                bool firstArc = true;
+                foreach (var arc in node.Arcs)
                 {
-                    var childNode = arc.Child.Key == node.Key ? arc.Parent : arc.Child;
-
-                    currentLine.Add(childNode.Model.GlobalGeoPoint);
-
-                    arc.Visited = true;
-
-                    foreach(var subLine in AddTopoModel(childNode, currentLine, node))
+                    if (firstArc)
                     {
-                        yield return subLine;
+                        firstArc = false;
+
+                        current.Add(node.Model.GlobalGeoPoint);
+
+                        GetBranchesVectors(arc.Child, branches, current, node.Model.GlobalVector);
+                    }
+                    else
+                    {
+                        var newBranch = new List<GeoPoint>();
+                        newBranch.Add(node.Model.GlobalGeoPoint);
+                        GetBranchesVectors(arc.Child, branches, newBranch, node.Model.GlobalVector);
                     }
                 }
             }
-
         }
-
-        private void ComputeNodeVectors(Node<VisualTopoData> node, Vector3 localTransform, Node<VisualTopoData> parent = null)
+        private void GetBranches<T>(Node<VisualTopoData> node, List<List<T>> branches, List<T> current, Func<VisualTopoData, T> extractInfo)
         {
-            if (parent == null)
+            if (current == null) current = new List<T>();
+
+            T info = extractInfo(node.Model);
+            if (node.Arcs.Count == 0)
             {
-                node.Model.GlobalVector = localTransform;
-                node.Model.GlobalGeoPoint = new GeoPoint(node.Model.GlobalVector.X, node.Model.GlobalVector.Y, node.Model.GlobalVector.Z);
-            }    
-
-            foreach (var arc in node.Arcs.Where(a => a.Visited == false && !IsArc(a, node.Key, parent?.Key)))
-            {
-                var childNode = arc.Child.Key == node.Key ? arc.Parent : arc.Child;
-                var p = childNode.Model;
-                var matrix = Matrix4x4.CreateRotationZ((float)MathHelper.ToRadians(p.Cap))
-                            * Matrix4x4.CreateRotationY((float)MathHelper.ToRadians(-p.Pente));
-
-                var current = Vector3.Transform(Vector3.UnitX * (float)p.Longueur, matrix);
-                p.GlobalVector = localTransform + current;
-                p.GlobalGeoPoint = new GeoPoint(p.GlobalVector.X, p.GlobalVector.Y, p.GlobalVector.Z);
-
-                arc.Visited = true;
-
-                ComputeNodeVectors(childNode, current, node);
+                current.Add(info);
+                branches.Add(current);
+                return;
             }
-        }
-
-        // Returns true if key1->key2 or key2->key1
-        private bool IsArc(Arc<VisualTopoData> a, string key1, string key2)
-        {
-            if (key1 == null || key2 == null) return false;
-
-            return (a.Parent.Key == key1 && a.Child.Key == key2)
-                || (a.Parent.Key == key2 && a.Child.Key == key1);
-        }
-
-        public class VisualTopoModel
-        {
-            public string Name { get; internal set; }
-            public GeoPoint EntryPoint { get; internal set; }
-            public string EntryPointProjectionCode { get; internal set; }
-
-            public Graph<VisualTopoData> Graph { get; set; } = new Graph<VisualTopoData>();
-            public List<VisualTopoSet> Sets { get; set; } = new List<VisualTopoSet>();
-
-            public Dictionary<string, VisualTopoData> GlobalPosPerSortie { get; internal set; }
-            public string Author { get; internal set; }
-            public bool TopoRobot { get; internal set; }
-            public Vector4 DefaultColor { get; internal set; }
-            public string Entree { get; internal set; }
-        }
-        public class VisualTopoSet
-        {
-            public List<VisualTopoData> Data { get; set; } = new List<VisualTopoData>();
-            public string Name { get; internal set; }
-            public Vector4 Color { get; internal set; }
-
-            public override string ToString()
+            else
             {
-                return $"Set {Name} with {Data.Count} data entries";
-            }
-        }
-        public class VisualTopoData
-        {
-            public string Comment { get; internal set; }
-            public string Entree { get; internal set; }
-            public string Sortie { get; internal set; }
-            public float Longueur { get; internal set; }
-            public float Cap { get; internal set; }
-            public float Pente { get; internal set; }
-            public BoundingBox Section { get; internal set; }
-            public Vector3 GlobalVector { get; internal set; }
-            public GeoPoint GlobalGeoPoint { get; internal set; }
-        }
-        public class VisualTopoParser
-        {
-            private readonly bool _decimalDegrees;
-            private VisualTopoModel model = new VisualTopoModel();
-
-            public VisualTopoModel Model => model;
-
-            public VisualTopoParser(bool decimalDegrees)
-            {
-                this._decimalDegrees = decimalDegrees;
-            }
-            internal void ParseEntryHeader(VisualTopoModel model, string entry)
-            {
-                var data = entry.Split(',');
-                model.Name = data[0];
-                model.EntryPoint = new GeoPoint(
-                    double.Parse(data[2], CultureInfo.InvariantCulture) * 1000d
-                    , double.Parse(data[1], CultureInfo.InvariantCulture) * 1000d
-                    , double.Parse(data[3], CultureInfo.InvariantCulture));
-                model.EntryPointProjectionCode = data[4];
-                int srid = 0;
-                switch (model.EntryPointProjectionCode)
+                bool firstArc = true;
+                foreach (var arc in node.Arcs)
                 {
-                    case "UTM31": srid = 32631; break;
-                    case "LT3": srid = 27573; break;
-                    default: throw new NotImplementedException($"Projection not {model.EntryPointProjectionCode} not implemented");
-                };
-                model.EntryPoint = model.EntryPoint.ReprojectTo(srid, 4326);
-            }
-
-            internal void ParseHeader(StreamReader sr)
-            {
-                sr.SkipUntil(s => string.IsNullOrEmpty(s));
-                this.ParseEntryHeader(model, sr.ReadLine());
-                model.Author = sr.ReadLine();
-                sr.Skip(1);
-                model.Entree = sr.ReadLine().Replace("Entree ", "");
-                model.TopoRobot = sr.ReadLine() != "Toporobot 1";
-                model.DefaultColor = ParseColor(sr.ReadLine().Split(" ").Last());
-                sr.Skip(1);
-            }
-
-            internal void ParseSet(StreamReader sr)
-            {
-                VisualTopoSet set = new VisualTopoSet();
-
-                string setHeader = sr.ReadLine();
-
-                if (setHeader.StartsWith("[Configuration "))
-                {
-                    sr.ReadToEnd(); // skip until end of stream
-                    return;
-                }
-
-                // Set header
-                var data = setHeader.Split(';', StringSplitOptions.RemoveEmptyEntries);
-                set.Color = this.ParseColor(data[0].Split(' ')[8]);
-                set.Name = data[1].Trim();
-
-                sr.Skip(1);
-                var dataLine = sr.ReadLine();
-                do
-                {
-                    VisualTopoData topoData = new VisualTopoData();
-
-                    var parts = dataLine.Split(';');
-                    if (parts.Length > 1) topoData.Comment = parts[1].Trim();
-                    var slots = parts[0].Split(' ', StringSplitOptions.RemoveEmptyEntries);
-
-                    Debug.Assert(slots.Length == 13);
-
-                    // Parse data line
-                    topoData = this.ParseData(topoData, slots);
-
-                    set.Data.Add(topoData);
-                    dataLine = sr.ReadLine();
-                }
-                while (dataLine != string.Empty);
-
-                model.Sets.Add(set);
-
-            }
-
-            private VisualTopoData ParseData(VisualTopoData topoData, string[] slots)
-            {
-                const string DefaultSize = "2";
-
-                topoData.Entree = slots[0];
-                topoData.Sortie = slots[1];
-                topoData.Longueur = float.Parse(slots[2], CultureInfo.InvariantCulture);
-                topoData.Cap = float.Parse(slots[3], CultureInfo.InvariantCulture);
-                topoData.Pente = ParsePente(float.Parse(slots[4], CultureInfo.InvariantCulture));
-                topoData.Section = new BoundingBox(
-                                        float.Parse(slots[5] == "*" ? DefaultSize : slots[5], CultureInfo.InvariantCulture),
-                                        float.Parse(slots[6] == "*" ? DefaultSize : slots[6], CultureInfo.InvariantCulture),
-                                        float.Parse(slots[8] == "*" ? DefaultSize : slots[8], CultureInfo.InvariantCulture),
-                                        float.Parse(slots[7] == "*" ? DefaultSize : slots[7], CultureInfo.InvariantCulture)
-                                        );
-
-                return topoData;
-            }
-
-            private float ParsePente(float degMinSec)
-            {
-                // 125 deg 30min is not 125,5 BUT 125,3
-                if (_decimalDegrees)
-                {
-                    return degMinSec;
-                }
-                else
-                {
-                    // sexagecimal
-
-                    float intPart = (float)Math.Truncate(degMinSec);
-                    float decPart = degMinSec - intPart;
-
-                    return intPart + MathHelper.Map(0f, 0.6f, 0f, 1f, Math.Abs(decPart), false) * Math.Sign(degMinSec);
-
+                    if (firstArc)
+                    {
+                        firstArc = false;
+                        current.Add(info);
+                        GetBranches(arc.Child, branches, current, extractInfo);
+                    }
+                    else
+                    {
+                        var newBranch = new List<T>();
+                        newBranch.Add(info);
+                        GetBranches(arc.Child, branches, newBranch, extractInfo);
+                    }
                 }
             }
-
-            private Vector4 ParseColor(string rgbCommaSeparated)
-            {
-                if (rgbCommaSeparated == "Std")
-                    return VectorsExtensions.CreateColor(255, 255, 255);
-
-                var slots = rgbCommaSeparated.Split(',')
-                            .Select(s => byte.Parse(s))
-                            .ToArray();
-                return VectorsExtensions.CreateColor(slots[0], slots[1], slots[2]);
-            }
         }
+        private List<List<string>> GetBranches(VisualTopoModel model)
+        {
+            List<List<string>> branches = new List<List<string>>();
+            GetBranches(model.Graph.Root, branches, null, n => n.Sortie);
+            return branches;
+        }
+
 
     }
-    public static class StreamReaderExtensions
-    {
-        public static void Skip(this StreamReader sr, int numLines)
-        {
-            for (int i = 1; i <= numLines; i++)
-            {
-                sr.ReadLine();
-            }
-        }
-        public static void SkipUntil(this StreamReader sr, Predicate<string> match)
-        {
-            string line;
-            do
-            {
-                line = sr.ReadLine();
-            }
-            while (match(line) == false && !sr.EndOfStream);
-        }
 
-    }
 
 }
 

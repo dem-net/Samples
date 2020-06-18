@@ -30,7 +30,7 @@ namespace DEM.Net.Graph.GenericWeightedGraph
         /// Create a new arc, connecting this Node to the Nod passed in the parameter
         /// Also, it creates the inversed node in the passed node
         /// </summary>
-        public Node<T> AddArc(Node<T> child, float w)
+        public Node<T> AddArc(Node<T> child, float w, bool biDirectional = false)
         {
             Arcs.Add(new Arc<T>
             {
@@ -39,7 +39,7 @@ namespace DEM.Net.Graph.GenericWeightedGraph
                 Weigth = w
             });
 
-            if (!child.Arcs.Exists(a => a.Parent == child && a.Child == this))
+            if (biDirectional && !child.Arcs.Exists(a => a.Parent == child && a.Child == this))
             {
                 child.AddArc(this, w);
             }
