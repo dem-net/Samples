@@ -27,6 +27,7 @@ using DEM.Net.Core;
 using System.Collections.Generic;
 using System.Numerics;
 using DEM.Net.Graph.GenericWeightedGraph;
+using System.Linq;
 
 namespace SampleApp
 {
@@ -45,6 +46,16 @@ namespace SampleApp
         public Vector4 DefaultColor { get; internal set; }
         public string Entree { get; internal set; }
         public int SRID { get; internal set; }
+
+        public BoundingBox BoundingBox
+        {
+            get
+            {
+                var bbox = new BoundingBox();
+                Graph.AllNodes.ForEach(n => { if (n.Model.GlobalGeoPoint != null) bbox.UnionWith(n.Model.GlobalGeoPoint.Longitude, n.Model.GlobalGeoPoint.Latitude, n.Model.GlobalGeoPoint.Elevation ?? 0); });
+                return bbox;
+            }
+        }
     }
 
     public class VisualTopoSet
