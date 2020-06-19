@@ -80,16 +80,18 @@ namespace SampleApp
 
 
             float zFactor = 3F;
-            float lineWidth = 0.75F;
-            float scaleMargin = 45F;
+            float lineWidth = 1.0F;
+            float scaleMargin = 1.5F;
             DEMDataSet dataset = DEMDataSet.AW3D30; 
-            ImageryProvider provider = ImageryProvider.OpenTopoMap;// new TileDebugProvider(new GeoPoint(43.5,5.5));
+            ImageryProvider provider = ImageryProvider.ThunderForestOutdoors;// new TileDebugProvider(new GeoPoint(43.5,5.5));
             int TEXTURE_TILES = 8; // 4: med, 8: high
             string vtopoFile = Path.Combine("SampleData", "VisualTopo", "topo asperge avec ruisseau.TRO");
             //string vtopoFile = Path.Combine("SampleData", "VisualTopo", "topo asperge avec ruisseau - set1.TRO");
             //string vtopoFile = Path.Combine("SampleData", "VisualTopo", "LA SALLE.TRO");
 
             VisualTopoModel model = VisualTopoParser.ParseFile(vtopoFile, Encoding.GetEncoding("ISO-8859-1"), decimalDegrees: true, ignoreStars: true);
+            model.EntryPoint.ReprojectTo(model.SRID, 3857);
+            model.SRID = 3857;
             CreateGraph(model);
             var b = GetBranches(model); // for debug
             var topo3DLine = GetBranchesVectors(model, zFactor: 1f);
@@ -123,8 +125,8 @@ namespace SampleApp
 
             // Terrain
             var bbox = model.BoundingBox
-                         .Translate(origin.Longitude, origin.Latitude, origin.Elevation ?? 0)
-                         //.Scale(scaleMargin)
+                         .Translate(origin.Longitude, origin.Latitude, 0)
+                         .Scale(scaleMargin)
                          .ReprojectTo(model.SRID, dataset.SRID);
             
             string outputDir = Directory.GetCurrentDirectory();
