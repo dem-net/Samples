@@ -44,6 +44,7 @@ namespace SampleApp
         public bool TopoRobot { get; internal set; }
         public Vector4 DefaultColor { get; internal set; }
         public string Entree { get; internal set; }
+        public int SRID { get; internal set; }
     }
 
     public class VisualTopoSet

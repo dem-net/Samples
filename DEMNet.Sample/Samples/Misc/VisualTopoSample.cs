@@ -44,6 +44,11 @@ using System.Threading.Tasks;
 using DEM.Net.Graph;
 using DEM.Net.Graph.GenericWeightedGraph;
 using SharpGLTF.Schema2;
+using SixLabors.ImageSharp.PixelFormats;
+using System.Drawing;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.Processing;
+using SixLabors.ImageSharp.ColorSpaces;
 
 namespace SampleApp
 {
@@ -65,11 +70,10 @@ namespace SampleApp
 
         public void Run()
         {
+            //string vtopoFile = Path.Combine("SampleData", "VisualTopo", "topo asperge avec ruisseau.TRO");
+            string vtopoFile = Path.Combine("SampleData", "VisualTopo", "LA SALLE.TRO");
 
-            string vtopoFile = Path.Combine("SampleData", "VisualTopo", "topo asperge avec ruisseau.TRO");
-            //string vtopoFile = Path.Combine("SampleData", "LA SALLE.TRO");
-
-            VisualTopoModel model = VisualTopoParser.ParseFile(vtopoFile, Encoding.GetEncoding("ISO-8859-1"), decimalDegrees: true);
+            VisualTopoModel model = VisualTopoParser.ParseFile(vtopoFile, Encoding.GetEncoding("ISO-8859-1"), decimalDegrees: true, ignoreStars: true);
             CreateGraph(model);
 
 
@@ -93,18 +97,22 @@ namespace SampleApp
 
             var gltfModel = _gltfService.CreateNewModel();
             int i = 0;
-            foreach( var line in topo3DLine)
-            {
-                gltfModel = _gltfService.AddLine(gltfModel, "GPX" + (i++), line, VectorsExtensions.CreateColor(255, 0, 0, 255), 0.25F);
+            var rnd = new Random();
+            foreach (var line in topo3DLine)
+            {   
+                var color = VectorsExtensions.CreateColor((byte)rnd.Next(0, 255), (byte)rnd.Next(0, 255), (byte)rnd.Next(0, 255));
+                //var color = VectorsExtensions.CreateColor(255, 0, 0, 255);
+                gltfModel = _gltfService.AddLine(gltfModel, "GPX" + (i++), line, color, 5F);
             }
-            gltfModel.SaveGLB("TopoViewGlobFull.glb");
+            gltfModel = _gltfService.AddLine(gltfModel, "X", new [] { GeoPoint.Zero, GeoPoint.UnitX * 10F }, VectorsExtensions.CreateColor(255, 0, 0, 255), 0.5F);
+            gltfModel = _gltfService.AddLine(gltfModel, "Y", new[] { GeoPoint.Zero, GeoPoint.UnitY * 7.5F }, VectorsExtensions.CreateColor(0, 255, 0, 255), 0.5F);
+            gltfModel = _gltfService.AddLine(gltfModel, "Z", new[] { GeoPoint.Zero, GeoPoint.UnitZ * 5F }, VectorsExtensions.CreateColor(0, 0, 255, 255), 0.5F);
+            gltfModel.SaveGLB(string.Concat(Path.GetFileNameWithoutExtension(vtopoFile) + ".glb"));
         }
 
         private void CreateGraph(VisualTopoModel model)
         {
             Dictionary<string, Node<VisualTopoData>> nodesByName = new Dictionary<string, Node<VisualTopoData>>();
-            Dictionary<int, Node<VisualTopoData>> nodesByIndex = new Dictionary<int, Node<VisualTopoData>>();
-            int i = 0;
 
             foreach (var data in model.Sets.SelectMany(s => s.Data))
             {
@@ -112,15 +120,18 @@ namespace SampleApp
                 {
                     var node = model.Graph.CreateRoot(data, data.Entree);
                     nodesByName[node.Key] = node;
-                    nodesByIndex[i++] = node;
                 }
                 else
                 {
 
                     var node = model.Graph.CreateNode(data, data.Sortie);
+                    if (!nodesByName.ContainsKey(data.Entree))
+                    {
+                        // Début graphe disjoint
+                        nodesByName[data.Entree] = node;
+                    }
                     nodesByName[data.Entree].AddArc(node, data.Longueur);
                     nodesByName[node.Key] = node;
-                    nodesByIndex[i++] = node;
                 }
             }
         }
@@ -137,8 +148,7 @@ namespace SampleApp
 
             var p = node.Model;
             var currentVec = Vector3.UnitX * p.Longueur;
-            var matrix = Matrix4x4.CreateRotationZ((float)MathHelper.ToRadians(p.Cap))
-                        * Matrix4x4.CreateRotationY((float)MathHelper.ToRadians(-p.Pente));
+            var matrix = Matrix4x4.CreateRotationY((float)MathHelper.ToRadians(-p.Pente)) * Matrix4x4.CreateRotationZ((float)MathHelper.ToRadians(p.Cap));
             currentVec = Vector3.Transform(currentVec, matrix);
             currentVec += local;
             p.GlobalVector = currentVec;

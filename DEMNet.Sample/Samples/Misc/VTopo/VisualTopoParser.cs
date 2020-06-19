@@ -52,10 +52,11 @@ namespace SampleApp
                 case "LT3": srid = 27573; break;
                 default: throw new NotImplementedException($"Projection not {model.EntryPointProjectionCode} not implemented");
             };
-            model.EntryPoint = model.EntryPoint.ReprojectTo(srid, 4326);
+            model.SRID = srid;
+            model.EntryPoint = model.EntryPoint;
         }
 
-        internal static  VisualTopoModel ParseHeader(VisualTopoModel model, StreamReader sr)
+        internal static VisualTopoModel ParseHeader(VisualTopoModel model, StreamReader sr)
         {
 
             sr.ReadUntil(string.IsNullOrWhiteSpace);
@@ -86,7 +87,7 @@ namespace SampleApp
             return model;
         }
 
-        internal static  VisualTopoModel ParseSet(VisualTopoModel model, StreamReader sr, bool decimalDegrees)
+        internal static VisualTopoModel ParseSet(VisualTopoModel model, StreamReader sr, bool decimalDegrees, bool ignoreStars)
         {
             VisualTopoSet set = new VisualTopoSet();
 
@@ -100,8 +101,9 @@ namespace SampleApp
 
             // Set header
             var data = setHeader.Split(';', StringSplitOptions.RemoveEmptyEntries);
-            set.Color = VisualTopoParser.ParseColor(data[0].Split(' ')[8]);
-            set.Name = data[1].Trim();
+            var headerSlots = data[0].Split(' ', StringSplitOptions.RemoveEmptyEntries);
+            set.Color = VisualTopoParser.ParseColor(headerSlots[headerSlots.Length-3]);
+            set.Name = data.Length > 1 ? data[1].Trim() : string.Empty;
 
             sr.Skip(1);
             var dataLine = sr.ReadLine();
@@ -116,9 +118,11 @@ namespace SampleApp
                 Debug.Assert(slots.Length == 13);
 
                 // Parse data line
-                topoData = VisualTopoParser.ParseData(topoData, slots, decimalDegrees);
-
-                set.Data.Add(topoData);
+                topoData = VisualTopoParser.ParseData(topoData, slots, decimalDegrees, ignoreStars);
+                if (topoData != null)
+                {
+                    set.Data.Add(topoData);
+                }
                 dataLine = sr.ReadLine();
             }
             while (dataLine != string.Empty);
@@ -128,12 +132,16 @@ namespace SampleApp
             return model;
         }
 
-        private static VisualTopoData ParseData(VisualTopoData topoData, string[] slots, bool decimalDegrees)
+        private static VisualTopoData ParseData(VisualTopoData topoData, string[] slots, bool decimalDegrees, bool ignoreStars)
         {
             const string DefaultSize = "2";
 
             topoData.Entree = slots[0];
             topoData.Sortie = slots[1];
+
+            if (topoData.Sortie == "*" && ignoreStars)
+                return null;
+
             topoData.Longueur = float.Parse(slots[2], CultureInfo.InvariantCulture);
             topoData.Cap = ParseAngle(float.Parse(slots[3], CultureInfo.InvariantCulture), decimalDegrees);
             topoData.Pente = ParseAngle(float.Parse(slots[4], CultureInfo.InvariantCulture), decimalDegrees);
@@ -177,7 +185,7 @@ namespace SampleApp
             return VectorsExtensions.CreateColor(slots[0], slots[1], slots[2]);
         }
 
-        internal static VisualTopoModel ParseFile(string vtopoFile, Encoding encoding, bool decimalDegrees)
+        internal static VisualTopoModel ParseFile(string vtopoFile, Encoding encoding, bool decimalDegrees, bool ignoreStars)
         {
             VisualTopoModel model = new VisualTopoModel();
             using (StreamReader sr = new StreamReader(vtopoFile, encoding))
@@ -186,7 +194,7 @@ namespace SampleApp
 
                 while (!sr.EndOfStream)
                 {
-                    model = VisualTopoParser.ParseSet(model, sr, decimalDegrees);
+                    model = VisualTopoParser.ParseSet(model, sr, decimalDegrees, ignoreStars);
                 }
             }
 
