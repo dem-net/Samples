@@ -86,7 +86,7 @@ namespace SampleApp
             ImageryProvider provider = ImageryProvider.MapBoxSatellite;// new TileDebugProvider(new GeoPoint(43.5,5.5));
             int TEXTURE_TILES = 12; // 4: med, 8: high
             //string vtopoFile = Path.Combine("SampleData", "VisualTopo", "topo asperge avec ruisseau.TRO");
-            string vtopoFile = Path.Combine("SampleData", "VisualTopo", "Olivier.TRO");
+            string vtopoFile = Path.Combine("SampleData", "VisualTopo", "Olivier4326.TRO");
             //string vtopoFile = Path.Combine("SampleData", "VisualTopo", "topo asperge avec ruisseau - set1.TRO");
             //string vtopoFile = Path.Combine("SampleData", "VisualTopo", "LA SALLE.TRO");
 
@@ -96,7 +96,8 @@ namespace SampleApp
             var b = GetBranches(model); // for debug
             var topo3DLine = GetBranchesVectors(model, zFactor: 1f);
 
-
+            var pt = new GeoPoint(43.5435507, 2.8975941).ReprojectTo(4326, 3857);
+            pt = pt.ReprojectTo(3857, 4326);
             var entryPoint4326 = model.EntryPoint.Clone().ReprojectTo(model.SRID, dataset.SRID);
             SexagesimalAngle lat = SexagesimalAngle.FromDouble(entryPoint4326.Latitude);
             SexagesimalAngle lon = SexagesimalAngle.FromDouble(entryPoint4326.Longitude);
@@ -108,7 +109,7 @@ namespace SampleApp
 
             IEnumerable<GeoPoint> Transform(IEnumerable<GeoPoint> line)
             {
-                var newLine = line.Translate(model.EntryPoint).ReprojectTo(model.SRID, 3857);
+                var newLine = line.Translate(origin).ReprojectTo(model.SRID, 3857);
                 return newLine;
             };
 
