@@ -82,27 +82,32 @@ namespace SampleApp
             float zFactor = 3F;
             float lineWidth = 1.0F;
             float scaleMargin = 1.5F;
-            DEMDataSet dataset = DEMDataSet.AW3D30; 
-            ImageryProvider provider = ImageryProvider.ThunderForestOutdoors;// new TileDebugProvider(new GeoPoint(43.5,5.5));
+            DEMDataSet dataset = DEMDataSet.AW3D30;
+            ImageryProvider provider = ImageryProvider.MapBoxSatellite;// new TileDebugProvider(new GeoPoint(43.5,5.5));
             int TEXTURE_TILES = 8; // 4: med, 8: high
-            string vtopoFile = Path.Combine("SampleData", "VisualTopo", "topo asperge avec ruisseau.TRO");
+            //string vtopoFile = Path.Combine("SampleData", "VisualTopo", "topo asperge avec ruisseau.TRO");
+            string vtopoFile = Path.Combine("SampleData", "VisualTopo", "Olivier.TRO");
             //string vtopoFile = Path.Combine("SampleData", "VisualTopo", "topo asperge avec ruisseau - set1.TRO");
             //string vtopoFile = Path.Combine("SampleData", "VisualTopo", "LA SALLE.TRO");
 
             VisualTopoModel model = VisualTopoParser.ParseFile(vtopoFile, Encoding.GetEncoding("ISO-8859-1"), decimalDegrees: true, ignoreStars: true);
-            model.EntryPoint.ReprojectTo(model.SRID, 3857);
-            model.SRID = 3857;
             CreateGraph(model);
+            // Olivier Mag Dec : 1° 15.44' East
             var b = GetBranches(model); // for debug
             var topo3DLine = GetBranchesVectors(model, zFactor: 1f);
-                        
+
+
+            var entryPoint4326 = model.EntryPoint.Clone().ReprojectTo(model.SRID, dataset.SRID);
+            SexagesimalAngle lat = SexagesimalAngle.FromDouble(entryPoint4326.Latitude);
+            SexagesimalAngle lon = SexagesimalAngle.FromDouble(entryPoint4326.Longitude);
+
             // Z fixed to DEM
-            model.EntryPoint.Elevation = _elevationService.GetPointElevation(model.EntryPoint.Clone().ReprojectTo(model.SRID, dataset.SRID), dataset).Elevation ?? 0;
+            model.EntryPoint.Elevation = _elevationService.GetPointElevation(entryPoint4326, dataset).Elevation ?? 0;
             var origin = model.EntryPoint;
 
             IEnumerable<GeoPoint> Transform(IEnumerable<GeoPoint> line)
             {
-                var newLine = line.Translate(origin);
+                var newLine = line.Translate(origin).ReprojectTo(model.SRID, 3857);
                 return newLine;
             };
 
@@ -122,19 +127,24 @@ namespace SampleApp
             gltfModel = _gltfService.AddLine(gltfModel, "Y", Transform(repereY), VectorsExtensions.CreateColor(0, 255, 0, 255), 5F);
             gltfModel = _gltfService.AddLine(gltfModel, "Z", Transform(repereZ), VectorsExtensions.CreateColor(0, 0, 255, 255), 5F);
 
-
+            BoundingBox bbox = new BoundingBox() { SRID = model.SRID };
+            foreach (var line in topo3DLine)
+            {
+                foreach (var p in line)
+                {
+                    var pProjModel = new GeoPoint(p.Latitude + origin.Latitude, p.Longitude + origin.Longitude, p.Elevation.GetValueOrDefault(0) + origin.Elevation.Value);
+                    bbox.UnionWith(pProjModel.Longitude, pProjModel.Latitude, pProjModel.Elevation ?? 0);
+                }
+            }
             // Terrain
-            var bbox = model.BoundingBox
-                         .Translate(origin.Longitude, origin.Latitude, 0)
-                         .Scale(scaleMargin)
-                         .ReprojectTo(model.SRID, dataset.SRID);
-            
+            bbox = bbox.Pad(1000).ReprojectTo(model.SRID,4326);
+
             string outputDir = Directory.GetCurrentDirectory();
             var heightMap = _elevationService.GetHeightMap(ref bbox, dataset, true);
-            
+
             _logger.LogInformation($"Processing height map data ({heightMap.Count} coordinates)...");
 
-            heightMap = heightMap.ReprojectTo(dataset.SRID, model.SRID);
+            heightMap = heightMap.ReprojectTo(dataset.SRID, 3857);
 
             //if (_centerOnOrigin)
             //{
@@ -189,7 +199,7 @@ namespace SampleApp
             //string vtopoFile = Path.Combine("SampleData", "VisualTopo", "topo asperge avec ruisseau.TRO");
             string vtopoFile = Path.Combine("SampleData", "VisualTopo", "LA SALLE.TRO");
 
-            VisualTopoModel model = VisualTopoParser.ParseFile(vtopoFile, Encoding.GetEncoding("ISO-8859-1"), decimalDegrees: true, ignoreStars: true);
+            VisualTopoModel model = VisualTopoParser.ParseFile(vtopoFile, Encoding.GetEncoding("ISO-8859-1"),   decimalDegrees: true, ignoreStars: true);
             CreateGraph(model);
             var b = GetBranches(model); // for debug
             var topo3DLine = GetBranchesVectors(model, zFactor: 1f);
@@ -260,7 +270,7 @@ namespace SampleApp
 
             var p = node.Model;
             var currentVec = Vector3.UnitX * p.Longueur;
-            var matrix = Matrix4x4.CreateRotationY((float)MathHelper.ToRadians(-p.Pente)) * Matrix4x4.CreateRotationZ((float)MathHelper.ToRadians(p.Cap+180));
+            var matrix = Matrix4x4.CreateRotationY((float)MathHelper.ToRadians(-p.Pente)) * Matrix4x4.CreateRotationZ((float)MathHelper.ToRadians(p.Cap));
             currentVec = Vector3.Transform(currentVec, matrix);
             currentVec += local;
             p.GlobalVector = currentVec;

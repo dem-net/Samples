@@ -40,16 +40,18 @@ namespace SampleApp
         {
             var data = entry.Split(',');
             model.Name = data[0];
-            model.EntryPoint = new GeoPoint(
-                double.Parse(data[2], CultureInfo.InvariantCulture) * 1000d
-                , double.Parse(data[1], CultureInfo.InvariantCulture) * 1000d
-                , double.Parse(data[3], CultureInfo.InvariantCulture));
             model.EntryPointProjectionCode = data[4];
+            double factor = model.EntryPointProjectionCode == "WGS84" ? 1d : 1000d;
+            model.EntryPoint = new GeoPoint(
+                double.Parse(data[2], CultureInfo.InvariantCulture) * factor
+                , double.Parse(data[1], CultureInfo.InvariantCulture) * factor
+                , double.Parse(data[3], CultureInfo.InvariantCulture));
             int srid = 0;
             switch (model.EntryPointProjectionCode)
             {
                 case "UTM31": srid = 32631; break;
                 case "LT3": srid = 27573; break;
+                case "WGS84": srid = 4326; break;
                 default: throw new NotImplementedException($"Projection not {model.EntryPointProjectionCode} not implemented");
             };
             model.SRID = srid;
