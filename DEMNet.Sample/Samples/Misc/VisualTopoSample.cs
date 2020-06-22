@@ -63,10 +63,10 @@ namespace SampleApp
         public void Run()
         {
 
-
-            float zFactor = 3F;
+            int outputSRID = 3857;
+            float zFactor = 2F;
             float lineWidth = 1.0F;
-            float scaleMargin = 1.5F;
+            float marginMeters = 1000;
             DEMDataSet dataset = DEMDataSet.AW3D30;
             ImageryProvider provider = ImageryProvider.MapBoxSatelliteStreet;// new TileDebugProvider(new GeoPoint(43.5,5.5));
             int TEXTURE_TILES = 12; // 4: med, 8: high
@@ -78,34 +78,36 @@ namespace SampleApp
             VisualTopoModel model = VisualTopoParser.ParseFile(vtopoFile, Encoding.GetEncoding("ISO-8859-1"), decimalDegrees: true, ignoreStars: true);
             CreateGraph(model);
             // Olivier Mag Dec : 1° 15.44' East
-            var b = GetBranches(model); // for debug
+            //var b = GetBranches(model); // for debug
             var topo3DLine = GetBranchesVectors(model, zFactor: 1f);
-            var lowest = model.Sets.Min(s => s.Data.Min(d => d.GlobalGeoPoint?.Elevation??0));
+            var lowestPoint = model.Sets.Min(s => s.Data.Min(d => d.GlobalGeoPoint?.Elevation??0));
 
-            var pt = new GeoPoint(43.5435507, 2.8975941).ReprojectTo(4326, 3857);
-            pt = pt.ReprojectTo(3857, 4326);
             var entryPoint4326 = model.EntryPoint.Clone().ReprojectTo(model.SRID, dataset.SRID);
-            SexagesimalAngle lat = SexagesimalAngle.FromDouble(entryPoint4326.Latitude);
-            SexagesimalAngle lon = SexagesimalAngle.FromDouble(entryPoint4326.Longitude);
+            //SexagesimalAngle lat = SexagesimalAngle.FromDouble(entryPoint4326.Latitude);
+            //SexagesimalAngle lon = SexagesimalAngle.FromDouble(entryPoint4326.Longitude);
 
             BoundingBox bbox = model.BoundingBox;
             bbox = bbox.Translate(model.EntryPoint.Longitude, model.EntryPoint.Latitude, model.EntryPoint.Elevation ?? 0)
-                        .Pad(1000)
+                        .Pad(marginMeters)
                         .ReprojectTo(model.SRID, dataset.SRID);
             var heightMap = _elevationService.GetHeightMap(ref bbox, dataset, true);
 
-            var bbox3857 = bbox.ReprojectTo(dataset.SRID, 3857);
+            var bboxoutputSRID = bbox.ReprojectTo(dataset.SRID, outputSRID);
 
             // Z fixed to DEM
             _elevationService.DownloadMissingFiles(dataset, entryPoint4326);
             model.EntryPoint.Elevation = _elevationService.GetPointElevation(entryPoint4326, dataset).Elevation ?? 0;
-            var origin = model.EntryPoint.Clone().ReprojectTo(model.SRID, 3857);
+            var origin = model.EntryPoint.Clone().ReprojectTo(model.SRID, outputSRID);
 
             IEnumerable<GeoPoint> Transform(IEnumerable<GeoPoint> line)
             {
-                var newLine = line.Translate(model.EntryPoint).ToList();
-                newLine = newLine.ReprojectTo(model.SRID, 3857).ToList();
-                newLine = newLine.CenterOnOrigin(bbox3857).ToList();
+                //var newLine = line.Translate(model.EntryPoint).ToList();
+                //newLine = newLine.ReprojectTo(model.SRID, outputSRID).ToList();
+                //newLine = newLine.CenterOnOrigin(bboxoutputSRID).ToList();
+                var newLine = line.Translate(model.EntryPoint)
+                                    .ReprojectTo(model.SRID, outputSRID)
+                                    .ZScale(zFactor)
+                                    .CenterOnOrigin(bboxoutputSRID);
                 return newLine;
             };
 
@@ -121,24 +123,21 @@ namespace SampleApp
             var repereX = new List<GeoPoint>() { GeoPoint.Zero, GeoPoint.UnitX * 50F };
             var repereY = new List<GeoPoint>() { GeoPoint.Zero, GeoPoint.UnitY * 50F };
             var repereZ = new List<GeoPoint>() { GeoPoint.Zero, GeoPoint.UnitZ * 50F };
-            gltfModel = _gltfService.AddLine(gltfModel, "X", Transform(repereX), VectorsExtensions.CreateColor(255, 0, 0, 255), 5F);
-            gltfModel = _gltfService.AddLine(gltfModel, "Y", Transform(repereY), VectorsExtensions.CreateColor(0, 255, 0, 255), 5F);
-            gltfModel = _gltfService.AddLine(gltfModel, "Z", Transform(repereZ), VectorsExtensions.CreateColor(0, 0, 255, 255), 5F);
+            gltfModel = _gltfService.AddLine(gltfModel, "Axis", Transform(repereX), VectorsExtensions.CreateColor(255, 0, 0, 255), 5F);
+            gltfModel = _gltfService.AddLine(gltfModel, "Axis", Transform(repereY), VectorsExtensions.CreateColor(0, 255, 0, 255), 5F);
+            gltfModel = _gltfService.AddLine(gltfModel, "Axis", Transform(repereZ), VectorsExtensions.CreateColor(0, 0, 255, 255), 5F);
 
-            gltfModel.SaveGLB(string.Concat(Path.GetFileNameWithoutExtension(vtopoFile) + "_TopoOnly.glb"));
-
-            
+            gltfModel.SaveGLB(string.Concat(Path.GetFileNameWithoutExtension(vtopoFile) + "_TopoOnly.glb"));            
 
             string outputDir = Directory.GetCurrentDirectory();
 
             _logger.LogInformation($"Processing height map data ({heightMap.Count} coordinates)...");
 
-            heightMap = heightMap.ReprojectTo(dataset.SRID, 3857);
-
-            heightMap = heightMap.CenterOnOrigin(bbox3857).BakeCoordinates();
-            //}
-            //hMap = hMap.ZScale(_zFactor);
-
+            heightMap = heightMap.ReprojectTo(dataset.SRID, outputSRID)
+                                .CenterOnOrigin(bboxoutputSRID)
+                                .ZScale(zFactor)
+                                .BakeCoordinates();
+            
             //=======================
             // Textures
             //
@@ -159,20 +158,8 @@ namespace SampleApp
                 //TextureInfo texInfo = _imageryService.ConstructTextureWithGpxTrack(tiles, bbox, fileName, TextureImageFormat.image_jpeg
                 //    , topoTexture, false);
 
-                //
-                //=======================
+                pbrTexture = PBRTexture.Create(texInfo, null);
 
-                //=======================
-                // Normal map
-                Console.WriteLine("Height map...");
-                //float Z_FACTOR = 0.00002f;
-
-                //hMap = hMap.CenterOnOrigin().ZScale(Z_FACTOR);
-                TextureInfo normalMap = null; //_imageryService.GenerateNormalMap(heightMap, outputDir);
-
-                pbrTexture = PBRTexture.Create(texInfo, normalMap);
-
-                //hMap = hMap.CenterOnOrigin(Z_FACTOR);
                 //
                 //=======================
             }
@@ -184,43 +171,6 @@ namespace SampleApp
             gltfModel.SaveGLB(string.Concat(Path.GetFileNameWithoutExtension(vtopoFile) + ".glb"));
         }
 
-        public void ExportVTopoToGlTF()
-        {
-            //string vtopoFile = Path.Combine("SampleData", "VisualTopo", "topo asperge avec ruisseau.TRO");
-            string vtopoFile = Path.Combine("SampleData", "VisualTopo", "LA SALLE.TRO");
-
-            VisualTopoModel model = VisualTopoParser.ParseFile(vtopoFile, Encoding.GetEncoding("ISO-8859-1"), decimalDegrees: true, ignoreStars: true);
-            CreateGraph(model);
-            var b = GetBranches(model); // for debug
-            var topo3DLine = GetBranchesVectors(model, zFactor: 1f);
-
-            var origin = model.EntryPoint.Clone().ReprojectTo(model.SRID, 3857);
-            var bbox = model.BoundingBox
-                            .Translate(model.EntryPoint.Longitude, model.EntryPoint.Latitude, model.EntryPoint.Elevation ?? 0)
-                            .ReprojectTo(model.SRID, 3857);
-
-            IEnumerable<GeoPoint> Transform(IEnumerable<GeoPoint> line)
-            {
-                return line.Translate(origin);
-            };
-
-            var gltfModel = _gltfService.CreateNewModel();
-            int i = 0;
-            var rnd = new Random();
-            foreach (var line in topo3DLine)
-            {
-                var color = VectorsExtensions.CreateColor((byte)rnd.Next(0, 255), (byte)rnd.Next(0, 255), (byte)rnd.Next(0, 255));
-                //var color = VectorsExtensions.CreateColor(255, 0, 0, 255);
-                gltfModel = _gltfService.AddLine(gltfModel, "GPX" + (i++), Transform(line), color, 5F);
-            }
-            var repereX = new List<GeoPoint>() { GeoPoint.Zero, GeoPoint.UnitX * 10F };
-            var repereY = new List<GeoPoint>() { GeoPoint.Zero, GeoPoint.UnitY * 10F };
-            var repereZ = new List<GeoPoint>() { GeoPoint.Zero, GeoPoint.UnitZ * 10F };
-            gltfModel = _gltfService.AddLine(gltfModel, "X", Transform(repereX), VectorsExtensions.CreateColor(255, 0, 0, 255), 0.5F);
-            gltfModel = _gltfService.AddLine(gltfModel, "Y", Transform(repereY), VectorsExtensions.CreateColor(0, 255, 0, 255), 0.5F);
-            gltfModel = _gltfService.AddLine(gltfModel, "Z", Transform(repereZ), VectorsExtensions.CreateColor(0, 0, 255, 255), 0.5F);
-            gltfModel.SaveGLB(string.Concat(Path.GetFileNameWithoutExtension(vtopoFile) + ".glb"));
-        }
 
         private void CreateGraph(VisualTopoModel model)
         {
