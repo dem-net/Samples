@@ -51,7 +51,7 @@ namespace SampleApp
         {
             get
             {
-                var bbox = new BoundingBox();
+                var bbox = new BoundingBox() { SRID = this.SRID };
                 Graph.AllNodes.ForEach(n => { if (n.Model.GlobalGeoPoint != null) bbox.UnionWith(n.Model.GlobalGeoPoint.Longitude, n.Model.GlobalGeoPoint.Latitude, n.Model.GlobalGeoPoint.Elevation ?? 0); });
                 return bbox;
             }
