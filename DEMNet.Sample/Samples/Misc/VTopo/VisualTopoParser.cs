@@ -95,12 +95,12 @@ namespace SampleApp
 
         public static void Build3DTopology(VisualTopoModel model, float zFactor)
         {
-            List<List<GeoPoint>> branches = new List<List<GeoPoint>>();
+            List<List<GeoPointRays>> branches = new List<List<GeoPointRays>>();
             GetBranchesVectors(model.Graph.Root, branches, null, Vector3.Zero, zFactor);
             model.Topology3D = branches;
         }
 
-        private static void GetBranchesVectors(Node<VisualTopoData> node, List<List<GeoPoint>> branches, List<GeoPoint> current, Vector3 local, float zFactor)
+        private static void GetBranchesVectors(Node<VisualTopoData> node, List<List<GeoPointRays>> branches, List<GeoPointRays> current, Vector3 local, float zFactor)
         {
 
             var p = node.Model;
@@ -109,9 +109,9 @@ namespace SampleApp
             currentVec = Vector3.Transform(currentVec, matrix);
             currentVec += local;
             p.GlobalVector = currentVec;
-            p.GlobalGeoPoint = new GeoPoint(p.GlobalVector.X, p.GlobalVector.Y, p.GlobalVector.Z * zFactor);
+            p.GlobalGeoPoint = new GeoPointRays(new GeoPoint(p.GlobalVector.X, p.GlobalVector.Y, p.GlobalVector.Z * zFactor), p.Section.left, p.Section.right, p.Section.up, p.Section.down);
 
-            if (current == null) current = new List<GeoPoint>();
+            if (current == null) current = new List<GeoPointRays>();
             if (node.Arcs.Count == 0)
             {
                 current.Add(node.Model.GlobalGeoPoint);
@@ -133,7 +133,7 @@ namespace SampleApp
                     }
                     else
                     {
-                        var newBranch = new List<GeoPoint>();
+                        var newBranch = new List<GeoPointRays>();
                         newBranch.Add(node.Model.GlobalGeoPoint);
                         GetBranchesVectors(arc.Child, branches, newBranch, node.Model.GlobalVector, zFactor);
                     }
@@ -182,6 +182,7 @@ namespace SampleApp
 
 
         #region Parsing
+
         private static void ParseEntryHeader(VisualTopoModel model, string entry)
         {
             var data = entry.Split(',');
@@ -294,12 +295,10 @@ namespace SampleApp
             topoData.Longueur = float.Parse(slots[2], CultureInfo.InvariantCulture);
             topoData.Cap = ParseAngle(float.Parse(slots[3], CultureInfo.InvariantCulture), decimalDegrees);
             topoData.Pente = ParseAngle(float.Parse(slots[4], CultureInfo.InvariantCulture), decimalDegrees);
-            topoData.Section = new BoundingBox(
-                                    float.Parse(slots[5] == "*" ? DefaultSize : slots[5], CultureInfo.InvariantCulture),
-                                    float.Parse(slots[6] == "*" ? DefaultSize : slots[6], CultureInfo.InvariantCulture),
-                                    float.Parse(slots[8] == "*" ? DefaultSize : slots[8], CultureInfo.InvariantCulture),
-                                    float.Parse(slots[7] == "*" ? DefaultSize : slots[7], CultureInfo.InvariantCulture)
-                                    );
+            topoData.Section = (left: float.Parse(slots[5] == "*" ? DefaultSize : slots[5], CultureInfo.InvariantCulture),
+                                right: float.Parse(slots[6] == "*" ? DefaultSize : slots[6], CultureInfo.InvariantCulture),
+                                up: float.Parse(slots[8] == "*" ? DefaultSize : slots[8], CultureInfo.InvariantCulture),
+                                down: float.Parse(slots[7] == "*" ? DefaultSize : slots[7], CultureInfo.InvariantCulture));
 
             return topoData;
         }
@@ -333,6 +332,7 @@ namespace SampleApp
                         .ToArray();
             return VectorsExtensions.CreateColor(slots[0], slots[1], slots[2]);
         }
+
         #endregion
 
     }

@@ -28,6 +28,7 @@ using System.Collections.Generic;
 using System.Numerics;
 using DEM.Net.Graph.GenericWeightedGraph;
 using System.Linq;
+using System.Runtime.InteropServices;
 
 namespace SampleApp
 {
@@ -57,7 +58,7 @@ namespace SampleApp
             }
         }
 
-        public List<List<GeoPoint>> Topology3D { get; internal set; }
+        public List<List<GeoPointRays>> Topology3D { get; internal set; }
     }
 
     public class VisualTopoSet
@@ -79,9 +80,9 @@ namespace SampleApp
         public float Longueur { get; internal set; }
         public float Cap { get; internal set; }
         public float Pente { get; internal set; }
-        public BoundingBox Section { get; internal set; }
+        public (float left, float right, float up, float down) Section { get; internal set; }
         public Vector3 GlobalVector { get; internal set; }
-        public GeoPoint GlobalGeoPoint { get; internal set; }
+        public GeoPointRays GlobalGeoPoint { get; internal set; }
     }
 
 

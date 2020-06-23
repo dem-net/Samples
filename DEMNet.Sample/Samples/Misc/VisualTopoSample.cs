@@ -109,6 +109,14 @@ namespace SampleApp
                                     .CenterOnOrigin(bboxoutputSRID);
                 return newLine;
             };
+            IEnumerable<GeoPoint> TransformRays(IEnumerable<GeoPointRays> line)
+            {
+                //var newLine = line.Translate(model.EntryPoint).ToList();
+                //newLine = newLine.ReprojectTo(model.SRID, outputSRID).ToList();
+                //newLine = newLine.CenterOnOrigin(bboxoutputSRID).ToList();
+                var newLine = Transform(line.Select(l => l.GeoPoint));
+                return newLine;
+            };
 
             var gltfModel = _gltfService.CreateNewModel();
             int i = 0;
@@ -117,7 +125,7 @@ namespace SampleApp
             {
                 //var color = VectorsExtensions.CreateColor((byte)rnd.Next(0, 255), (byte)rnd.Next(0, 255), (byte)rnd.Next(0, 255));
                 var color = VectorsExtensions.CreateColor(255, 0, 0, 255);
-                gltfModel = _gltfService.AddLine(gltfModel, "GPX" + (i++), Transform(line), color, lineWidth);
+                gltfModel = _gltfService.AddLine(gltfModel, "GPX" + (i++), TransformRays(line), color, lineWidth);
             }
             var repereX = new List<GeoPoint>() { GeoPoint.Zero, GeoPoint.UnitX * 50F };
             var repereY = new List<GeoPoint>() { GeoPoint.Zero, GeoPoint.UnitY * 50F };
