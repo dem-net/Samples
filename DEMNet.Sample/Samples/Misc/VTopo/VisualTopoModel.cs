@@ -56,6 +56,8 @@ namespace SampleApp
                 return bbox;
             }
         }
+
+        public List<List<GeoPoint>> Topology3D { get; internal set; }
     }
 
     public class VisualTopoSet

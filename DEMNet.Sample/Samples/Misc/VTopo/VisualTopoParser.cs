@@ -24,7 +24,9 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using DEM.Net.Core;
+using DEM.Net.Graph.GenericWeightedGraph;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
@@ -36,7 +38,151 @@ namespace SampleApp
 {
     public static class VisualTopoParser
     {
-        internal static void ParseEntryHeader(VisualTopoModel model, string entry)
+        public static VisualTopoModel ParseFile(string vtopoFile, Encoding encoding, bool decimalDegrees, bool ignoreStars, float zFactor)
+        {
+            VisualTopoModel model = new VisualTopoModel();
+
+            // ========================
+            // Parsing
+            using (StreamReader sr = new StreamReader(vtopoFile, encoding))
+            {
+                model = VisualTopoParser.ParseHeader(model, sr);
+
+                while (!sr.EndOfStream)
+                {
+                    model = VisualTopoParser.ParseSet(model, sr, decimalDegrees, ignoreStars);
+                }
+            }
+
+            // ========================
+            // Graph
+            CreateGraph(model);
+
+
+            // ========================
+            // 3D model
+            Build3DTopology(model, zFactor);
+
+            return model;
+        }
+
+
+        private static void CreateGraph(VisualTopoModel model)
+        {
+            Dictionary<string, Node<VisualTopoData>> nodesByName = new Dictionary<string, Node<VisualTopoData>>();
+
+            foreach (var data in model.Sets.SelectMany(s => s.Data))
+            {
+                if (data.Entree == data.Sortie && data.Entree == model.Entree)
+                {
+                    var node = model.Graph.CreateRoot(data, data.Entree);
+                    nodesByName[node.Key] = node;
+                }
+                else
+                {
+
+                    var node = model.Graph.CreateNode(data, data.Sortie);
+                    if (!nodesByName.ContainsKey(data.Entree))
+                    {
+                        // Début graphe disjoint
+                        nodesByName[data.Entree] = node;
+                    }
+                    nodesByName[data.Entree].AddArc(node, data.Longueur);
+                    nodesByName[node.Key] = node;
+                }
+            }
+        }
+
+        public static void Build3DTopology(VisualTopoModel model, float zFactor)
+        {
+            List<List<GeoPoint>> branches = new List<List<GeoPoint>>();
+            GetBranchesVectors(model.Graph.Root, branches, null, Vector3.Zero, zFactor);
+            model.Topology3D = branches;
+        }
+
+        private static void GetBranchesVectors(Node<VisualTopoData> node, List<List<GeoPoint>> branches, List<GeoPoint> current, Vector3 local, float zFactor)
+        {
+
+            var p = node.Model;
+            var currentVec = Vector3.UnitX * p.Longueur;
+            var matrix = Matrix4x4.CreateRotationY((float)MathHelper.ToRadians(-p.Pente)) * Matrix4x4.CreateRotationZ((float)MathHelper.ToRadians(p.Cap));
+            currentVec = Vector3.Transform(currentVec, matrix);
+            currentVec += local;
+            p.GlobalVector = currentVec;
+            p.GlobalGeoPoint = new GeoPoint(p.GlobalVector.X, p.GlobalVector.Y, p.GlobalVector.Z * zFactor);
+
+            if (current == null) current = new List<GeoPoint>();
+            if (node.Arcs.Count == 0)
+            {
+                current.Add(node.Model.GlobalGeoPoint);
+                branches.Add(current);
+                return;
+            }
+            else
+            {
+                bool firstArc = true;
+                foreach (var arc in node.Arcs)
+                {
+                    if (firstArc)
+                    {
+                        firstArc = false;
+
+                        current.Add(node.Model.GlobalGeoPoint);
+
+                        GetBranchesVectors(arc.Child, branches, current, node.Model.GlobalVector, zFactor);
+                    }
+                    else
+                    {
+                        var newBranch = new List<GeoPoint>();
+                        newBranch.Add(node.Model.GlobalGeoPoint);
+                        GetBranchesVectors(arc.Child, branches, newBranch, node.Model.GlobalVector, zFactor);
+                    }
+                }
+            }
+        }
+        private static void GetBranches<T>(Node<VisualTopoData> node, List<List<T>> branches, List<T> current, Func<VisualTopoData, T> extractInfo)
+        {
+            if (current == null) current = new List<T>();
+
+            T info = extractInfo(node.Model);
+            if (node.Arcs.Count == 0)
+            {
+                current.Add(info);
+                branches.Add(current);
+                return;
+            }
+            else
+            {
+                bool firstArc = true;
+                foreach (var arc in node.Arcs)
+                {
+                    if (firstArc)
+                    {
+                        firstArc = false;
+                        current.Add(info);
+                        GetBranches(arc.Child, branches, current, extractInfo);
+                    }
+                    else
+                    {
+                        var newBranch = new List<T>();
+                        newBranch.Add(info);
+                        GetBranches(arc.Child, branches, newBranch, extractInfo);
+                    }
+                }
+            }
+        }
+
+        // Useful to debug : output graph as node names
+        public static List<List<string>> GetBranchesNodeNames(VisualTopoModel model)
+        {
+            List<List<string>> branches = new List<List<string>>();
+            GetBranches(model.Graph.Root, branches, null, n => n.Sortie);
+            return branches;
+        }
+
+
+        #region Parsing
+        private static void ParseEntryHeader(VisualTopoModel model, string entry)
         {
             var data = entry.Split(',');
             model.Name = data[0];
@@ -59,7 +205,7 @@ namespace SampleApp
             model.EntryPoint = model.EntryPoint;
         }
 
-        internal static VisualTopoModel ParseHeader(VisualTopoModel model, StreamReader sr)
+        private static VisualTopoModel ParseHeader(VisualTopoModel model, StreamReader sr)
         {
 
             sr.ReadUntil(string.IsNullOrWhiteSpace);
@@ -90,7 +236,7 @@ namespace SampleApp
             return model;
         }
 
-        internal static VisualTopoModel ParseSet(VisualTopoModel model, StreamReader sr, bool decimalDegrees, bool ignoreStars)
+        private static VisualTopoModel ParseSet(VisualTopoModel model, StreamReader sr, bool decimalDegrees, bool ignoreStars)
         {
             VisualTopoSet set = new VisualTopoSet();
 
@@ -105,7 +251,7 @@ namespace SampleApp
             // Set header
             var data = setHeader.Split(';', StringSplitOptions.RemoveEmptyEntries);
             var headerSlots = data[0].Split(' ', StringSplitOptions.RemoveEmptyEntries);
-            set.Color = VisualTopoParser.ParseColor(headerSlots[headerSlots.Length-3]);
+            set.Color = VisualTopoParser.ParseColor(headerSlots[headerSlots.Length - 3]);
             set.Name = data.Length > 1 ? data[1].Trim() : string.Empty;
 
             sr.Skip(1);
@@ -187,22 +333,8 @@ namespace SampleApp
                         .ToArray();
             return VectorsExtensions.CreateColor(slots[0], slots[1], slots[2]);
         }
+        #endregion
 
-        internal static VisualTopoModel ParseFile(string vtopoFile, Encoding encoding, bool decimalDegrees, bool ignoreStars)
-        {
-            VisualTopoModel model = new VisualTopoModel();
-            using (StreamReader sr = new StreamReader(vtopoFile, encoding))
-            {
-                model = VisualTopoParser.ParseHeader(model, sr);
-
-                while (!sr.EndOfStream)
-                {
-                    model = VisualTopoParser.ParseSet(model, sr, decimalDegrees, ignoreStars);
-                }
-            }
-
-            return model;
-        }
     }
 
 
