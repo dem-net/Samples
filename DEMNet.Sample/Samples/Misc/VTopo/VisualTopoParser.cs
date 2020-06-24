@@ -38,7 +38,7 @@ namespace SampleApp
 {
     public static class VisualTopoParser
     {
-        public static VisualTopoModel ParseFile(string vtopoFile, Encoding encoding, bool decimalDegrees, bool ignoreStars, float zFactor)
+        public static VisualTopoModel ParseFile(string vtopoFile, Encoding encoding, bool decimalDegrees, bool ignoreRadialBeams, float zFactor)
         {
             VisualTopoModel model = new VisualTopoModel();
 
@@ -50,7 +50,7 @@ namespace SampleApp
 
                 while (!sr.EndOfStream)
                 {
-                    model = VisualTopoParser.ParseSet(model, sr, decimalDegrees, ignoreStars);
+                    model = VisualTopoParser.ParseSet(model, sr, decimalDegrees, ignoreRadialBeams);
                 }
             }
 
@@ -109,7 +109,7 @@ namespace SampleApp
             currentVec = Vector3.Transform(currentVec, matrix);
             currentVec += local;
             p.GlobalVector = currentVec;
-            p.GlobalGeoPoint = new GeoPointRays(new GeoPoint(p.GlobalVector.X, p.GlobalVector.Y, p.GlobalVector.Z * zFactor), p.Section.left, p.Section.right, p.Section.up, p.Section.down);
+            p.GlobalGeoPoint = new GeoPointRays(p.GlobalVector.X, p.GlobalVector.Y, p.GlobalVector.Z * zFactor, p.Section.left, p.Section.right, p.Section.up, p.Section.down);
 
             if (current == null) current = new List<GeoPointRays>();
             if (node.Arcs.Count == 0)
@@ -192,8 +192,14 @@ namespace SampleApp
             int srid = 0;
             switch (model.EntryPointProjectionCode)
             {
-                case "UTM31": factor = 1000d; srid = 32631; break;
-                case "LT3": factor = 1000d; srid = 27573; break;
+                case "UTM31":
+                    factor = 1000d;
+                    srid = 32631;
+                    break;
+                case "LT3": 
+                    factor = 1000d; 
+                    srid = 27573;
+                    break;
                 case "WGS84": factor = 1d; srid = 4326; break;
                 case "WebMercator": factor = 1d; srid = 3857; break;
                 default: throw new NotImplementedException($"Projection not {model.EntryPointProjectionCode} not implemented");
@@ -237,7 +243,7 @@ namespace SampleApp
             return model;
         }
 
-        private static VisualTopoModel ParseSet(VisualTopoModel model, StreamReader sr, bool decimalDegrees, bool ignoreStars)
+        private static VisualTopoModel ParseSet(VisualTopoModel model, StreamReader sr, bool decimalDegrees, bool ignoreRadialBeams)
         {
             VisualTopoSet set = new VisualTopoSet();
 
@@ -268,7 +274,7 @@ namespace SampleApp
                 Debug.Assert(slots.Length == 13);
 
                 // Parse data line
-                topoData = VisualTopoParser.ParseData(topoData, slots, decimalDegrees, ignoreStars);
+                topoData = VisualTopoParser.ParseData(topoData, slots, decimalDegrees, ignoreRadialBeams);
                 if (topoData != null)
                 {
                     set.Data.Add(topoData);
@@ -282,14 +288,14 @@ namespace SampleApp
             return model;
         }
 
-        private static VisualTopoData ParseData(VisualTopoData topoData, string[] slots, bool decimalDegrees, bool ignoreStars)
+        private static VisualTopoData ParseData(VisualTopoData topoData, string[] slots, bool decimalDegrees, bool ignoreRadialBeams)
         {
             const string DefaultSize = "2";
 
             topoData.Entree = slots[0];
             topoData.Sortie = slots[1];
 
-            if (topoData.Sortie == "*" && ignoreStars)
+            if (topoData.Sortie == "*" && ignoreRadialBeams)
                 return null;
 
             topoData.Longueur = float.Parse(slots[2], CultureInfo.InvariantCulture);

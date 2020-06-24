@@ -62,123 +62,138 @@ namespace SampleApp
 
         public void Run()
         {
-
-            int outputSRID = 3857;
-            float zFactor = 1F;
-            float lineWidth = 1.0F;
-            float marginMeters = 1000;
-            DEMDataSet dataset = DEMDataSet.AW3D30;
-            ImageryProvider provider = ImageryProvider.MapBoxSatelliteStreet;// new TileDebugProvider(new GeoPoint(43.5,5.5));
-            int TEXTURE_TILES = 12; // 4: med, 8: high
-            //string vtopoFile = Path.Combine("SampleData", "VisualTopo", "topo asperge avec ruisseau.TRO");
-            //string vtopoFile = Path.Combine("SampleData", "VisualTopo", "Olivier4326.TRO");
-            //string vtopoFile = Path.Combine("SampleData", "VisualTopo", "topo asperge avec ruisseau - set1.TRO");
-            string vtopoFile = Path.Combine("SampleData", "VisualTopo", "LA SALLE.TRO");
-
-            VisualTopoModel model = VisualTopoParser.ParseFile(vtopoFile, Encoding.GetEncoding("ISO-8859-1"), decimalDegrees: true, ignoreStars: true, zFactor);
-            // Olivier Mag Dec : 1° 15.44' East
-            //var b = GetBranches(model); // for debug
-            var topo3DLine = model.Topology3D;
-            var lowestPoint = model.Sets.Min(s => s.Data.Min(d => d.GlobalGeoPoint?.Elevation ?? 0));
-
-            var entryPoint4326 = model.EntryPoint.Clone().ReprojectTo(model.SRID, dataset.SRID);
-            //SexagesimalAngle lat = SexagesimalAngle.FromDouble(entryPoint4326.Latitude);
-            //SexagesimalAngle lon = SexagesimalAngle.FromDouble(entryPoint4326.Longitude);
-
-            BoundingBox bbox = model.BoundingBox;
-            bbox = bbox.Translate(model.EntryPoint.Longitude, model.EntryPoint.Latitude, model.EntryPoint.Elevation ?? 0)
-                        .Pad(marginMeters)
-                        .ReprojectTo(model.SRID, dataset.SRID);
-            var heightMap = _elevationService.GetHeightMap(ref bbox, dataset, true);
-
-            var bboxoutputSRID = bbox.ReprojectTo(dataset.SRID, outputSRID);
-
-            // Z fixed to DEM
-            _elevationService.DownloadMissingFiles(dataset, entryPoint4326);
-            model.EntryPoint.Elevation = _elevationService.GetPointElevation(entryPoint4326, dataset).Elevation ?? 0;
-            var origin = model.EntryPoint.Clone().ReprojectTo(model.SRID, outputSRID);
-
-            IEnumerable<GeoPoint> Transform(IEnumerable<GeoPoint> line)
-            {
-                //var newLine = line.Translate(model.EntryPoint).ToList();
-                //newLine = newLine.ReprojectTo(model.SRID, outputSRID).ToList();
-                //newLine = newLine.CenterOnOrigin(bboxoutputSRID).ToList();
-                var newLine = line.Translate(model.EntryPoint)
-                                    .ReprojectTo(model.SRID, outputSRID)
-                                    .ZScale(zFactor)
-                                    .CenterOnOrigin(bboxoutputSRID);
-                return newLine;
-            };
-            IEnumerable<GeoPoint> TransformRays(IEnumerable<GeoPointRays> line)
-            {
-                //var newLine = line.Translate(model.EntryPoint).ToList();
-                //newLine = newLine.ReprojectTo(model.SRID, outputSRID).ToList();
-                //newLine = newLine.CenterOnOrigin(bboxoutputSRID).ToList();
-                var newLine = Transform(line.Select(l => l.GeoPoint));
-                return newLine;
-            };
-
-            var gltfModel = _gltfService.CreateNewModel();
-            int i = 0;
-            var rnd = new Random();
-            foreach (var line in topo3DLine)
-            {
-                //var color = VectorsExtensions.CreateColor((byte)rnd.Next(0, 255), (byte)rnd.Next(0, 255), (byte)rnd.Next(0, 255));
-                var color = VectorsExtensions.CreateColor(255, 0, 0, 255);
-                gltfModel = _gltfService.AddLine(gltfModel, "GPX" + (i++), TransformRays(line), color, lineWidth);
-            }
-            var repereX = new List<GeoPoint>() { GeoPoint.Zero, GeoPoint.UnitX * 50F };
-            var repereY = new List<GeoPoint>() { GeoPoint.Zero, GeoPoint.UnitY * 50F };
-            var repereZ = new List<GeoPoint>() { GeoPoint.Zero, GeoPoint.UnitZ * 50F };
-            gltfModel = _gltfService.AddLine(gltfModel, "Axis", Transform(repereX), VectorsExtensions.CreateColor(255, 0, 0, 255), 5F);
-            gltfModel = _gltfService.AddLine(gltfModel, "Axis", Transform(repereY), VectorsExtensions.CreateColor(0, 255, 0, 255), 5F);
-            gltfModel = _gltfService.AddLine(gltfModel, "Axis", Transform(repereZ), VectorsExtensions.CreateColor(0, 0, 255, 255), 5F);
-
-            //gltfModel.SaveGLB(string.Concat(Path.GetFileNameWithoutExtension(vtopoFile) + "_TopoOnly.glb"));
-
+            //=======================
+            // Generation params
+            //
+            int outputSRID = 3857;                                  // Output SRID
+            float zFactor = 1F;                                     // Z exaggeration
+            float lineWidth = 1.0F;                                 // Topo lines width (meters)
+            float bboxMarginMeters = 1000;                          // Margin (meters) around VisualTopo model
+            var dataset = DEMDataSet.AW3D30;                        // DEM dataset for terrain and elevation
+            var provider = ImageryProvider.MapBoxSatelliteStreet;   // Imagery provider for terrain texture
+            int TEXTURE_TILES = 12;                                 // Texture quality (number of tiles for bigger side) 4: med, 8: high, 12: ultra
             string outputDir = Directory.GetCurrentDirectory();
 
-            _logger.LogInformation($"Processing height map data ({heightMap.Count} coordinates)...");
+            //=======================
+            // Open and parse file
+            //
+            string vtopoFile = Path.Combine("SampleData", "VisualTopo", "topo asperge avec ruisseau.TRO");
+            //string vtopoFile = Path.Combine("SampleData", "VisualTopo", "Olivier4326.TRO");
+            //string vtopoFile = Path.Combine("SampleData", "VisualTopo", "LA SALLE.TRO");
 
+            // Open and parse file
+            // model will have available properties
+            // => BoundingBox
+            // => Topology3D -> list of point-to-point lines
+            // => SRID of model file
+            StopwatchLog timeLog = new StopwatchLog(_logger);
+            VisualTopoModel model = VisualTopoParser.ParseFile(vtopoFile, Encoding.GetEncoding("ISO-8859-1")
+                                                                , decimalDegrees: true
+                                                                , ignoreRadialBeams: true
+                                                                , zFactor);
+            timeLog.LogTime($"Parsing {vtopoFile} model file", reset: true);
+
+            // Warn if badly supported projection
+            if (model.EntryPointProjectionCode.StartsWith("LT"))
+                _logger.LogWarning($"Model entry projection is Lambert Carto and is not fully supported. Will result in 20m shifts. Consider changing projection to UTM");
+
+            // for debug, 
+            //var b = GetBranches(model); // graph list of all nodes
+            //var lowestPoint = model.Sets.Min(s => s.Data.Min(d => d.GlobalGeoPoint?.Elevation ?? 0));
+
+            BoundingBox bbox = model.BoundingBox // relative coords
+                                    .Translate(model.EntryPoint.Longitude, model.EntryPoint.Latitude, model.EntryPoint.Elevation ?? 0) // absolute coords
+                                    .Pad(bboxMarginMeters) // margin around model
+                                    .ReprojectTo(model.SRID, dataset.SRID); // DEM coords
+            // Get height map
+            // Note that ref Bbox means that the bbox will be adjusted to match DEM data
+            var heightMap = _elevationService.GetHeightMap(ref bbox, dataset, true);
+            var bboxTerrainSpace = bbox.ReprojectTo(dataset.SRID, outputSRID); // terrain coords
+            timeLog.LogTime("Terrain height map", reset: true);
+
+            //=======================
+            // Get entry elevation (need to reproject to DEM coordinate system first)
+            // 
+            var entryPoint4326 = model.EntryPoint.ReprojectTo(model.SRID, dataset.SRID);
+            _elevationService.DownloadMissingFiles(dataset, entryPoint4326); // download required DEM files
+            model.EntryPoint.Elevation = _elevationService.GetPointElevation(entryPoint4326, dataset).Elevation ?? 0;
+            timeLog.LogTime("Entry point elevation", reset: true);
+
+            //=======================
+            // Local transform function from model coordinates (relative to entry, in meters)
+            // and global coordinates absolute in final 3D model space
+            //
+            IEnumerable<GeoPoint> Transform(IEnumerable<GeoPoint> line)
+            {
+                var newLine = line.Translate(model.EntryPoint)              // Translate to entry (=> global topo coord space)
+                                    .ReprojectTo(model.SRID, outputSRID)    // Reproject to terrain coord space
+                                    .ZScale(zFactor)                        // Z exaggeration if necessary
+                                    .CenterOnOrigin(bboxTerrainSpace);      // Center on terrain space origin
+                return newLine;
+            };
+
+            //=======================
+            // 3D model
+            //
+            var gltfModel = _gltfService.CreateNewModel();
+            int i = 0;
+            foreach (var line in model.Topology3D) // model.Topology3D is the graph of topo paths
+            {
+                // Add line to model
+                gltfModel = _gltfService.AddLine(gltfModel
+                                                , string.Concat("GPX", i++)     // name of 3D node
+                                                , Transform(line)               // call transform function
+                                                , color: VectorsExtensions.CreateColor(255, 0, 0, 255)
+                                                , lineWidth);
+            }
+            // Add X/Y/Z axis on entry point
+            gltfModel = _gltfService.AddLine(gltfModel, "Axis", Transform(BuildAxis(GeoPoint.UnitX)), VectorsExtensions.CreateColor(255, 0, 0, 255), 5F);
+            gltfModel = _gltfService.AddLine(gltfModel, "Axis", Transform(BuildAxis(GeoPoint.UnitY)), VectorsExtensions.CreateColor(0, 255, 0, 255), 5F);
+            gltfModel = _gltfService.AddLine(gltfModel, "Axis", Transform(BuildAxis(GeoPoint.UnitZ)), VectorsExtensions.CreateColor(0, 0, 255, 255), 5F);
+            timeLog.LogTime("Topo 3D model", reset: true);
+
+            // Uncomment this to save 3D model for topo only (without terrain)
+            //gltfModel.SaveGLB(string.Concat(Path.GetFileNameWithoutExtension(vtopoFile) + "_TopoOnly.glb"));
+
+            // Reproject and center height map coordinates
             heightMap = heightMap.ReprojectTo(dataset.SRID, outputSRID)
-                                .CenterOnOrigin(bboxoutputSRID)
-                                .ZScale(zFactor)
-                                .BakeCoordinates();
+                                .CenterOnOrigin(bboxTerrainSpace)
+                                .ZScale(zFactor);
+                                //.BakeCoordinates();
+            timeLog.LogTime("Height map transform", reset: true);
 
             //=======================
             // Textures
             //
-            PBRTexture pbrTexture = null;
-            bool withTexture = true;
-            if (withTexture)
-            {
+            TileRange tiles = _imageryService.DownloadTiles(bbox, provider, TEXTURE_TILES);
+            string fileName = Path.Combine(outputDir, "Texture.jpg");
+            timeLog.LogTime("Imagery download", reset: true);
 
+            Console.WriteLine("Construct texture...");
+            TextureInfo texInfo = _imageryService.ConstructTexture(tiles, bbox, fileName, TextureImageFormat.image_jpeg);
+            //var topoTexture = topo3DLine.First().Translate(model.EntryPoint).ReprojectTo(model.SRID, 4326);
+            //TextureInfo texInfo = _imageryService.ConstructTextureWithGpxTrack(tiles, bbox, fileName, TextureImageFormat.image_jpeg
+            //    , topoTexture, false);
 
-                Console.WriteLine("Download image tiles...");
-                TileRange tiles = _imageryService.DownloadTiles(bbox, provider, TEXTURE_TILES);
-                string fileName = Path.Combine(outputDir, "Texture.jpg");
+            PBRTexture pbrTexture = PBRTexture.Create(texInfo, null);
+            timeLog.LogTime("Texture creation", reset: true);
+            //
+            //=======================
 
-                Console.WriteLine("Construct texture...");
-
-                TextureInfo texInfo = _imageryService.ConstructTexture(tiles, bbox, fileName, TextureImageFormat.image_jpeg);
-                //var topoTexture = topo3DLine.First().Translate(model.EntryPoint).ReprojectTo(model.SRID, 4326);
-                //TextureInfo texInfo = _imageryService.ConstructTextureWithGpxTrack(tiles, bbox, fileName, TextureImageFormat.image_jpeg
-                //    , topoTexture, false);
-
-                pbrTexture = PBRTexture.Create(texInfo, null);
-
-                //
-                //=======================
-            }
             // Triangulate height map
-            // and add base and sides
             _logger.LogInformation($"Triangulating height map and generating 3D mesh...");
 
             gltfModel = _gltfService.AddTerrainMesh(gltfModel, heightMap, pbrTexture);
             gltfModel.SaveGLB(string.Concat(Path.GetFileNameWithoutExtension(vtopoFile) + ".glb"));
+            timeLog.LogTime("3D model", reset: true);
+
         }
 
-
+        private IEnumerable<GeoPoint> BuildAxis(GeoPoint axisEnd)
+        {
+            yield return GeoPoint.Zero;
+            yield return axisEnd * 50F;
+        }
     }
 
 
