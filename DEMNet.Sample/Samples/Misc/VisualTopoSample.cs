@@ -61,7 +61,7 @@ namespace SampleApp
 
         public void Run()
         {
-            foreach (var file in Directory.EnumerateFileSystemEntries(Path.Combine("SampleData", "VisualTopo", "small", "1 bifurc"), "*.tro", SearchOption.AllDirectories))
+            foreach (var file in Directory.EnumerateFileSystemEntries(Path.Combine("SampleData", "VisualTopo", "small"), "*.tro", SearchOption.AllDirectories))
             {
                 _logger.LogInformation("Generating model for file " + file);
                 Run(file);
