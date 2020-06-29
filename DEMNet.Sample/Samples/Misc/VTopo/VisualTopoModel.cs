@@ -26,9 +26,9 @@
 using DEM.Net.Core;
 using System.Collections.Generic;
 using System.Numerics;
-using DEM.Net.Graph.GenericWeightedGraph;
 using System.Linq;
 using System.Runtime.InteropServices;
+using DEM.Net.Core.Graph;
 
 namespace SampleApp
 {

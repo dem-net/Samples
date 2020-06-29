@@ -74,6 +74,21 @@
     <None Update="SampleData\trail.gpx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Update="SampleData\VisualTopo\small\0 bifurc\Topographie  CAMPELS2.tro">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="SampleData\VisualTopo\small\0 bifurc\Topographie fourchette v1 13 04 2014.tro">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="SampleData\VisualTopo\small\0 bifurc\Topographieporche de la salle .tro">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="SampleData\VisualTopo\small\1 bifurc\Grotte de La Breyere.tro">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="SampleData\VisualTopo\small\1 bifurc\Grottes des Allemands.tro">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="SampleData\VisualTopo\Olivier.tro">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

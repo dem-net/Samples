@@ -24,7 +24,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 using DEM.Net.Core;
-using DEM.Net.Graph.GenericWeightedGraph;
+using DEM.Net.Core.Graph;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -73,12 +73,13 @@ namespace SampleApp
 
             foreach (var data in model.Sets.SelectMany(s => s.Data))
             {
-                if (data.Entree == data.Sortie && data.Entree == model.Entree)
+                if (data.Entree == model.Entree) // Warning! Entrance may not be the start node
                 {
                     var node = model.Graph.CreateRoot(data, data.Entree);
                     nodesByName[node.Key] = node;
                 }
-                else
+
+                if (data.Entree != data.Sortie)
                 {
 
                     var node = model.Graph.CreateNode(data, data.Sortie);
