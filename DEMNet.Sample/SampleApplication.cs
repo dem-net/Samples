@@ -77,18 +77,18 @@ namespace SampleApp
                 _logger.LogInformation($"Sample {sample.GetType().Name} done. Press any key to run the next sample...");
                 if (pauseAfterEachSample) Console.ReadLine();
             }
-            using (_logger.BeginScope($"Running {nameof(AerialGpxSample)}.."))
-            {
-                var aerialGpxSample = services.GetService<AerialGpxSample>();
-                aerialGpxSample.Run(DEMDataSet.SRTM_GL3, DEMDataSet.ASTER_GDEMV3, useSensorLog: false);
-                //aerialGpxSample.Run(DEMDataSet.SRTM_GL1);
-                //aerialGpxSample.Run(DEMDataSet.AW3D30);
-                //gpx3DSamples.Run(DEMDataSet.SRTM_GL1, true, false, Reprojection.SRID_PROJECTED_MERCATOR);
-                //gpx3DSamples.Run(DEMDataSet.SRTM_GL3, true, false, Reprojection.SRID_PROJECTED_MERCATOR);
-                //gpx3DSamples.Run(DEMDataSet.ASTER_GDEMV3, true, false, Reprojection.SRID_PROJECTED_MERCATOR);
-                _logger.LogInformation($"Sample {aerialGpxSample.GetType().Name} done. Press any key to run the next sample...");
-                if (pauseAfterEachSample) Console.ReadLine();
-            }
+            //using (_logger.BeginScope($"Running {nameof(AerialGpxSample)}.."))
+            //{
+            //    var aerialGpxSample = services.GetService<AerialGpxSample>();
+            //    aerialGpxSample.Run(DEMDataSet.SRTM_GL3, DEMDataSet.ASTER_GDEMV3, useSensorLog: false);
+            //    //aerialGpxSample.Run(DEMDataSet.SRTM_GL1);
+            //    //aerialGpxSample.Run(DEMDataSet.AW3D30);
+            //    //gpx3DSamples.Run(DEMDataSet.SRTM_GL1, true, false, Reprojection.SRID_PROJECTED_MERCATOR);
+            //    //gpx3DSamples.Run(DEMDataSet.SRTM_GL3, true, false, Reprojection.SRID_PROJECTED_MERCATOR);
+            //    //gpx3DSamples.Run(DEMDataSet.ASTER_GDEMV3, true, false, Reprojection.SRID_PROJECTED_MERCATOR);
+            //    _logger.LogInformation($"Sample {aerialGpxSample.GetType().Name} done. Press any key to run the next sample...");
+            //    if (pauseAfterEachSample) Console.ReadLine();
+            //}
             using (_logger.BeginScope($"Running {nameof(IntervisibilitySample)}.."))
             {
                 var intervisibilitySample = services.GetService<IntervisibilitySample>();
@@ -102,7 +102,7 @@ namespace SampleApp
                 var glTF3DSamples = services.GetService<glTF3DSamples>();
                 //glTF3DSamples.Run(DEMDataSet.GEBCO_2019, withTexture: true);
                 //glTF3DSamples.Run(DEMDataSet.ASTER_GDEMV3, withTexture:true);
-                glTF3DSamples.Run(DEMDataSet.AW3D30, withTexture: true);
+                glTF3DSamples.Run(DEMDataSet.SRTM_GL3, withTexture: true);
                 //glTF3DSamples.Run(DEMDataSet.SRTM_GL3, withTexture: true);
                 //glTF3DSamples.Run(DEMDataSet.ETOPO1, withTexture:true);
                 _logger.LogInformation($"Sample {glTF3DSamples.GetType().Name} done. Press any key to run the next sample...");

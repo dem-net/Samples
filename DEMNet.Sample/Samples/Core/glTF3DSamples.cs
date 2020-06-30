@@ -61,7 +61,7 @@ namespace SampleApp
             try
             {
                 
-                int TEXTURE_TILES = 16; // 4: med, 8: high
+                int TEXTURE_TILES = 4; // 4: med, 8: high
 
                 //_rasterService.GenerateDirectoryMetadata(dataset, false);
                 Stopwatch sw = Stopwatch.StartNew();
