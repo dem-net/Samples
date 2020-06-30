@@ -128,10 +128,10 @@ namespace SampleApp
 
             var scene = new SceneBuilder();
 
-            scene.AddMesh(mesh, node);
+            scene.AddRigidMesh(mesh, node);
             // save the model in different formats
 
-            var model = scene.ToSchema2();
+            var model = scene.ToGltf2(new SceneBuilderSchema2Settings());
             model.SaveGLB($"{name}.glb");
         }
 
