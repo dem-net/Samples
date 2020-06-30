@@ -32,6 +32,7 @@ using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using DEM.Net.Core.Imagery;
+using SharpGLTF.Schema2;
 
 namespace SampleApp
 {
@@ -44,7 +45,6 @@ namespace SampleApp
         private readonly IElevationService _elevationService;
         private readonly ImageryService _imageryService;
         private readonly SharpGltfService _sharpGltfService;
-        private int TEXTURE_TILES = 2; // 4: med, 8: high
 
         public glTF3DSamples(ILogger<glTF3DSamples> logger
                 , IElevationService elevationService
@@ -56,41 +56,50 @@ namespace SampleApp
             _sharpGltfService = sharpGltfService;
             _imageryService = imageryService;
         }
-        public void Run(DEMDataSet dataset, bool withTexture = true)
+        public void Run(DEMDataSet dataset,  bool withTexture = true)
         {
             try
             {
+                
+                int TEXTURE_TILES = 16; // 4: med, 8: high
+
                 //_rasterService.GenerateDirectoryMetadata(dataset, false);
                 Stopwatch sw = Stopwatch.StartNew();
-                string modelName = $"Montagne Sainte Victoire {dataset.Name}";
+                string modelName = $"MontBlanc_{dataset.Name}";
                 string outputDir = Directory.GetCurrentDirectory();
+                ImageryProvider provider = ImageryProvider.EsriWorldImagery;// new TileDebugProvider(new GeoPoint(43.5,5.5));
+                
 
-                ImageryProvider provider = ImageryProvider.MapBoxSatelliteStreet;// new TileDebugProvider(new GeoPoint(43.5,5.5));
+                //// You can get your boox from https://geojson.net/ (save as WKT)
+                //string bboxWKT = "POLYGON((5.54888 43.519525, 5.61209 43.519525, 5.61209 43.565225, 5.54888 43.565225, 5.54888 43.519525))";
+                ////                string bboxWKT =
+                ////                    "POLYGON((5.594457381483949 43.545276557046044,5.652135604140199 43.545276557046044,5.652135604140199 43.52038635099936,5.594457381483949 43.52038635099936,5.594457381483949 43.545276557046044))";
+                ////                _logger.LogInformation($"Processing model {modelName}...");
+                ////
+                ////
+                ////                _logger.LogInformation($"Getting bounding box geometry...");
+                //var bbox = GeometryService.GetBoundingBox(bboxWKT);
 
-                // You can get your boox from https://geojson.net/ (save as WKT)
-                string bboxWKT = "POLYGON((5.54888 43.519525, 5.61209 43.519525, 5.61209 43.565225, 5.54888 43.565225, 5.54888 43.519525))";
-                //                string bboxWKT =
-                //                    "POLYGON((5.594457381483949 43.545276557046044,5.652135604140199 43.545276557046044,5.652135604140199 43.52038635099936,5.594457381483949 43.52038635099936,5.594457381483949 43.545276557046044))";
-                //                _logger.LogInformation($"Processing model {modelName}...");
-                //
-                //
-                //                _logger.LogInformation($"Getting bounding box geometry...");
-                var bbox = GeometryService.GetBoundingBox(bboxWKT);
+                // DjebelMarra
+                var bbox = new BoundingBox(24.098067346557492, 24.42468219234563, 12.7769822830208, 13.087504129660111);
+
+                // MontBlanc
+                //var bbox = GeometryService.GetBoundingBox("POLYGON((6.618804355541963 45.9658287141746,7.052764316479463 45.9658287141746,7.052764316479463 45.72379929776474,6.618804355541963 45.72379929776474,6.618804355541963 45.9658287141746))");
 
                 //var bbox = new BoundingBox(5.5613898348431485,5.597185285307553,43.49372969433046,43.50939068558466);
                 _logger.LogInformation($"Getting height map data...");
 
                 var heightMap = _elevationService.GetHeightMap(ref bbox, dataset);
+                ModelGenerationTransform transform = new ModelGenerationTransform(bbox, 3857, true, 1.5f, true);
 
                 _logger.LogInformation($"Processing height map data ({heightMap.Count} coordinates)...");
-                heightMap = heightMap
-                    .ReprojectGeodeticToCartesian() // Reproject to 3857 (useful to get coordinates in meters)
-                    .ZScale(2f);                    // Elevation exageration
+                heightMap = transform.TransformHeightMap(heightMap);
+                
 
-                //=======================
-                // Textures
-                //
-                PBRTexture pbrTexture = null;
+            //=======================
+            // Textures
+            //
+            PBRTexture pbrTexture = null;
                 if (withTexture)
                 {
 
@@ -125,9 +134,11 @@ namespace SampleApp
 
                 var model = _sharpGltfService.CreateTerrainMesh(heightMap, pbrTexture);
                 model.SaveGLB(Path.Combine(Directory.GetCurrentDirectory(), modelName + ".glb"));
+                model.SaveAsWavefront(Path.Combine(Directory.GetCurrentDirectory(), modelName + ".obj"));
 
                 model = _sharpGltfService.CreateTerrainMesh(heightMap, GenOptions.Normals | GenOptions.BoxedBaseElevationMin);
                 model.SaveGLB(Path.Combine(Directory.GetCurrentDirectory(), modelName + "_normalsBox.glb"));
+                model.SaveAsWavefront(Path.Combine(Directory.GetCurrentDirectory(), modelName + "_normalsBox.obj"));
 
                 _logger.LogInformation($"Model exported as {Path.Combine(Directory.GetCurrentDirectory(), modelName + ".gltf")} and .glb");
 

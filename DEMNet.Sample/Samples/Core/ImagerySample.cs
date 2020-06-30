@@ -58,7 +58,7 @@ namespace SampleApp
 
 
                 DEMDataSet dataset = DEMDataSet.AW3D30;
-                ImageryProvider imageryProvider = ImageryProvider.MapBoxSatellite;
+                ImageryProvider imageryProvider = ImageryProvider.MapBoxSatelliteStreet;
                 Stopwatch sw = Stopwatch.StartNew();
                 string modelName = $"Montagne Sainte Victoire {dataset.Name}";
                 string outputDir = Directory.GetCurrentDirectory();

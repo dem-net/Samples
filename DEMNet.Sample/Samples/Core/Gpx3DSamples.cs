@@ -101,14 +101,14 @@ namespace SampleApp
                 /// Height map (get dem elevation for bbox)
                 ///
                 HeightMap hMap = _elevationService.GetHeightMap(ref bbox, dataSet);
-                
-//                var refPoint = new GeoPoint(43.5, 5.5);
-//                hMap = hMap.BakeCoordinates();
-//                var hMapRefPoint = hMap.Coordinates.OrderBy(c => c.DistanceSquaredTo(refPoint)).First();
-//                var gpxRefPoint = gpxPointsElevated.OrderBy(c => c.DistanceSquaredTo(refPoint)).First();
-//                hMapRefPoint.Elevation += 60;
-//                gpxRefPoint.Elevation += 60;
-                
+
+                //                var refPoint = new GeoPoint(43.5, 5.5);
+                //                hMap = hMap.BakeCoordinates();
+                //                var hMapRefPoint = hMap.Coordinates.OrderBy(c => c.DistanceSquaredTo(refPoint)).First();
+                //                var gpxRefPoint = gpxPointsElevated.OrderBy(c => c.DistanceSquaredTo(refPoint)).First();
+                //                hMapRefPoint.Elevation += 60;
+                //                gpxRefPoint.Elevation += 60;
+
                 hMap = hMap.ReprojectTo(4326, outputSrid)
                     //.CenterOnOrigin()
                     .ZScale(Z_FACTOR)
@@ -181,8 +181,8 @@ namespace SampleApp
                                                             .ZScale(Z_FACTOR);
 
 
-                    model = _sharpGltfService.AddLine(model, gpxPointsElevated, new Vector4(0, 1, 0, 0.5f), trailWidthMeters);
-                   
+                    model = _sharpGltfService.AddLine(model, "GPX", gpxPointsElevated, VectorsExtensions.CreateColor(255,0,0,128), trailWidthMeters);
+
                 }
 
                 // model export

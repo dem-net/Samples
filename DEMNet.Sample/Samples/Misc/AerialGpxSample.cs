@@ -260,7 +260,7 @@ namespace SampleApp
 
                 var gpxPoints = geoPoints.ReprojectGeodeticToCartesian().ZScale(Z_FACTOR);
 
-                model = _sharpGltfService.AddLine(model, gpxPoints, new Vector4(0, 1, 0, 0.5f), trailWidthMeters);
+                model = _sharpGltfService.AddLine(model, "GPX", gpxPoints, new Vector4(0, 1, 0, 0.5f), trailWidthMeters);
 
                 // model export
                 Console.WriteLine("GenerateModel...");
@@ -273,7 +273,7 @@ namespace SampleApp
 
 
                 var sceneBuilderBalloon = balloon.DefaultScene.ToSceneBuilder();
-                
+
                 var sceneBuilderTerrain = model.DefaultScene.ToSceneBuilder();
                 //sceneBuilderBalloon.
 
@@ -304,7 +304,7 @@ namespace SampleApp
             // return new Vector3((float)geoPoint.Longitude, (float)geoPoint.Elevation, -(float)geoPoint.Latitude);
             // up vector is (0,1,0)
 
-            
+
             double? lastBearing = points.FirstOrDefault(p => p.Bearing.HasValue)?.Bearing;
             if (lastBearing.HasValue)
             {
