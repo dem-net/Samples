@@ -48,12 +48,12 @@ namespace SampleApp
     public class GpxSamples
     {
         private readonly ILogger<GpxSamples> _logger;
-        private readonly IRasterService _rasterService;
-        private readonly IElevationService _elevationService;
+        private readonly RasterService _rasterService;
+        private readonly ElevationService _elevationService;
 
         public GpxSamples(ILogger<GpxSamples> logger
-                , IRasterService rasterService
-                , IElevationService elevationService)
+                , RasterService rasterService
+                , ElevationService elevationService)
         {
             _logger = logger;
             _rasterService = rasterService;

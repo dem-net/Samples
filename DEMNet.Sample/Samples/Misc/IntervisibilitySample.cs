@@ -42,10 +42,10 @@ namespace SampleApp
     public class IntervisibilitySample
     {
         private readonly ILogger<IntervisibilitySample> _logger;
-        private readonly IElevationService _elevationService;
+        private readonly ElevationService _elevationService;
 
         public IntervisibilitySample(ILogger<IntervisibilitySample> logger
-                , IElevationService elevationService)
+                , ElevationService elevationService)
         {
             _logger = logger;
             _elevationService = elevationService;

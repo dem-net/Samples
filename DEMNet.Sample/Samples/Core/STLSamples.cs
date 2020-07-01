@@ -42,12 +42,12 @@ namespace SampleApp
     public class STLSamples
     {
         private readonly ILogger<STLSamples> _logger;
-        private readonly IElevationService _elevationService;
+        private readonly ElevationService _elevationService;
         private readonly SharpGltfService _sharpGltfService;
         private readonly ISTLExportService _stlService;
 
         public STLSamples(ILogger<STLSamples> logger
-                , IElevationService elevationService
+                , ElevationService elevationService
                 , SharpGltfService sharpGltfService
                 , ISTLExportService stlService)
         {

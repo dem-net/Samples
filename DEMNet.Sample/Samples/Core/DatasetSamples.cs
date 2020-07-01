@@ -40,10 +40,10 @@ namespace SampleApp
     public class DatasetSamples
     {
         private readonly ILogger<DatasetSamples> _logger;
-        private readonly IRasterService _rasterService;
+        private readonly RasterService _rasterService;
 
         public DatasetSamples(ILogger<DatasetSamples> logger
-                , IRasterService rasterService)
+                , RasterService rasterService)
         {
             _logger = logger;
             _rasterService = rasterService;

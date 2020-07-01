@@ -41,14 +41,14 @@ namespace SampleApp
     public class Gpx3DSamples
     {
         private readonly ILogger<Gpx3DSamples> _logger;
-        private readonly IRasterService _rasterService;
-        private readonly IElevationService _elevationService;
+        private readonly RasterService _rasterService;
+        private readonly ElevationService _elevationService;
         private readonly SharpGltfService _sharpGltfService;
         private readonly ImageryService _imageryService;
 
         public Gpx3DSamples(ILogger<Gpx3DSamples> logger
-                , IRasterService rasterService
-                , IElevationService elevationService
+                , RasterService rasterService
+                , ElevationService elevationService
                 , SharpGltfService sharpGltfService
                 , ImageryService imageryService)
         {

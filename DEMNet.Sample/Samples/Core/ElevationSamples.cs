@@ -41,10 +41,10 @@ namespace SampleApp
     public class ElevationSamples
     {
         private readonly ILogger<ElevationSamples> _logger;
-        private readonly IElevationService _elevationService;
+        private readonly ElevationService _elevationService;
 
         public ElevationSamples(ILogger<ElevationSamples> logger
-                , IElevationService elevationService)
+                , ElevationService elevationService)
         {
             _logger = logger;
             _elevationService = elevationService;

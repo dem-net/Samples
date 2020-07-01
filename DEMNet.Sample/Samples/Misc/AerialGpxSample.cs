@@ -47,16 +47,16 @@ namespace SampleApp
     public class AerialGpxSample
     {
         private readonly ILogger<AerialGpxSample> _logger;
-        private readonly IRasterService _rasterService;
-        private readonly IElevationService _elevationService;
+        private readonly RasterService _rasterService;
+        private readonly ElevationService _elevationService;
         private readonly ImageryService _imageryService;
         private readonly SharpGltfService _sharpGltfService;
         private readonly int outputSrid = Reprojection.SRID_PROJECTED_MERCATOR;
         private readonly int imageryNbTiles = 4;
 
         public AerialGpxSample(ILogger<AerialGpxSample> logger
-                , IRasterService rasterService
-                , IElevationService elevationService
+                , RasterService rasterService
+                , ElevationService elevationService
                 , ImageryService imageryService
                 , SharpGltfService sharpGltfService)
         {

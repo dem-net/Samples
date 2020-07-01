@@ -46,11 +46,11 @@ namespace SampleApp
         private readonly ILogger<VisualTopoSample> _logger;
         private readonly SharpGltfService _gltfService;
         private readonly ImageryService _imageryService;
-        private readonly IElevationService _elevationService;
+        private readonly ElevationService _elevationService;
 
         public VisualTopoSample(ILogger<VisualTopoSample> logger
                 , SharpGltfService gltfService
-            , IElevationService elevationService
+            , ElevationService elevationService
                 , ImageryService imageryService)
         {
             _logger = logger;

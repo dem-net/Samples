@@ -39,13 +39,13 @@ namespace SampleApp
     public class DownloaderSample
     {
         private readonly ILogger<DownloaderSample> _logger;
-        private readonly IRasterService _rasterService;
-        private readonly IElevationService _elevationService;
+        private readonly RasterService _rasterService;
+        private readonly ElevationService _elevationService;
 
 
         public DownloaderSample(ILogger<DownloaderSample> logger
-                , IRasterService rasterService
-                , IElevationService elevationService)
+                , RasterService rasterService
+                , ElevationService elevationService)
         {
             _logger = logger;
             _rasterService = rasterService;
