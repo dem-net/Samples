@@ -81,6 +81,9 @@
     <None Update="SampleData\VisualTopo\small\0 bifurc\Topographie fourchette v1 13 04 2014.tro">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Update="SampleData\VisualTopo\small\0 bifurc\Test 4 arcs.tro">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="SampleData\VisualTopo\small\0 bifurc\Topographieporche de la salle .tro">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
