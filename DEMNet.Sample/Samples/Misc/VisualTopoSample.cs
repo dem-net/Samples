@@ -45,15 +45,18 @@ namespace SampleApp
     {
         private readonly ILogger<VisualTopoSample> _logger;
         private readonly SharpGltfService _gltfService;
+        private readonly MeshService _meshService;
         private readonly ImageryService _imageryService;
         private readonly ElevationService _elevationService;
 
         public VisualTopoSample(ILogger<VisualTopoSample> logger
                 , SharpGltfService gltfService
-            , ElevationService elevationService
+                , MeshService meshService
+                , ElevationService elevationService
                 , ImageryService imageryService)
         {
             _logger = logger;
+            _meshService = meshService;
             _gltfService = gltfService;
             _elevationService = elevationService;
             _imageryService = imageryService;
@@ -63,13 +66,13 @@ namespace SampleApp
         {
 
             // Single file
-            Run(Path.Combine("SampleData", "VisualTopo", "small", "0 bifurc", "Test 4 arcs.tro"), bboxMarginMeters: 50);
+            Run(Path.Combine("SampleData", "VisualTopo", "small", "0 bifurc", "Test 4 arcs.tro"), imageryProvider: null, bboxMarginMeters: 50);
 
             // All files in given directory
             foreach (var file in Directory.EnumerateFileSystemEntries(Path.Combine("SampleData", "VisualTopo", "small"), "*.tro", SearchOption.AllDirectories))
             {
                 _logger.LogInformation("Generating model for file " + file);
-                Run(file);
+                Run(file, ImageryProvider.MapBoxSatelliteStreet);
             }
 
         }
@@ -79,8 +82,9 @@ namespace SampleApp
         /// </summary>
         /// <remarks>LT* (Lambert Carto) projections are not supported and could produce imprecise results (shifted by +10meters)</remarks>
         /// <param name="vtopoFile">VisualTopo .TRO file</param>
+        /// <param name="imageryProvider">Imagery provider for terrain texture. Set to null for untextured model</param>
         /// <param name="bboxMarginMeters">Terrain margin (meters) around VisualTopo model</param>
-        public void Run(string vtopoFile, float bboxMarginMeters = 1000)
+        public void Run(string vtopoFile, ImageryProvider imageryProvider, float bboxMarginMeters = 1000)
         {
             try
             {
@@ -92,7 +96,6 @@ namespace SampleApp
                 float zFactor = 1F;                                     // Z exaggeration
                 float lineWidth = 1.0F;                                 // Topo lines width (meters)
                 var dataset = DEMDataSet.AW3D30;                        // DEM dataset for terrain and elevation
-                var provider = ImageryProvider.MapBoxSatelliteStreet;   // Imagery provider for terrain texture
                 int TEXTURE_TILES = 4;                                 // Texture quality (number of tiles for bigger side) 4: med, 8: high, 12: ultra
                 string outputDir = Directory.GetCurrentDirectory();
 
@@ -159,6 +162,10 @@ namespace SampleApp
                 // 3D model
                 //
                 var gltfModel = _gltfService.CreateNewModel();
+                _gltfService.AddMesh(gltfModel, "MeshTest", _meshService.CreateCylinder(Vector3.Zero, 5, 50, 30)
+                        .Translate(new Vector3((float)model.EntryPoint.Longitude, (float)model.EntryPoint.Latitude, (float)(model.EntryPoint.Elevation ?? 0)))
+                        .ReprojectTo(model.SRID, outputSRID)
+                         .CenterOnOrigin(bboxTerrainSpace), VectorsExtensions.CreateColor(255, 255, 0, 255));
                 int i = 0;
                 foreach (var line in model.Topology3D) // model.Topology3D is the graph of topo paths
                 {
@@ -188,18 +195,22 @@ namespace SampleApp
                 //=======================
                 // Textures
                 //
-                TileRange tiles = _imageryService.DownloadTiles(bbox, provider, TEXTURE_TILES);
-                string fileName = Path.Combine(outputDir, "Texture.jpg");
-                timeLog.LogTime("Imagery download", reset: true);
+                PBRTexture pbrTexture = null;
+                if (imageryProvider != null)
+                {
+                    TileRange tiles = _imageryService.DownloadTiles(bbox, imageryProvider, TEXTURE_TILES);
+                    string fileName = Path.Combine(outputDir, "Texture.jpg");
+                    timeLog.LogTime("Imagery download", reset: true);
 
-                Console.WriteLine("Construct texture...");
-                TextureInfo texInfo = _imageryService.ConstructTexture(tiles, bbox, fileName, TextureImageFormat.image_jpeg);
-                //var topoTexture = topo3DLine.First().Translate(model.EntryPoint).ReprojectTo(model.SRID, 4326);
-                //TextureInfo texInfo = _imageryService.ConstructTextureWithGpxTrack(tiles, bbox, fileName, TextureImageFormat.image_jpeg
-                //    , topoTexture, false);
+                    Console.WriteLine("Construct texture...");
+                    TextureInfo texInfo = _imageryService.ConstructTexture(tiles, bbox, fileName, TextureImageFormat.image_jpeg);
+                    //var topoTexture = topo3DLine.First().Translate(model.EntryPoint).ReprojectTo(model.SRID, 4326);
+                    //TextureInfo texInfo = _imageryService.ConstructTextureWithGpxTrack(tiles, bbox, fileName, TextureImageFormat.image_jpeg
+                    //    , topoTexture, false);
 
-                PBRTexture pbrTexture = PBRTexture.Create(texInfo, null);
-                timeLog.LogTime("Texture creation", reset: true);
+                    pbrTexture = PBRTexture.Create(texInfo, null);
+                    timeLog.LogTime("Texture creation", reset: true);
+                }
                 //
                 //=======================
 
