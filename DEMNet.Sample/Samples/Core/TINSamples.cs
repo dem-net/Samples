@@ -41,13 +41,13 @@ namespace SampleApp
         public const string WKT_GORGES_VERDON = "Polygon ((6.14901771150602894 43.8582708438193265, 6.30590241369230409 43.8575166880815317, 6.32080646040000005 43.74636314919661828, 6.14561854295865828 43.74579647280887684, 6.14901771150602894 43.8582708438193265))";
 
         private readonly ILogger<TINSamples> _logger;
-        private readonly IRasterService _rasterService;
-        private readonly IElevationService _elevationService;
+        private readonly RasterService _rasterService;
+        private readonly ElevationService _elevationService;
         private readonly SharpGltfService _glTFService;
 
         public TINSamples(ILogger<TINSamples> logger
-                , IRasterService rasterService
-                , IElevationService elevationService
+                , RasterService rasterService
+                , ElevationService elevationService
                 , SharpGltfService glTFService) 
         {
             _logger = logger;

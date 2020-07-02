@@ -36,7 +36,7 @@ using System.Text;
 
 namespace SampleApp
 {
-    public static class VisualTopoParser
+    public static class VisualTopoService
     {
         public static VisualTopoModel ParseFile(string vtopoFile, Encoding encoding, bool decimalDegrees, bool ignoreRadialBeams, float zFactor)
         {
@@ -46,11 +46,11 @@ namespace SampleApp
             // Parsing
             using (StreamReader sr = new StreamReader(vtopoFile, encoding))
             {
-                model = VisualTopoParser.ParseHeader(model, sr);
+                model = VisualTopoService.ParseHeader(model, sr);
 
                 while (!sr.EndOfStream)
                 {
-                    model = VisualTopoParser.ParseSet(model, sr, decimalDegrees, ignoreRadialBeams);
+                    model = VisualTopoService.ParseSet(model, sr, decimalDegrees, ignoreRadialBeams);
                 }
             }
 
@@ -105,12 +105,13 @@ namespace SampleApp
         {
 
             var p = node.Model;
-            var currentVec = Vector3.UnitX * p.Longueur;
+            var direction = Vector3.UnitX * p.Longueur;
             var matrix = Matrix4x4.CreateRotationY((float)MathHelper.ToRadians(-p.Pente)) * Matrix4x4.CreateRotationZ((float)MathHelper.ToRadians(p.Cap));
-            currentVec = Vector3.Transform(currentVec, matrix);
-            currentVec += local;
-            p.GlobalVector = currentVec;
-            p.GlobalGeoPoint = new GeoPointRays(p.GlobalVector.X, p.GlobalVector.Y, p.GlobalVector.Z * zFactor, p.Section.left, p.Section.right, p.Section.up, p.Section.down);
+            direction = Vector3.Transform(direction, matrix);
+            p.GlobalVector = direction + local;
+            p.GlobalGeoPoint = new GeoPointRays(p.GlobalVector.X, p.GlobalVector.Y, p.GlobalVector.Z * zFactor
+                                                , Vector3.Normalize(direction)
+                                                , p.Section.left, p.Section.right, p.Section.up, p.Section.down);
 
             if (current == null) current = new List<GeoPointRays>();
             if (node.Arcs.Count == 0)
@@ -259,7 +260,7 @@ namespace SampleApp
             // Set header
             var data = setHeader.Split(';', StringSplitOptions.RemoveEmptyEntries);
             var headerSlots = data[0].Split(' ', StringSplitOptions.RemoveEmptyEntries);
-            set.Color = VisualTopoParser.ParseColor(headerSlots[headerSlots.Length - 3]);
+            set.Color = VisualTopoService.ParseColor(headerSlots[headerSlots.Length - 3]);
             set.Name = data.Length > 1 ? data[1].Trim() : string.Empty;
 
             sr.Skip(1);
@@ -275,7 +276,7 @@ namespace SampleApp
                 Debug.Assert(slots.Length == 13);
 
                 // Parse data line
-                topoData = VisualTopoParser.ParseData(topoData, slots, decimalDegrees, ignoreRadialBeams);
+                topoData = VisualTopoService.ParseData(topoData, slots, decimalDegrees, ignoreRadialBeams);
                 if (topoData != null)
                 {
                     set.Data.Add(topoData);

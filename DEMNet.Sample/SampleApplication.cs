@@ -43,11 +43,11 @@ namespace SampleApp
     public class SampleApplication
     {
         private readonly ILogger<SampleApplication> _logger;
-        private readonly IRasterService rasterService;
+        private readonly RasterService rasterService;
         private const string DATA_FILES_PATH = null; //@"C:\Users\ElevationAPI\AppData\Local"; // Leave to null for default location (Environment.SpecialFolder.LocalApplicationData)
 
         public SampleApplication(ILogger<SampleApplication> logger,
-            IRasterService rasterService
+            RasterService rasterService
             )
         {
             _logger = logger;

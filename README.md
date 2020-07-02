@@ -15,10 +15,10 @@
 
 ```csharp
 // download missing DEM files if necessary
-IElevationService.DownloadMissingFiles(DEMDataSet.SRTM_GL3, lat, lon);
+ElevationService.DownloadMissingFiles(DEMDataSet.SRTM_GL3, lat, lon);
 
 // get elevation
-GeoPoint point = IElevationService.GetPointElevation(lat, lon, DEMDataSet.SRTM_GL3);
+GeoPoint point = ElevationService.GetPointElevation(lat, lon, DEMDataSet.SRTM_GL3);
 double? elevation = point.Elevation;
 ```
 
@@ -29,7 +29,7 @@ The line can be generalized and return only points where elevation change is rel
 
 
 ```csharp
-IEnumerable<GeoPoint> geoPoints = IElevationService.GetPointsElevation(points, dataSet);
+IEnumerable<GeoPoint> geoPoints = ElevationService.GetPointsElevation(points, dataSet);
 ```
 
 ### Get line elevation : 
@@ -42,10 +42,10 @@ The line can be generalized and return only points where elevation change is rel
 var elevationLine = GeometryService.ParseGeoPointAsGeometryLine(new GeoPoint(44.078873, 5.144899), new GeoPoint(44.225876, 5.351516));
 
 // Download DEM tiles if necessary
-IElevationService.DownloadMissingFiles(DEMDataSet.AW3D30, elevationLine.GetBoundingBox());
+ElevationService.DownloadMissingFiles(DEMDataSet.AW3D30, elevationLine.GetBoundingBox());
 
 // Get line elevation : 1274 points !
-var geoPoints = IElevationService.GetLineGeometryElevation(elevationLine, dataSet);
+var geoPoints = ElevationService.GetLineGeometryElevation(elevationLine, dataSet);
 
 // Compute metrics (to get distance from origin)
 var metrics = geoPoints.ComputeMetrics();
@@ -69,7 +69,7 @@ var points = GpxImport.ReadGPX_Segments(gpxFile)
                       .SelectMany(segment => segment);
 
  // Retrieve elevation for each point on DEM
-List<GeoPoint> gpxPointsElevated = IElevationService.GetPointsElevation(points, DEMDataSet.AW3D30)
+List<GeoPoint> gpxPointsElevated = ElevationService.GetPointsElevation(points, DEMDataSet.AW3D30)
                                         .ToList();
 
 ```
@@ -81,7 +81,7 @@ A DEM.Net Dataset is a public data source of DEM files. DEM.Net supports global 
 ### Get a report of all downloaded files
 
 ```csharp
-IRasterService.GenerateReportAsString();
+RasterService.GenerateReportAsString();
 ```
 
 This will produce this nice output : 

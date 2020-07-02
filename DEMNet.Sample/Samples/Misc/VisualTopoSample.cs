@@ -46,11 +46,11 @@ namespace SampleApp
         private readonly ILogger<VisualTopoSample> _logger;
         private readonly SharpGltfService _gltfService;
         private readonly ImageryService _imageryService;
-        private readonly IElevationService _elevationService;
+        private readonly ElevationService _elevationService;
 
         public VisualTopoSample(ILogger<VisualTopoSample> logger
                 , SharpGltfService gltfService
-            , IElevationService elevationService
+            , ElevationService elevationService
                 , ImageryService imageryService)
         {
             _logger = logger;
@@ -61,6 +61,11 @@ namespace SampleApp
 
         public void Run()
         {
+
+            // Single file
+            Run(Path.Combine("SampleData", "VisualTopo", "small", "0 bifurc", "Test 4 arcs.tro"), bboxMarginMeters: 50);
+
+            // All files in given directory
             foreach (var file in Directory.EnumerateFileSystemEntries(Path.Combine("SampleData", "VisualTopo", "small"), "*.tro", SearchOption.AllDirectories))
             {
                 _logger.LogInformation("Generating model for file " + file);
@@ -69,11 +74,16 @@ namespace SampleApp
 
         }
 
-        public void Run(string vtopoFile)
+        /// <summary>
+        /// Generates a VisualTopo file 3D model
+        /// </summary>
+        /// <remarks>LT* (Lambert Carto) projections are not supported and could produce imprecise results (shifted by +10meters)</remarks>
+        /// <param name="vtopoFile">VisualTopo .TRO file</param>
+        /// <param name="bboxMarginMeters">Terrain margin (meters) around VisualTopo model</param>
+        public void Run(string vtopoFile, float bboxMarginMeters = 1000)
         {
             try
             {
-
 
                 //=======================
                 // Generation params
@@ -81,7 +91,6 @@ namespace SampleApp
                 int outputSRID = 3857;                                  // Output SRID
                 float zFactor = 1F;                                     // Z exaggeration
                 float lineWidth = 1.0F;                                 // Topo lines width (meters)
-                float bboxMarginMeters = 1000;                          // Margin (meters) around VisualTopo model
                 var dataset = DEMDataSet.AW3D30;                        // DEM dataset for terrain and elevation
                 var provider = ImageryProvider.MapBoxSatelliteStreet;   // Imagery provider for terrain texture
                 int TEXTURE_TILES = 4;                                 // Texture quality (number of tiles for bigger side) 4: med, 8: high, 12: ultra
@@ -101,7 +110,7 @@ namespace SampleApp
                 // => Topology3D -> list of point-to-point lines
                 // => SRID of model file
                 StopwatchLog timeLog = new StopwatchLog(_logger);
-                VisualTopoModel model = VisualTopoParser.ParseFile(vtopoFile, Encoding.GetEncoding("ISO-8859-1")
+                VisualTopoModel model = VisualTopoService.ParseFile(vtopoFile, Encoding.GetEncoding("ISO-8859-1")
                                                                     , decimalDegrees: true
                                                                     , ignoreRadialBeams: true
                                                                     , zFactor);
@@ -157,7 +166,7 @@ namespace SampleApp
                     gltfModel = _gltfService.AddLine(gltfModel
                                                     , string.Concat("GPX", i++)     // name of 3D node
                                                     , Transform(line)               // call transform function
-                                                    , color: VectorsExtensions.CreateColor(255, 0, 0, 255)
+                                                    , color: VectorsExtensions.CreateColor(255, 0, 0, 128)
                                                     , lineWidth);
                 }
                 // Add X/Y/Z axis on entry point

@@ -40,12 +40,12 @@ namespace SampleApp
     public class CustomSamples
     {
         private readonly ILogger<CustomSamples> _logger;
-        private readonly IElevationService _elevationService;
-        private readonly IRasterService _rasterService;
+        private readonly ElevationService _elevationService;
+        private readonly RasterService _rasterService;
 
         public CustomSamples(ILogger<CustomSamples> logger
-                , IElevationService elevationService
-                , IRasterService rasterService)
+                , ElevationService elevationService
+                , RasterService rasterService)
         {
             _logger = logger;
             _elevationService = elevationService;
