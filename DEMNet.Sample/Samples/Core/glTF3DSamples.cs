@@ -56,11 +56,11 @@ namespace SampleApp
             _sharpGltfService = sharpGltfService;
             _imageryService = imageryService;
         }
-        public void Run(DEMDataSet dataset,  bool withTexture = true)
+        public void Run(DEMDataSet dataset, bool withTexture = true)
         {
             try
             {
-                
+
                 int TEXTURE_TILES = 4; // 4: med, 8: high
 
                 //_rasterService.GenerateDirectoryMetadata(dataset, false);
@@ -68,7 +68,7 @@ namespace SampleApp
                 string modelName = $"MontBlanc_{dataset.Name}";
                 string outputDir = Directory.GetCurrentDirectory();
                 ImageryProvider provider = ImageryProvider.EsriWorldImagery;// new TileDebugProvider(new GeoPoint(43.5,5.5));
-                
+
 
                 //// You can get your boox from https://geojson.net/ (save as WKT)
                 //string bboxWKT = "POLYGON((5.54888 43.519525, 5.61209 43.519525, 5.61209 43.565225, 5.54888 43.565225, 5.54888 43.519525))";
@@ -94,12 +94,12 @@ namespace SampleApp
 
                 _logger.LogInformation($"Processing height map data ({heightMap.Count} coordinates)...");
                 heightMap = transform.TransformHeightMap(heightMap);
-                
 
-            //=======================
-            // Textures
-            //
-            PBRTexture pbrTexture = null;
+
+                //=======================
+                // Textures
+                //
+                PBRTexture pbrTexture = null;
                 if (withTexture)
                 {
 

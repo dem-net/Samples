@@ -157,15 +157,19 @@ namespace SampleApp
                                         .CenterOnOrigin(bboxTerrainSpace);      // Center on terrain space origin
                     return newLine;
                 };
+                TriangulationList<Vector3> TransformTriangulation(TriangulationList<Vector3> triangulation)
+                {
+                    return triangulation.Translate(model.EntryPoint.AsVector3())
+                                         .ReprojectTo(model.SRID, outputSRID)
+                                         .CenterOnOrigin(bboxTerrainSpace)
+                                         .ToGlTFSpace();
+                };
 
                 //=======================
                 // 3D model
                 //
                 var gltfModel = _gltfService.CreateNewModel();
-                _gltfService.AddMesh(gltfModel, "MeshTest", _meshService.CreateCylinder(Vector3.Zero, 5, 50, 30)
-                        .Translate(new Vector3((float)model.EntryPoint.Longitude, (float)model.EntryPoint.Latitude, (float)(model.EntryPoint.Elevation ?? 0)))
-                        .ReprojectTo(model.SRID, outputSRID)
-                         .CenterOnOrigin(bboxTerrainSpace), VectorsExtensions.CreateColor(255, 255, 0, 255));
+                _gltfService.AddMesh(gltfModel, "MeshTest", TransformTriangulation(_meshService.CreateCylinder(Vector3.Zero, 5, 50, 30)), VectorsExtensions.CreateColor(255, 255, 0, 255));
                 int i = 0;
                 foreach (var line in model.Topology3D) // model.Topology3D is the graph of topo paths
                 {
