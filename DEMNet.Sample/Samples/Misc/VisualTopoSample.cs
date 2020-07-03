@@ -66,13 +66,16 @@ namespace SampleApp
         {
 
             // Single file
+            Run(Path.Combine("SampleData", "VisualTopo", "topo asperge avec ruisseau.TRO"), imageryProvider: ImageryProvider.OpenTopoMap, bboxMarginMeters: 50);
+
             Run(Path.Combine("SampleData", "VisualTopo", "small", "0 bifurc", "Test 4 arcs.tro"), imageryProvider: null, bboxMarginMeters: 50);
 
+
             // All files in given directory
-            foreach (var file in Directory.EnumerateFileSystemEntries(Path.Combine("SampleData", "VisualTopo", "small"), "*.tro", SearchOption.AllDirectories))
+            foreach (var file in Directory.EnumerateFileSystemEntries(Path.Combine("SampleData", "VisualTopo"), "*.tro", SearchOption.AllDirectories))
             {
                 _logger.LogInformation("Generating model for file " + file);
-                Run(file, ImageryProvider.MapBoxSatelliteStreet);
+                Run(file, ImageryProvider.MapBoxSatelliteStreet, bboxMarginMeters: 500, generateTopoOnlyModel: false);
             }
 
         }
@@ -84,7 +87,7 @@ namespace SampleApp
         /// <param name="vtopoFile">VisualTopo .TRO file</param>
         /// <param name="imageryProvider">Imagery provider for terrain texture. Set to null for untextured model</param>
         /// <param name="bboxMarginMeters">Terrain margin (meters) around VisualTopo model</param>
-        public void Run(string vtopoFile, ImageryProvider imageryProvider, float bboxMarginMeters = 1000)
+        public void Run(string vtopoFile, ImageryProvider imageryProvider, float bboxMarginMeters = 1000, bool generateTopoOnlyModel = false)
         {
             try
             {
@@ -157,19 +160,17 @@ namespace SampleApp
                                         .CenterOnOrigin(bboxTerrainSpace);      // Center on terrain space origin
                     return newLine;
                 };
-                TriangulationList<Vector3> TransformTriangulation(TriangulationList<Vector3> triangulation)
-                {
-                    return triangulation.Translate(model.EntryPoint.AsVector3())
-                                         .ReprojectTo(model.SRID, outputSRID)
-                                         .CenterOnOrigin(bboxTerrainSpace)
-                                         .ToGlTFSpace();
-                };
+                Vector3 axisOrigin = model.EntryPoint.ReprojectTo(model.SRID, outputSRID).CenterOnOrigin(bboxTerrainSpace).AsVector3();
 
                 //=======================
                 // 3D model
                 //
                 var gltfModel = _gltfService.CreateNewModel();
-                _gltfService.AddMesh(gltfModel, "MeshTest", TransformTriangulation(_meshService.CreateCylinder(Vector3.Zero, 5, 50, 30)), VectorsExtensions.CreateColor(255, 255, 0, 255));
+
+                // Add X/Y/Z axis on entry point
+                var axis = _meshService.CreateAxis();
+                _gltfService.AddMesh(gltfModel, "Axis", axis.Translate(axisOrigin));
+
                 int i = 0;
                 foreach (var line in model.Topology3D) // model.Topology3D is the graph of topo paths
                 {
@@ -180,14 +181,13 @@ namespace SampleApp
                                                     , color: VectorsExtensions.CreateColor(255, 0, 0, 128)
                                                     , lineWidth);
                 }
-                // Add X/Y/Z axis on entry point
-                gltfModel = _gltfService.AddLine(gltfModel, "Axis", Transform(BuildAxis(GeoPoint.UnitX)), VectorsExtensions.CreateColor(255, 0, 0, 255), 5F);
-                gltfModel = _gltfService.AddLine(gltfModel, "Axis", Transform(BuildAxis(GeoPoint.UnitY)), VectorsExtensions.CreateColor(0, 255, 0, 255), 5F);
-                gltfModel = _gltfService.AddLine(gltfModel, "Axis", Transform(BuildAxis(GeoPoint.UnitZ)), VectorsExtensions.CreateColor(0, 0, 255, 255), 5F);
                 timeLog.LogTime("Topo 3D model", reset: true);
 
-                // Uncomment this to save 3D model for topo only (without terrain)
-                gltfModel.SaveGLB(string.Concat(Path.GetFileNameWithoutExtension(vtopoFile) + "_TopoOnly.glb"));
+                if (generateTopoOnlyModel)
+                {
+                    // Uncomment this to save 3D model for topo only (without terrain)
+                    gltfModel.SaveGLB(string.Concat(Path.GetFileNameWithoutExtension(vtopoFile) + "_TopoOnly.glb"));
+                }
 
                 // Reproject and center height map coordinates
                 heightMap = heightMap.ReprojectTo(dataset.SRID, outputSRID)
