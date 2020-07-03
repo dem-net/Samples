@@ -73,7 +73,7 @@ namespace SampleApp
 
             foreach (var data in model.Sets.SelectMany(s => s.Data))
             {
-                if (data.Entree == model.Entree) // Warning! Entrance may not be the start node
+                if (data.Entree == model.Entree && model.Graph.Root == null) // Warning! Entrance may not be the start node
                 {
                     var node = model.Graph.CreateRoot(data, data.Entree);
                     nodesByName[node.Key] = node;
