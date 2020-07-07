@@ -106,8 +106,8 @@ namespace SampleApp
             })
            .Configure<LoggerFilterOptions>(options =>
            {
-               options.AddFilter<DebugLoggerProvider>(null /* category*/ , LogLevel.Trace /* min level */);
-               options.AddFilter<ConsoleLoggerProvider>(null  /* category*/ , LogLevel.Trace /* min level */);
+               options.AddFilter<DebugLoggerProvider>(null /* category*/ , LogLevel.Information /* min level */);
+               options.AddFilter<ConsoleLoggerProvider>(null  /* category*/ , LogLevel.Information/* min level */);
 
                // Comment this line to see all internal DEM.Net logs
                //options.AddFilter<ConsoleLoggerProvider>("DEM.Net", LogLevel.Information);
