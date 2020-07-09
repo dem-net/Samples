@@ -31,6 +31,7 @@ using System.Diagnostics;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Net.Http.Headers;
 using System.Numerics;
 using System.Text;
 
@@ -61,11 +62,11 @@ namespace SampleApp
 
             // ========================
             // 3D model
-            Build3DTopology(model, zFactor);
+            Build3DTopology_Lines(model, zFactor);
+            Build3DTopology_Triangulation(model, zFactor);
 
             return model;
         }
-
 
         private void CreateGraph(VisualTopoModel model)
         {
@@ -75,6 +76,7 @@ namespace SampleApp
             {
                 if (data.Entree == model.Entree && model.Graph.Root == null) // Warning! Entrance may not be the start node
                 {
+                    data.IsRoot = true;
                     var node = model.Graph.CreateRoot(data, data.Entree);
                     nodesByName[node.Key] = node;
                 }
@@ -94,14 +96,111 @@ namespace SampleApp
             }
         }
 
-        public void Build3DTopology(VisualTopoModel model, float zFactor)
+        #region Graph Traversal (full 3D)
+
+        private void Build3DTopology_Triangulation(VisualTopoModel model, float zFactor)
+        {
+            TriangulationList<Vector3> triangulation = new TriangulationList<Vector3>();
+            GraphTraversal_Triangulation(model.Graph.Root, ref triangulation, Vector3.Zero, zFactor);
+            model.TriangulationFull3D = triangulation;
+        }
+
+        private void GraphTraversal_Triangulation(Node<VisualTopoData> node, ref TriangulationList<Vector3> triangulation, Vector3 local, float zFactor)
+        {
+
+            var p = node.Model;
+
+            if (node.Arcs.Count == 0) // leaf
+            {
+                Debug.Assert(triangulation.NumPositions > 0, "Triangulation should not be empty");
+
+                // Make a rectangle perpendicual to direction centered on point (should be centered at human eye (y = 2m)
+                AddCorridorRectangleSection(ref triangulation, local, p.GlobalVector);
+                return;
+            }
+            else
+            {
+                foreach (var arc in node.Arcs)
+                {
+                    AddCorridorRectangleSection(ref triangulation, local, p.GlobalVector);
+                    GraphTraversal_Triangulation(arc.Child, ref triangulation, p.GlobalVector, zFactor);
+                }
+            }
+        }
+        /// <summary>
+        /// // Make a rectangle perpendicual to direction centered on point (should be centered at human eye (y = 2m)
+        /// </summary>
+        /// <param name="triangulation"></param>
+        /// <param name="current"></param>
+        /// <param name="next"></param>
+        /// <returns></returns>
+        private void AddCorridorRectangleSection(ref TriangulationList<Vector3> triangulation, Vector3 current, Vector3 next)
+        {
+            Vector3 direction = next - current;
+            if (direction == Vector3.Zero)
+            {
+                direction = Vector3.UnitZ * -1;
+            }
+            Vector3 side = Vector3.Normalize(Vector3.Cross(direction, Vector3.UnitY));
+            if (IsInvalid(side)) // Vector3 is UnitY
+            {
+                side = Vector3.UnitX; // set it to UnitX
+            }
+            Vector3 up = Vector3.Normalize(Vector3.Cross(direction, side));
+
+            if (IsInvalid(side) || IsInvalid(up))
+            {
+                return;
+            }
+
+            triangulation.Positions.Add(current - side);
+            triangulation.Positions.Add(current - side + up);
+            triangulation.Positions.Add(current + side + up);
+            triangulation.Positions.Add(current + side);
+
+            // corridor sides
+            if (triangulation.NumPositions > 4)
+            {
+                int i = triangulation.NumPositions - 8;
+                for (int n = 0; n < 4; n++)
+                {
+                    AddFace(ref triangulation, i + n, i + (n + 1) % 4
+                                                           , i + n + 4, i + (n + 1) % 4 + 4);
+                }
+            }
+        }
+
+        private bool IsInvalid(Vector3 vector)
+        {
+            return float.IsNaN(vector.X) || float.IsNaN(vector.Y) || float.IsNaN(vector.Z)
+                || float.IsInfinity(vector.X) || float.IsInfinity(vector.Y) || float.IsInfinity(vector.Z);
+        }
+
+        private void AddFace(ref TriangulationList<Vector3> triangulation, int i0, int i1, int i4, int i5)
+        {
+            // left side tri low
+            triangulation.Indices.Add(i0);
+            triangulation.Indices.Add(i4);
+            triangulation.Indices.Add(i5);
+
+            // left side tri high
+            triangulation.Indices.Add(i0);
+            triangulation.Indices.Add(i5);
+            triangulation.Indices.Add(i1);
+        }
+
+        #endregion
+
+        #region Graph Traversal (lines)
+
+        private void Build3DTopology_Lines(VisualTopoModel model, float zFactor)
         {
             List<List<GeoPointRays>> branches = new List<List<GeoPointRays>>();
-            GetBranchesVectors(model.Graph.Root, branches, null, Vector3.Zero, zFactor);
+            GraphTraversal_Lines(model.Graph.Root, branches, null, Vector3.Zero, zFactor);
             model.Topology3D = branches;
         }
 
-        private void GetBranchesVectors(Node<VisualTopoData> node, List<List<GeoPointRays>> branches, List<GeoPointRays> current, Vector3 local, float zFactor)
+        private void GraphTraversal_Lines(Node<VisualTopoData> node, List<List<GeoPointRays>> branches, List<GeoPointRays> current, Vector3 local, float zFactor)
         {
 
             var p = node.Model;
@@ -114,7 +213,7 @@ namespace SampleApp
                                                 , p.Section.left, p.Section.right, p.Section.up, p.Section.down);
 
             if (current == null) current = new List<GeoPointRays>();
-            if (node.Arcs.Count == 0)
+            if (node.Arcs.Count == 0) // leaf
             {
                 current.Add(node.Model.GlobalGeoPoint);
                 branches.Add(current);
@@ -131,16 +230,28 @@ namespace SampleApp
 
                         current.Add(node.Model.GlobalGeoPoint);
 
-                        GetBranchesVectors(arc.Child, branches, current, node.Model.GlobalVector, zFactor);
+                        GraphTraversal_Lines(arc.Child, branches, current, node.Model.GlobalVector, zFactor);
                     }
                     else
                     {
                         var newBranch = new List<GeoPointRays>();
                         newBranch.Add(node.Model.GlobalGeoPoint);
-                        GetBranchesVectors(arc.Child, branches, newBranch, node.Model.GlobalVector, zFactor);
+                        GraphTraversal_Lines(arc.Child, branches, newBranch, node.Model.GlobalVector, zFactor);
                     }
                 }
             }
+        }
+
+        #endregion
+
+        #region DebugBranches
+
+        // Useful to debug : output graph as node names
+        public List<List<string>> GetBranchesNodeNames(VisualTopoModel model)
+        {
+            List<List<string>> branches = new List<List<string>>();
+            GetBranches(model.Graph.Root, branches, null, n => n.Sortie);
+            return branches;
         }
         private void GetBranches<T>(Node<VisualTopoData> node, List<List<T>> branches, List<T> current, Func<VisualTopoData, T> extractInfo)
         {
@@ -174,14 +285,7 @@ namespace SampleApp
             }
         }
 
-        // Useful to debug : output graph as node names
-        public List<List<string>> GetBranchesNodeNames(VisualTopoModel model)
-        {
-            List<List<string>> branches = new List<List<string>>();
-            GetBranches(model.Graph.Root, branches, null, n => n.Sortie);
-            return branches;
-        }
-
+        #endregion
 
         #region Parsing
 
@@ -198,8 +302,8 @@ namespace SampleApp
                     factor = 1000d;
                     srid = 32631;
                     break;
-                case "LT3": 
-                    factor = 1000d; 
+                case "LT3":
+                    factor = 1000d;
                     srid = 27573;
                     break;
                 case "WGS84": factor = 1d; srid = 4326; break;

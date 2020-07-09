@@ -59,6 +59,7 @@ namespace SampleApp
         }
 
         public List<List<GeoPointRays>> Topology3D { get; internal set; }
+        public TriangulationList<Vector3> TriangulationFull3D { get; internal set; }
     }
 
     public class VisualTopoSet
@@ -83,6 +84,7 @@ namespace SampleApp
         public (float left, float right, float up, float down) Section { get; internal set; }
         public Vector3 GlobalVector { get; internal set; }
         public GeoPointRays GlobalGeoPoint { get; internal set; }
+        public bool IsRoot { get; internal set; }
     }
 
 

@@ -173,6 +173,10 @@ namespace SampleApp
                 _gltfService.AddMesh(gltfModel, "Axis", axis.Translate(axisOrigin));
 
                 int i = 0;
+                var triangulation = model.TriangulationFull3D.Translate(model.EntryPoint.AsVector3())
+                                                                .ReprojectTo(model.SRID, outputSRID)
+                                                                .CenterOnOrigin(bboxTerrainSpace);
+                gltfModel = _gltfService.AddMesh(gltfModel, "Cavite3D", model.TriangulationFull3D, VectorsExtensions.CreateColor(0, 255, 0));
                 foreach (var line in model.Topology3D) // model.Topology3D is the graph of topo paths
                 {
                     // Add line to model
