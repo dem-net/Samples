@@ -36,9 +36,9 @@ using System.Text;
 
 namespace SampleApp
 {
-    public static class VisualTopoService
+    public class VisualTopoService
     {
-        public static VisualTopoModel ParseFile(string vtopoFile, Encoding encoding, bool decimalDegrees, bool ignoreRadialBeams, float zFactor)
+        public VisualTopoModel ParseFile(string vtopoFile, Encoding encoding, bool decimalDegrees, bool ignoreRadialBeams, float zFactor)
         {
             VisualTopoModel model = new VisualTopoModel();
 
@@ -46,11 +46,11 @@ namespace SampleApp
             // Parsing
             using (StreamReader sr = new StreamReader(vtopoFile, encoding))
             {
-                model = VisualTopoService.ParseHeader(model, sr);
+                model = this.ParseHeader(model, sr);
 
                 while (!sr.EndOfStream)
                 {
-                    model = VisualTopoService.ParseSet(model, sr, decimalDegrees, ignoreRadialBeams);
+                    model = this.ParseSet(model, sr, decimalDegrees, ignoreRadialBeams);
                 }
             }
 
@@ -67,7 +67,7 @@ namespace SampleApp
         }
 
 
-        private static void CreateGraph(VisualTopoModel model)
+        private void CreateGraph(VisualTopoModel model)
         {
             Dictionary<string, Node<VisualTopoData>> nodesByName = new Dictionary<string, Node<VisualTopoData>>();
 
@@ -94,14 +94,14 @@ namespace SampleApp
             }
         }
 
-        public static void Build3DTopology(VisualTopoModel model, float zFactor)
+        public void Build3DTopology(VisualTopoModel model, float zFactor)
         {
             List<List<GeoPointRays>> branches = new List<List<GeoPointRays>>();
             GetBranchesVectors(model.Graph.Root, branches, null, Vector3.Zero, zFactor);
             model.Topology3D = branches;
         }
 
-        private static void GetBranchesVectors(Node<VisualTopoData> node, List<List<GeoPointRays>> branches, List<GeoPointRays> current, Vector3 local, float zFactor)
+        private void GetBranchesVectors(Node<VisualTopoData> node, List<List<GeoPointRays>> branches, List<GeoPointRays> current, Vector3 local, float zFactor)
         {
 
             var p = node.Model;
@@ -142,7 +142,7 @@ namespace SampleApp
                 }
             }
         }
-        private static void GetBranches<T>(Node<VisualTopoData> node, List<List<T>> branches, List<T> current, Func<VisualTopoData, T> extractInfo)
+        private void GetBranches<T>(Node<VisualTopoData> node, List<List<T>> branches, List<T> current, Func<VisualTopoData, T> extractInfo)
         {
             if (current == null) current = new List<T>();
 
@@ -175,7 +175,7 @@ namespace SampleApp
         }
 
         // Useful to debug : output graph as node names
-        public static List<List<string>> GetBranchesNodeNames(VisualTopoModel model)
+        public List<List<string>> GetBranchesNodeNames(VisualTopoModel model)
         {
             List<List<string>> branches = new List<List<string>>();
             GetBranches(model.Graph.Root, branches, null, n => n.Sortie);
@@ -185,7 +185,7 @@ namespace SampleApp
 
         #region Parsing
 
-        private static void ParseEntryHeader(VisualTopoModel model, string entry)
+        private void ParseEntryHeader(VisualTopoModel model, string entry)
         {
             var data = entry.Split(',');
             model.Name = data[0];
@@ -214,7 +214,7 @@ namespace SampleApp
             model.EntryPoint = model.EntryPoint;
         }
 
-        private static VisualTopoModel ParseHeader(VisualTopoModel model, StreamReader sr)
+        private VisualTopoModel ParseHeader(VisualTopoModel model, StreamReader sr)
         {
 
             sr.ReadUntil(string.IsNullOrWhiteSpace);
@@ -245,7 +245,7 @@ namespace SampleApp
             return model;
         }
 
-        private static VisualTopoModel ParseSet(VisualTopoModel model, StreamReader sr, bool decimalDegrees, bool ignoreRadialBeams)
+        private VisualTopoModel ParseSet(VisualTopoModel model, StreamReader sr, bool decimalDegrees, bool ignoreRadialBeams)
         {
             VisualTopoSet set = new VisualTopoSet();
 
@@ -260,7 +260,7 @@ namespace SampleApp
             // Set header
             var data = setHeader.Split(';', StringSplitOptions.RemoveEmptyEntries);
             var headerSlots = data[0].Split(' ', StringSplitOptions.RemoveEmptyEntries);
-            set.Color = VisualTopoService.ParseColor(headerSlots[headerSlots.Length - 3]);
+            set.Color = this.ParseColor(headerSlots[headerSlots.Length - 3]);
             set.Name = data.Length > 1 ? data[1].Trim() : string.Empty;
 
             sr.Skip(1);
@@ -276,7 +276,7 @@ namespace SampleApp
                 Debug.Assert(slots.Length == 13);
 
                 // Parse data line
-                topoData = VisualTopoService.ParseData(topoData, slots, decimalDegrees, ignoreRadialBeams);
+                topoData = this.ParseData(topoData, slots, decimalDegrees, ignoreRadialBeams);
                 if (topoData != null)
                 {
                     set.Data.Add(topoData);
@@ -290,7 +290,7 @@ namespace SampleApp
             return model;
         }
 
-        private static VisualTopoData ParseData(VisualTopoData topoData, string[] slots, bool decimalDegrees, bool ignoreRadialBeams)
+        private VisualTopoData ParseData(VisualTopoData topoData, string[] slots, bool decimalDegrees, bool ignoreRadialBeams)
         {
             const string DefaultSize = "2";
 
@@ -311,7 +311,7 @@ namespace SampleApp
             return topoData;
         }
 
-        private static float ParseAngle(float degMinSec, bool decimalDegrees)
+        private float ParseAngle(float degMinSec, bool decimalDegrees)
         {
             // 125 deg 30min is not 125,5 BUT 125,3
             if (decimalDegrees)
@@ -330,7 +330,7 @@ namespace SampleApp
             }
         }
 
-        private static Vector4 ParseColor(string rgbCommaSeparated)
+        private Vector4 ParseColor(string rgbCommaSeparated)
         {
             if (rgbCommaSeparated == "Std")
                 return VectorsExtensions.CreateColor(255, 255, 255);

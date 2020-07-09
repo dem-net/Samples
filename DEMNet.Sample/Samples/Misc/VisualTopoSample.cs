@@ -101,6 +101,7 @@ namespace SampleApp
                 var dataset = DEMDataSet.AW3D30;                        // DEM dataset for terrain and elevation
                 int TEXTURE_TILES = 4;                                 // Texture quality (number of tiles for bigger side) 4: med, 8: high, 12: ultra
                 string outputDir = Directory.GetCurrentDirectory();
+                VisualTopoService visualTopoService = new VisualTopoService();
 
                 //=======================
                 // Open and parse file
@@ -116,7 +117,7 @@ namespace SampleApp
                 // => Topology3D -> list of point-to-point lines
                 // => SRID of model file
                 StopwatchLog timeLog = new StopwatchLog(_logger);
-                VisualTopoModel model = VisualTopoService.ParseFile(vtopoFile, Encoding.GetEncoding("ISO-8859-1")
+                VisualTopoModel model = visualTopoService.ParseFile(vtopoFile, Encoding.GetEncoding("ISO-8859-1")
                                                                     , decimalDegrees: true
                                                                     , ignoreRadialBeams: true
                                                                     , zFactor);
