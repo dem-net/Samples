@@ -39,7 +39,16 @@ namespace SampleApp
 {
     public class VisualTopoService
     {
-        public VisualTopoModel ParseFile(string vtopoFile, Encoding encoding, bool decimalDegrees, bool ignoreRadialBeams, float zFactor)
+        public VisualTopoModel LoadFile(string vtopoFile, Encoding encoding, bool decimalDegrees, bool ignoreRadialBeams, float zFactor)
+        {
+            var model = ParseFile(vtopoFile, encoding, decimalDegrees, ignoreRadialBeams);
+
+            model = ComputeTopology(model, zFactor);
+
+            return model;
+        }
+
+        private VisualTopoModel ParseFile(string vtopoFile, Encoding encoding, bool decimalDegrees, bool ignoreRadialBeams)
         {
             VisualTopoModel model = new VisualTopoModel();
 
@@ -55,10 +64,13 @@ namespace SampleApp
                 }
             }
 
+            return model;
+        }
+        private VisualTopoModel ComputeTopology(VisualTopoModel model, float zFactor)
+        {
             // ========================
             // Graph
             CreateGraph(model);
-
 
             // ========================
             // 3D model
@@ -205,10 +217,10 @@ namespace SampleApp
 
             var p = node.Model;
             var direction = Vector3.UnitX * p.Longueur;
-            var matrix = Matrix4x4.CreateRotationY((float)MathHelper.ToRadians(-p.Pente)) * Matrix4x4.CreateRotationZ((float)MathHelper.ToRadians(p.Cap));
+            var matrix = Matrix4x4.CreateRotationY((float)MathHelper.ToRadians(-p.Pente)) * Matrix4x4.CreateRotationZ((float)(Math.PI / 2f - MathHelper.ToRadians(p.Cap)));
             direction = Vector3.Transform(direction, matrix);
             p.GlobalVector = direction + local;
-            p.GlobalGeoPoint = new GeoPointRays(p.GlobalVector.X, p.GlobalVector.Y, p.GlobalVector.Z * zFactor
+            p.GlobalGeoPoint = new GeoPointRays(p.GlobalVector.Y, p.GlobalVector.X, p.GlobalVector.Z * zFactor
                                                 , Vector3.Normalize(direction)
                                                 , p.Section.left, p.Section.right, p.Section.up, p.Section.down);
 

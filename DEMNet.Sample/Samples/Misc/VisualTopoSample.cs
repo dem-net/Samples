@@ -65,12 +65,12 @@ namespace SampleApp
         public void Run()
         {
 
+            Run(Path.Combine("SampleData", "VisualTopo", "small", "0 bifurc", "Test 4 arcs.tro"), imageryProvider: null, bboxMarginMeters: 50);
+
             // Single file
             Run(Path.Combine("SampleData", "VisualTopo", "topo asperge avec ruisseau.TRO"), imageryProvider: ImageryProvider.OpenTopoMap, bboxMarginMeters: 50);
 
-            Run(Path.Combine("SampleData", "VisualTopo", "small", "0 bifurc", "Test 4 arcs.tro"), imageryProvider: null, bboxMarginMeters: 50);
-
-
+            
             // All files in given directory
             foreach (var file in Directory.EnumerateFileSystemEntries(Path.Combine("SampleData", "VisualTopo"), "*.tro", SearchOption.AllDirectories))
             {
@@ -117,11 +117,11 @@ namespace SampleApp
                 // => Topology3D -> list of point-to-point lines
                 // => SRID of model file
                 StopwatchLog timeLog = new StopwatchLog(_logger);
-                VisualTopoModel model = visualTopoService.ParseFile(vtopoFile, Encoding.GetEncoding("ISO-8859-1")
+                VisualTopoModel model = visualTopoService.LoadFile(vtopoFile, Encoding.GetEncoding("ISO-8859-1")
                                                                     , decimalDegrees: true
                                                                     , ignoreRadialBeams: true
                                                                     , zFactor);
-                timeLog.LogTime($"Parsing {vtopoFile} model file", reset: true);
+                timeLog.LogTime($"Loading {vtopoFile} model file", reset: true);
 
                 // Warn if badly supported projection
                 if (model.EntryPointProjectionCode.StartsWith("LT"))
@@ -170,13 +170,13 @@ namespace SampleApp
 
                 // Add X/Y/Z axis on entry point
                 var axis = _meshService.CreateAxis();
-                _gltfService.AddMesh(gltfModel, "Axis", axis.Translate(axisOrigin));
+                _gltfService.AddMesh(gltfModel, "Axis", axis.Translate(axisOrigin),doubleSided: false);
 
                 int i = 0;
                 var triangulation = model.TriangulationFull3D.Translate(model.EntryPoint.AsVector3())
                                                                 .ReprojectTo(model.SRID, outputSRID)
                                                                 .CenterOnOrigin(bboxTerrainSpace);
-                gltfModel = _gltfService.AddMesh(gltfModel, "Cavite3D", model.TriangulationFull3D, VectorsExtensions.CreateColor(0, 255, 0));
+                gltfModel = _gltfService.AddMesh(gltfModel, "Cavite3D", model.TriangulationFull3D, VectorsExtensions.CreateColor(0, 255, 0), doubleSided: false);
                 foreach (var line in model.Topology3D) // model.Topology3D is the graph of topo paths
                 {
                     // Add line to model
