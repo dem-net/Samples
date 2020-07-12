@@ -10,16 +10,17 @@ Couleur 0,0,0
 Param Deca Degd Clino Degd 0.0000 Dir,Dir,Dir Inc Std --/--/---- M
 
 A          A                         0.00    0.00    0.00   2.00   2.00   6.00   0.10 N I * N ;Grand porche d'entrée;
-A          B                         4.70   10.00  -10.00   2.00   2.00   2.90   0.10 N I * N
-B          C                         7.10   20.00  -20.00   1.25   1.25   2.50   0.10 N I * N ;la hauteur de la galerie devient basse et ne permet plus la station debout.;
-C          D                         7.00   30.00  -30.00   1.50   1.50   1.40   0.10 N I * N ;passage agrandi ce passage n'avait jamais été franchi.;
-D          E                         4.40   40.00  -40.00   0.75   0.75   0.70   0.10 N I * N
-E          F                         2.30   50.00  -50.00   0.30   0.30   0.50   0.10 N I * N
-F          G                         1.60   60.00  -60.00   0.40   0.40   0.40   0.10 N I * N ;marmite de plafond passage étroit;
-G          H                         4.40   70.00  -70.00   0.90   0.90   0.70   0.10 N I * N ;la galerie devient plus large 3m en moyenne mais la hauteur reste de 08 à cause du remplissage.;
-H          I                         6.30   80.00  -80.00   1.50   1.50   0.70   0.10 N I * N
-I          J                        11.15   90.00  -90.00   1.50   1.50   0.70   0.10 N I * N
-J          K                        10.00  100.00  -60.00   2.50   2.50   1.70   0.10 N I * N
+A          B                         40.70   30.00  -10.00   2.00   2.00   2.90   0.10 N I * N
+B          C                         70.10   330.00  -20.00   1.25   1.25   2.50   0.10 N I * N ;la hauteur de la galerie devient basse et ne permet plus la station debout.;
+C          D                         70.00   45.00  -30.00   1.50   1.50   1.40   0.10 N I * N ;passage agrandi ce passage n'avait jamais été franchi.;
+C          G                         40.40   330.00  -40.00   0.75   0.75   0.70   0.10 N I * N
+D          E                         40.40   90.00  -40.00   0.75   0.75   0.70   0.10 N I * N
+E          F                         20.30   45.00  -50.00   0.30   0.30   0.50   0.10 N I * N
+F          G1                         10.60   90.00  -60.00   0.40   0.40   0.40   0.10 N I * N ;marmite de plafond passage étroit;
+G          H                         40.40   270.00  -70.00   0.90   0.90   0.70   0.10 N I * N ;la galerie devient plus large 3m en moyenne mais la hauteur reste de 08 à cause du remplissage.;
+H          I                         60.30   300.00  -70.00   10.50   10.50   4.70   2.10 N I * N
+I          J                        110.15   270.00  -70.00   1.50   1.50   0.70   0.10 N I * N
+J          K                        100.00  300.00  -70.00   8.50   8.50   8.70   8.10 N I * N
 
 [Configuration 5.12]
 

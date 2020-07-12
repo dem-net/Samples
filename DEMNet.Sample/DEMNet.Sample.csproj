@@ -75,6 +75,9 @@
     <None Update="SampleData\trail.gpx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Update="SampleData\VisualTopo\small\0 bifurc\Test 3 arcs.tro">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="SampleData\VisualTopo\small\0 bifurc\Topographie  CAMPELS2.tro">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

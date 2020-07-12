@@ -64,13 +64,17 @@ namespace SampleApp
 
         public void Run()
         {
+            Run(Path.Combine("SampleData", "VisualTopo", "small", "0 bifurc", "Test 3 arcs.tro"), imageryProvider: null, bboxMarginMeters: 50, generateTopoOnlyModel: true);
 
-            Run(Path.Combine("SampleData", "VisualTopo", "small", "0 bifurc", "Test 4 arcs.tro"), imageryProvider: null, bboxMarginMeters: 50);
+            Run(Path.Combine("SampleData", "VisualTopo", "small", "0 bifurc", "Test 4 arcs.tro"), imageryProvider: null, bboxMarginMeters: 50, generateTopoOnlyModel: true);
 
             // Single file
-            Run(Path.Combine("SampleData", "VisualTopo", "topo asperge avec ruisseau.TRO"), imageryProvider: ImageryProvider.OpenTopoMap, bboxMarginMeters: 50);
+            Run(Path.Combine("SampleData", "VisualTopo", "topo asperge avec ruisseau.TRO"), imageryProvider: ImageryProvider.MapBoxSatelliteStreet, bboxMarginMeters: 500);
 
-            
+            Run(Path.Combine("SampleData", "VisualTopo", "LA SALLE.TRO"), imageryProvider: ImageryProvider.OpenTopoMap, bboxMarginMeters: 50);
+
+
+
             // All files in given directory
             foreach (var file in Directory.EnumerateFileSystemEntries(Path.Combine("SampleData", "VisualTopo"), "*.tro", SearchOption.AllDirectories))
             {
@@ -99,7 +103,7 @@ namespace SampleApp
                 float zFactor = 1F;                                     // Z exaggeration
                 float lineWidth = 1.0F;                                 // Topo lines width (meters)
                 var dataset = DEMDataSet.AW3D30;                        // DEM dataset for terrain and elevation
-                int TEXTURE_TILES = 4;                                 // Texture quality (number of tiles for bigger side) 4: med, 8: high, 12: ultra
+                int TEXTURE_TILES = 12;                                 // Texture quality (number of tiles for bigger side) 4: med, 8: high, 12: ultra
                 string outputDir = Directory.GetCurrentDirectory();
                 VisualTopoService visualTopoService = new VisualTopoService();
 
@@ -170,22 +174,22 @@ namespace SampleApp
 
                 // Add X/Y/Z axis on entry point
                 var axis = _meshService.CreateAxis();
-                _gltfService.AddMesh(gltfModel, "Axis", axis.Translate(axisOrigin),doubleSided: false);
+                _gltfService.AddMesh(gltfModel, "Axis", axis.Translate(axisOrigin), doubleSided: false);
 
                 int i = 0;
                 var triangulation = model.TriangulationFull3D.Translate(model.EntryPoint.AsVector3())
                                                                 .ReprojectTo(model.SRID, outputSRID)
                                                                 .CenterOnOrigin(bboxTerrainSpace);
                 gltfModel = _gltfService.AddMesh(gltfModel, "Cavite3D", model.TriangulationFull3D, VectorsExtensions.CreateColor(0, 255, 0), doubleSided: false);
-                foreach (var line in model.Topology3D) // model.Topology3D is the graph of topo paths
-                {
-                    // Add line to model
-                    gltfModel = _gltfService.AddLine(gltfModel
-                                                    , string.Concat("GPX", i++)     // name of 3D node
-                                                    , Transform(line)               // call transform function
-                                                    , color: VectorsExtensions.CreateColor(255, 0, 0, 128)
-                                                    , lineWidth);
-                }
+                //foreach (var line in model.Topology3D) // model.Topology3D is the graph of topo paths
+                //{
+                //    // Add line to model
+                //    gltfModel = _gltfService.AddLine(gltfModel
+                //                                    , string.Concat("GPX", i++)     // name of 3D node
+                //                                    , Transform(line)               // call transform function
+                //                                    , color: VectorsExtensions.CreateColor(255, 0, 0, 128)
+                //                                    , lineWidth);
+                //}
                 timeLog.LogTime("Topo 3D model", reset: true);
 
                 if (generateTopoOnlyModel)

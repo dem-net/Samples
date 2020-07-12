@@ -25,6 +25,9 @@
 // THE SOFTWARE.
 using DEM.Net.Core;
 using DEM.Net.Core.Graph;
+using DEM.Net.glTF.SharpglTF;
+using SixLabors.ImageSharp.ColorSpaces;
+using SixLabors.ImageSharp.ColorSpaces.Conversion;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -109,15 +112,28 @@ namespace SampleApp
         }
 
         #region Graph Traversal (full 3D)
-
         private void Build3DTopology_Triangulation(VisualTopoModel model, float zFactor)
         {
+            float minElevation = model.Graph.AllNodes.Min(n => n.Model.GlobalVector.Z);
+            Func<Vector3, Vector4> colorFunc = (data) =>
+            {
+                float lerpAmout = minElevation == 0 ? 0 : Math.Abs(data.Z / minElevation);
+                Hsv hsvColor = new Hsv(MathHelper.Lerp(0f, 360f, lerpAmout), 1, 1);
+                var rgb = new ColorSpaceConverter().ToRgb(hsvColor);
+
+
+                return new Vector4(rgb.R, rgb.G, rgb.B, 255);
+                //return Vector4.Lerp(VectorsExtensions.CreateColor(0, 255, 255), VectorsExtensions.CreateColor(0, 255, 0), lerpAmout);
+            };
+
+
             TriangulationList<Vector3> triangulation = new TriangulationList<Vector3>();
-            GraphTraversal_Triangulation(model.Graph.Root, ref triangulation, Vector3.Zero, zFactor);
+            GraphTraversal_Triangulation(model.Graph.Root, ref triangulation, Vector3.Zero, zFactor, colorFunc);
             model.TriangulationFull3D = triangulation;
         }
 
-        private void GraphTraversal_Triangulation(Node<VisualTopoData> node, ref TriangulationList<Vector3> triangulation, Vector3 local, float zFactor)
+
+        private void GraphTraversal_Triangulation(Node<VisualTopoData> node, ref TriangulationList<Vector3> triangulation, Vector3 local, float zFactor, Func<Vector3, Vector4> colorFunc)
         {
 
             var p = node.Model;
@@ -127,15 +143,18 @@ namespace SampleApp
                 Debug.Assert(triangulation.NumPositions > 0, "Triangulation should not be empty");
 
                 // Make a rectangle perpendicual to direction centered on point (should be centered at human eye (y = 2m)
-                AddCorridorRectangleSection(ref triangulation, local, p.GlobalVector);
-                return;
+                AddCorridorRectangleSection(ref triangulation, local, p, triangulation.NumPositions - 4, isLeaf: true, colorFunc);
             }
             else
             {
+                int posIndex = triangulation.NumPositions - 4;
                 foreach (var arc in node.Arcs)
                 {
-                    AddCorridorRectangleSection(ref triangulation, local, p.GlobalVector);
-                    GraphTraversal_Triangulation(arc.Child, ref triangulation, p.GlobalVector, zFactor);
+                    AddCorridorRectangleSection(ref triangulation, p.GlobalVector, arc.Child.Model, posIndex, false, colorFunc);
+                    posIndex = triangulation.NumPositions - 4;
+
+                    GraphTraversal_Triangulation(arc.Child, ref triangulation, p.GlobalVector, zFactor, colorFunc);
+
                 }
             }
         }
@@ -146,8 +165,10 @@ namespace SampleApp
         /// <param name="current"></param>
         /// <param name="next"></param>
         /// <returns></returns>
-        private void AddCorridorRectangleSection(ref TriangulationList<Vector3> triangulation, Vector3 current, Vector3 next)
+        private void AddCorridorRectangleSection(ref TriangulationList<Vector3> triangulation, Vector3 current, VisualTopoData nextData, int startIndex, bool isLeaf, Func<Vector3, Vector4> colorFunc)
         {
+            Vector3 next = nextData.GlobalVector;
+            GeoPointRays rays = nextData.GlobalGeoPoint;
             Vector3 direction = next - current;
             if (direction == Vector3.Zero)
             {
@@ -164,20 +185,27 @@ namespace SampleApp
             {
                 return;
             }
+            //var m = Matrix4x4.CreateWorld(next, direction, Vector3.UnitZ);
 
-            triangulation.Positions.Add(current - side);
-            triangulation.Positions.Add(current - side + up);
-            triangulation.Positions.Add(current + side + up);
-            triangulation.Positions.Add(current + side);
+            var position = isLeaf ? next : current;
+            triangulation.Positions.Add(position - side * rays.Left - up * rays.Down);
+            triangulation.Positions.Add(position - side * rays.Left + up * rays.Up);
+            triangulation.Positions.Add(position + side * rays.Right + up * rays.Up);
+            triangulation.Positions.Add(position + side * rays.Right - up * rays.Down);
+
+            //Vector4 color = (colorIndex++) % 2 == 0 ? VectorsExtensions.CreateColor(0, 255, 0) : VectorsExtensions.CreateColor(0, 0, 255);
+
+            triangulation.Colors.AddRange(Enumerable.Repeat(colorFunc(position), 4));
 
             // corridor sides
             if (triangulation.NumPositions > 4)
             {
-                int i = triangulation.NumPositions - 8;
+                int i = startIndex; // triangulation.NumPositions - 8;
+                int lastIndex = triangulation.NumPositions - 4;
                 for (int n = 0; n < 4; n++)
                 {
                     AddFace(ref triangulation, i + n, i + (n + 1) % 4
-                                                           , i + n + 4, i + (n + 1) % 4 + 4);
+                                             , lastIndex + n, lastIndex + (n + 1) % 4);
                 }
             }
         }
