@@ -29,6 +29,7 @@ using System.Numerics;
 using System.Linq;
 using System.Runtime.InteropServices;
 using DEM.Net.Core.Graph;
+using System;
 
 namespace SampleApp
 {
@@ -64,13 +65,20 @@ namespace SampleApp
 
     public class VisualTopoSet
     {
-        public List<VisualTopoData> Data { get; set; } = new List<VisualTopoData>();
+        public List<VisualTopoData> Data { get; private set; } = new List<VisualTopoData>();
         public string Name { get; internal set; }
         public Vector4 Color { get; internal set; }
 
         public override string ToString()
         {
             return $"Set {Name} with {Data.Count} data entries";
+        }
+
+        internal void Add(VisualTopoData topoData)
+        {
+            Data.Add(topoData);
+            topoData.Set = this;
+            topoData.IsSectionStart = this.Data.Count == 1;
         }
     }
     public class VisualTopoData
@@ -81,10 +89,12 @@ namespace SampleApp
         public float Longueur { get; internal set; }
         public float Cap { get; internal set; }
         public float Pente { get; internal set; }
-        public (float left, float right, float up, float down) Section { get; internal set; }
+        public (float left, float right, float up, float down) CutSection { get; internal set; }
         public Vector3 GlobalVector { get; internal set; }
         public GeoPointRays GlobalGeoPoint { get; internal set; }
         public bool IsRoot { get; internal set; }
+        public VisualTopoSet Set { get; internal set; }
+        public bool IsSectionStart { get; internal set; }
     }
 
 

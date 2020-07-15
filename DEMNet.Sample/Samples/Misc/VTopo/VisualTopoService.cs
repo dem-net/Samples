@@ -42,6 +42,12 @@ namespace SampleApp
 {
     public class VisualTopoService
     {
+        private readonly MeshService _meshService;
+
+        public VisualTopoService(MeshService meshService)
+        {
+            _meshService = meshService;
+        }
         public VisualTopoModel LoadFile(string vtopoFile, Encoding encoding, bool decimalDegrees, bool ignoreRadialBeams, float zFactor)
         {
             var model = ParseFile(vtopoFile, encoding, decimalDegrees, ignoreRadialBeams);
@@ -112,51 +118,67 @@ namespace SampleApp
         }
 
         #region Graph Traversal (full 3D)
+
+        // Color functions
+        Vector4 GetDepthColorGradient(Vector3 position, float maxDepth)
+        {
+            float lerpAmout = maxDepth == 0 ? 0 : Math.Abs(position.Z / maxDepth);
+            Hsv hsvColor = new Hsv(MathHelper.Lerp(0f, 360f, lerpAmout), 1, 1);
+            var rgb = new ColorSpaceConverter().ToRgb(hsvColor);
+
+            return new Vector4(rgb.R, rgb.G, rgb.B, 255);
+            //return Vector4.Lerp(VectorsExtensions.CreateColor(0, 255, 255), VectorsExtensions.CreateColor(0, 255, 0), lerpAmout);
+        }
+
         private void Build3DTopology_Triangulation(VisualTopoModel model, float zFactor)
         {
+            // Build color function
             float minElevation = model.Graph.AllNodes.Min(n => n.Model.GlobalVector.Z);
-            Func<Vector3, Vector4> colorFunc = (data) =>
-            {
-                float lerpAmout = minElevation == 0 ? 0 : Math.Abs(data.Z / minElevation);
-                Hsv hsvColor = new Hsv(MathHelper.Lerp(0f, 360f, lerpAmout), 1, 1);
-                var rgb = new ColorSpaceConverter().ToRgb(hsvColor);
+            Func<VisualTopoData, Vector3, Vector4> colorFunc = null;
 
+            // Gradient
+            //colorFunc = (data, pos) => GetDepthColorGradient(pos, minElevation);
 
-                return new Vector4(rgb.R, rgb.G, rgb.B, 255);
-                //return Vector4.Lerp(VectorsExtensions.CreateColor(0, 255, 255), VectorsExtensions.CreateColor(0, 255, 0), lerpAmout);
-            };
+            // Color in section header
+            colorFunc = (data, pos) => data.Set.Color;
 
-
-            TriangulationList<Vector3> triangulation = new TriangulationList<Vector3>();
-            GraphTraversal_Triangulation(model.Graph.Root, ref triangulation, model.Graph.Root.Model, zFactor, colorFunc);
-            model.TriangulationFull3D = triangulation;
+            // Generate triangulation
+            //
+            model.TriangulationFull3D = GraphTraversal_Triangulation(null, model.Graph.Root, model.Graph.Root.Model, zFactor, colorFunc);
         }
 
 
-        private void GraphTraversal_Triangulation(Node<VisualTopoData> node, ref TriangulationList<Vector3> triangulation, VisualTopoData local, float zFactor, Func<Vector3, Vector4> colorFunc)
+        private TriangulationList<Vector3> GraphTraversal_Triangulation(TriangulationList<Vector3> triangulation, Node<VisualTopoData> node, VisualTopoData local, float zFactor, Func<VisualTopoData, Vector3, Vector4> colorFunc)
         {
+            triangulation = triangulation ?? new TriangulationList<Vector3>();
 
-            var p = node.Model;
+            var model = node.Model;
+            if (model.IsSectionStart && triangulation.NumPositions > 0)
+            {
+                triangulation += _meshService.CreateCylinder(model.GlobalVector, 1, -model.GlobalVector.Z*1.5f, model.Set.Color);
+            }
 
             if (node.Arcs.Count == 0) // leaf
             {
                 Debug.Assert(triangulation.NumPositions > 0, "Triangulation should not be empty");
 
                 // Make a rectangle perpendicual to direction centered on point (should be centered at human eye (y = 2m)
-                AddCorridorRectangleSection(ref triangulation, p, p, triangulation.NumPositions - 4, isLeaf: true, colorFunc);
+                triangulation = AddCorridorRectangleSection(triangulation, model, model, triangulation.NumPositions - 4, isLeaf: true, colorFunc);
             }
             else
             {
                 int posIndex = triangulation.NumPositions - 4;
                 foreach (var arc in node.Arcs)
                 {
-                    AddCorridorRectangleSection(ref triangulation, p, arc.Child.Model, posIndex, false, colorFunc);
+                    triangulation = AddCorridorRectangleSection(triangulation, model, arc.Child.Model, posIndex, false, colorFunc);
                     posIndex = triangulation.NumPositions - 4;
 
-                    GraphTraversal_Triangulation(arc.Child, ref triangulation, p, zFactor, colorFunc);
+                    triangulation = GraphTraversal_Triangulation(triangulation, arc.Child, model, zFactor, colorFunc);
 
                 }
             }
+
+            return triangulation;
         }
         /// <summary>
         /// // Make a rectangle perpendicual to direction centered on point (should be centered at human eye (y = 2m)
@@ -165,7 +187,7 @@ namespace SampleApp
         /// <param name="current"></param>
         /// <param name="next"></param>
         /// <returns></returns>
-        private void AddCorridorRectangleSection(ref TriangulationList<Vector3> triangulation, VisualTopoData current, VisualTopoData nextData, int startIndex, bool isLeaf, Func<Vector3, Vector4> colorFunc)
+        private TriangulationList<Vector3> AddCorridorRectangleSection(TriangulationList<Vector3> triangulation, VisualTopoData current, VisualTopoData nextData, int startIndex, bool isLeaf, Func<VisualTopoData, Vector3, Vector4> colorFunc)
         {
             Vector3 next = nextData.GlobalVector;
             GeoPointRays rays = current.GlobalGeoPoint;
@@ -183,7 +205,7 @@ namespace SampleApp
 
             if (IsInvalid(side) || IsInvalid(up))
             {
-                return;
+                return triangulation;
             }
             //var m = Matrix4x4.CreateWorld(next, direction, Vector3.UnitZ);
 
@@ -195,7 +217,7 @@ namespace SampleApp
 
             //Vector4 color = (colorIndex++) % 2 == 0 ? VectorsExtensions.CreateColor(0, 255, 0) : VectorsExtensions.CreateColor(0, 0, 255);
 
-            triangulation.Colors.AddRange(Enumerable.Repeat(colorFunc(position), 4));
+            triangulation.Colors.AddRange(Enumerable.Repeat(colorFunc(current, position), 4));
 
             // corridor sides
             if (triangulation.NumPositions > 4)
@@ -208,6 +230,7 @@ namespace SampleApp
                                              , lastIndex + n, lastIndex + (n + 1) % 4);
                 }
             }
+            return triangulation;
         }
 
         private bool IsInvalid(Vector3 vector)
@@ -250,7 +273,7 @@ namespace SampleApp
             p.GlobalVector = direction + local;
             p.GlobalGeoPoint = new GeoPointRays(p.GlobalVector.Y, p.GlobalVector.X, p.GlobalVector.Z * zFactor
                                                 , Vector3.Normalize(direction)
-                                                , p.Section.left, p.Section.right, p.Section.up, p.Section.down);
+                                                , p.CutSection.left, p.CutSection.right, p.CutSection.up, p.CutSection.down);
 
             if (current == null) current = new List<GeoPointRays>();
             if (node.Arcs.Count == 0) // leaf
@@ -423,7 +446,7 @@ namespace SampleApp
                 topoData = this.ParseData(topoData, slots, decimalDegrees, ignoreRadialBeams);
                 if (topoData != null)
                 {
-                    set.Data.Add(topoData);
+                    set.Add(topoData);
                 }
                 dataLine = sr.ReadLine();
             }
@@ -447,7 +470,7 @@ namespace SampleApp
             topoData.Longueur = float.Parse(slots[2], CultureInfo.InvariantCulture);
             topoData.Cap = ParseAngle(float.Parse(slots[3], CultureInfo.InvariantCulture), decimalDegrees);
             topoData.Pente = ParseAngle(float.Parse(slots[4], CultureInfo.InvariantCulture), decimalDegrees);
-            topoData.Section = (left: float.Parse(slots[5] == "*" ? DefaultSize : slots[5], CultureInfo.InvariantCulture),
+            topoData.CutSection = (left: float.Parse(slots[5] == "*" ? DefaultSize : slots[5], CultureInfo.InvariantCulture),
                                 right: float.Parse(slots[6] == "*" ? DefaultSize : slots[6], CultureInfo.InvariantCulture),
                                 up: float.Parse(slots[8] == "*" ? DefaultSize : slots[8], CultureInfo.InvariantCulture),
                                 down: float.Parse(slots[7] == "*" ? DefaultSize : slots[7], CultureInfo.InvariantCulture));

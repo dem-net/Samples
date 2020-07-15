@@ -66,7 +66,7 @@ namespace SampleApp
         {
 
             // Single file
-            Run(Path.Combine("SampleData", "VisualTopo", "topo asperge avec ruisseau.TRO"), imageryProvider: ImageryProvider.MapBoxSatelliteStreet, bboxMarginMeters: 500);
+           Run(Path.Combine("SampleData", "VisualTopo", "topo asperge avec ruisseau.TRO"), imageryProvider: ImageryProvider.MapBoxSatelliteStreet, bboxMarginMeters: 500);
 
 
             Run(Path.Combine("SampleData", "VisualTopo", "small", "0 bifurc", "Test 3 arcs.tro"), imageryProvider: null, bboxMarginMeters: 50, generateTopoOnlyModel: true);
@@ -107,7 +107,7 @@ namespace SampleApp
                 var dataset = DEMDataSet.AW3D30;                        // DEM dataset for terrain and elevation
                 int TEXTURE_TILES = 12;                                 // Texture quality (number of tiles for bigger side) 4: med, 8: high, 12: ultra
                 string outputDir = Directory.GetCurrentDirectory();
-                VisualTopoService visualTopoService = new VisualTopoService();
+                VisualTopoService visualTopoService = new VisualTopoService(_meshService);
 
                 //=======================
                 // Open and parse file
