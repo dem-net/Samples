@@ -64,12 +64,14 @@ namespace SampleApp
 
         public void Run()
         {
-            Run(Path.Combine("SampleData", "VisualTopo", "small", "0 bifurc", "Test 3 arcs.tro"), imageryProvider: null, bboxMarginMeters: 50, generateTopoOnlyModel: true);
-
-            Run(Path.Combine("SampleData", "VisualTopo", "small", "0 bifurc", "Test 4 arcs.tro"), imageryProvider: null, bboxMarginMeters: 50, generateTopoOnlyModel: true);
 
             // Single file
             Run(Path.Combine("SampleData", "VisualTopo", "topo asperge avec ruisseau.TRO"), imageryProvider: ImageryProvider.MapBoxSatelliteStreet, bboxMarginMeters: 500);
+
+
+            Run(Path.Combine("SampleData", "VisualTopo", "small", "0 bifurc", "Test 3 arcs.tro"), imageryProvider: null, bboxMarginMeters: 50, generateTopoOnlyModel: true);
+
+            Run(Path.Combine("SampleData", "VisualTopo", "small", "0 bifurc", "Test 4 arcs.tro"), imageryProvider: null, bboxMarginMeters: 50, generateTopoOnlyModel: true);
 
             Run(Path.Combine("SampleData", "VisualTopo", "LA SALLE.TRO"), imageryProvider: ImageryProvider.OpenTopoMap, bboxMarginMeters: 50);
 
@@ -79,7 +81,7 @@ namespace SampleApp
             foreach (var file in Directory.EnumerateFileSystemEntries(Path.Combine("SampleData", "VisualTopo"), "*.tro", SearchOption.AllDirectories))
             {
                 _logger.LogInformation("Generating model for file " + file);
-                Run(file, ImageryProvider.MapBoxSatelliteStreet, bboxMarginMeters: 500, generateTopoOnlyModel: false);
+                Run(file, ImageryProvider.MapBoxSatelliteStreet, bboxMarginMeters: 50, generateTopoOnlyModel: true);
             }
 
         }
