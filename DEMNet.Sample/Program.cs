@@ -85,8 +85,7 @@ namespace SampleApp
                     .AddTransient<CustomSamples>()
                     .AddTransient<AerialGpxSample>()
                     .AddTransient<ImagerySample>()
-                    .AddTransient<IntervisibilitySample>()
-                    .AddTransient<VisualTopoSample>();
+                    .AddTransient<IntervisibilitySample>();
 
 
             services.AddTransient<SampleApplication>();
