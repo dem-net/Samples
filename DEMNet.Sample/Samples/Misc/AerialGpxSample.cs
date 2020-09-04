@@ -292,11 +292,11 @@ namespace SampleApp
         {
             timeFactor = timeFactor <= 0f ? 1f : timeFactor;
             GpxTrackPoint initialPoint = points.First();
-            Vector3 initialPointVec3 = initialPoint.ToGeoPoint().ToVector3();
+            Vector3 initialPointVec3 = initialPoint.ToGeoPoint().ToVector3GlTFSpace();
 
             var translationCurve = points
                 .Select(p => ((float)(p.Time.Value - initialPoint.Time.Value).TotalSeconds / timeFactor
-                                , (initialPointVec3 - p.ToGeoPoint().ToVector3())))
+                                , (initialPointVec3 - p.ToGeoPoint().ToVector3GlTFSpace())))
                 .ToArray();
 
             node = node.WithTranslationAnimation(name, translationCurve);
