@@ -34,6 +34,7 @@ using DEM.Net.Core.Configuration;
 using Microsoft.Extensions.Hosting;
 using System.Threading;
 using System.Threading.Tasks;
+using System.IO;
 
 namespace SampleApp
 {
@@ -69,7 +70,13 @@ namespace SampleApp
             {
                 rasterService.SetLocalDirectory(DATA_FILES_PATH);
             }
-
+            using (_logger.BeginScope($"Running {nameof(GpxSTLSample)}.."))
+            {
+                var sample = services.GetService<GpxSTLSample>();
+                sample.Run(Path.Combine("SampleData", "GPX", "Mt_Whitney_2017.gpx"), DEMDataSet.NASADEM);
+                _logger.LogInformation($"Sample {sample.GetType().Name} done. Press any key to run the next sample...");
+                if (pauseAfterEachSample) Console.ReadLine();
+            }
             // Visual topo sample moved to DEM.Net.Extensions repo
             //using (_logger.BeginScope($"Running {nameof(VisualTopoSample)}.."))
             //{

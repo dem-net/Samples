@@ -32,16 +32,19 @@
     <PackageReference Include="System.Security.Permissions" Version="4.7.0" />
   </ItemGroup>
   <ItemGroup>
-    <None Update="SampleData\20191022-Puch-Pöllau.gpx">
+    <None Update="SampleData\GPX\20191022-Puch-Pöllau.gpx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="SampleData\20191023-Puch-Pöllau-sensorlog.trunk.json">
+    <None Update="SampleData\GPX\20191023-Puch-Pöllau-sensorlog.trunk.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="SampleData\20191023-Puch-Pöllau-sensorlog.json">
+    <None Update="SampleData\GPX\20191023-Puch-Pöllau-sensorlog.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="SampleData\lauzannier.gpx">
+    <None Update="SampleData\GPX\lauzannier.gpx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="SampleData\GPX\Mt_Whitney_2017.gpx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="SampleData\N043E005_AVE_DSM.tif.zip">
@@ -50,7 +53,7 @@
     <None Update="SampleData\N43E005.hgt.zip">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="SampleData\BikeRide.gpx">
+    <None Update="SampleData\GPX\BikeRide.gpx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="SampleData\OE-SOE.glb">
@@ -59,7 +62,7 @@
     <None Update="SampleData\OE-SOX.glb">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="SampleData\trail.gpx">
+    <None Update="SampleData\GPX\trail.gpx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="SampleData\VisualTopo\small\0 bifurc\Test 3 arcs.tro">
