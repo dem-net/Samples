@@ -62,18 +62,17 @@ namespace SampleApp
             {
 
 
-                DEMDataSet dataset = DEMDataSet.SRTM_GL3;
+                DEMDataSet dataset = DEMDataSet.NASADEM;
                 Stopwatch sw = Stopwatch.StartNew();
-                string modelName = $"Montagne Sainte Victoire {dataset.Name}";
+                string modelName = $"Model {dataset.Name}";
 
-                // You can get your boox from https://geojson.net/ (save as WKT)
-                string bboxWKT = "POLYGON((5.54888 43.519525, 5.61209 43.519525, 5.61209 43.565225, 5.54888 43.565225, 5.54888 43.519525))";
 
                 _logger.LogInformation($"Processing model {modelName}...");
 
-
-                _logger.LogInformation($"Getting bounding box geometry...");
-                var bbox = GeometryService.GetBoundingBox(bboxWKT);
+                // You can get your boox from https://geojson.net/ (save as WKT)
+                //string bboxWKT = "POLYGON((5.54888 43.519525, 5.61209 43.519525, 5.61209 43.565225, 5.54888 43.565225, 5.54888 43.519525))";
+                //var bbox = GeometryService.GetBoundingBox(bboxWKT);
+                var bbox = new BoundingBox(6.877441, 7.934875, 49.390418, 49.868087);
 
                 _logger.LogInformation($"Getting height map data...");
                 var heightMap = _elevationService.GetHeightMap(ref bbox, dataset);
@@ -81,7 +80,7 @@ namespace SampleApp
                 _logger.LogInformation($"Processing height map data ({heightMap.Count} coordinates)...");
                 heightMap = heightMap
                                         .ReprojectGeodeticToCartesian() // Reproject to 3857 (useful to get coordinates in meters)
-                                        .ZScale(2f)                     // Elevation exageration
+                                        .ZScale(4f)                     // Elevation exageration
                                         .CenterOnOrigin()               //
                                         .FitInto(250f);                 // Make sure model fits into 250 coordinates units (3D printer size was 30x30cm)
 
@@ -95,7 +94,7 @@ namespace SampleApp
                 // STL axis differ from glTF 
                 var model = _sharpGltfService.CreateTerrainMesh(heightMap, GenOptions.BoxedBaseElevationMin, Matrix4x4.CreateRotationX((float)Math.PI / 2f));
 
-
+             
                 _logger.LogInformation($"Exporting STL model...");
                 var stlFilePath = Path.Combine(Directory.GetCurrentDirectory(), $"{modelName}.stl");
                 _stlService.STLExport(model.LogicalMeshes[0].Primitives[0], stlFilePath, false);
