@@ -86,6 +86,7 @@ namespace SampleApp
                     .AddTransient<AerialGpxSample>()
                     .AddTransient<ImagerySample>()
                     .AddTransient<IntervisibilitySample>()
+                    .AddTransient<CustomRasterElevationSample>()
                     .AddTransient<GpxSTLSample>();
 
 
