@@ -45,11 +45,13 @@ namespace SampleApp
         private readonly RasterService _rasterService;
         private readonly ElevationService _elevationService;
         private readonly ImageryService _imageryService;
+        private readonly MeshService _meshService;
         private readonly SharpGltfService _sharpGltfService;
 
         public CustomRasterElevationSample(ILogger<CustomRasterElevationSample> logger
                 , RasterService rasterService
                 , ElevationService elevationService
+                , MeshService meshService
                 , SharpGltfService sharpGltfService
                 , ImageryService imageryService)
         {
@@ -58,38 +60,74 @@ namespace SampleApp
             _elevationService = elevationService;
             _sharpGltfService = sharpGltfService;
             _imageryService = imageryService;
+            _meshService = meshService;
         }
         public void Run()
         {
             try
             {
-                bool withTexture = true;
-                int TEXTURE_TILES = 8; 
+                
+                float zFactor = 3f;
                 string outputDir = Directory.GetCurrentDirectory();
-                string modelName = "PortCros";
                 ImageryProvider imageryProvider = ImageryProvider.MapBoxSatellite;
 
-                //var datasetFiles = @"C:\Repos\DEM.Net.Samples\DEMNet.Sample\SampleData\MNT1m PortCros";
-                //DEMDataSet litto3DDataset = GetLitto3D_1Metre(datasetFiles, firstRun: true);
-                var datasetFiles = @"C:\Repos\DEM.Net.Samples\DEMNet.Sample\SampleData\MNT5m PortCros";
-                DEMDataSet litto3DDataset = GetLitto3D_5Metres(datasetFiles, firstRun: true);
+                DEMDataSet litto3DDataset1m = GetLitto3D_1Metre(@"C:\Repos\DEM.Net.Samples\DEMNet.Sample\SampleData\MNT1m PortCros", firstRun: false);
+                DEMDataSet litto3DDataset5m = GetLitto3D_5Metres(@"C:\Repos\DEM.Net.Samples\DEMNet.Sample\SampleData\MNT5m PortCros", firstRun: false);
+
+
+                DEMDataSet litto3DDataset = litto3DDataset1m;
+
+                string modelName = $"PortCros_NE_{litto3DDataset.ResolutionMeters}m_z{zFactor}_{imageryProvider.Name}";
 
                 _logger.LogInformation($"Getting height map data...");
+
+                //// OK NE for OH5
+                string bboxWkt = "POLYGON((6.3567260447069085 43.021436832948694,6.382389420561401 43.021436832948694,6.382389420561401 43.00041175430446,6.3567260447069085 43.00041175430446,6.3567260447069085 43.021436832948694))";
+                //// OK SW for OH5
+                //string bboxWkt = "POLYGON((6.359392181239976 43.012843324704065,6.385570541225327 43.012843324704065,6.385570541225327 42.991187491294845,6.359392181239976 42.991187491294845,6.359392181239976 43.012843324704065))";
                 // bbox total MNT 5m
                 //string bboxWkt = "POLYGON((6.379174977593318 43.01254201266237,6.382608205132381 43.01254201266237,6.382608205132381 43.00882338332376,6.379174977593318 43.00882338332376,6.379174977593318 43.01254201266237))";
-                string bboxWkt = "POLYGON((6.363825088730257 43.01654549682949,6.39970231651346 43.01654549682949,6.39970231651346 42.99112418454671,6.363825088730257 42.99112418454671,6.363825088730257 43.01654549682949))";
+
+                // OK
+                //string bboxWkt = "POLYGON((6.363825088730257 43.01654549682949,6.39970231651346 43.01654549682949,6.39970231651346 42.99112418454671,6.363825088730257 42.99112418454671,6.363825088730257 43.01654549682949))";
                 //string bboxWkt = "POLYGON((6.406395745104527 43.02231568794789,6.427166771715855 43.02231568794789,6.427166771715855 43.005339523906166,6.406395745104527 43.005339523906166,6.406395745104527 43.02231568794789))";
                 //string bboxWkt  = "POLYGON((6.412103485888219 43.01676208054169,6.428497147387242 43.01676208054169,6.428497147387242 43.004900152380664,6.412103485888219 43.004900152380664,6.412103485888219 43.01676208054169))";
                 ////string bboxWkt = "POLYGON((6.362806960421437 43.01537135435604,6.394821807223194 43.01537135435604,6.394821807223194 43.00112388903013,6.362806960421437 43.00112388903013,6.362806960421437 43.01537135435604))";
                 //string bboxWkt = "POLYGON((6.362852061542235 43.008752396912236,6.377357447894774 43.008752396912236,6.377357447894774 43.00206770457925,6.362852061542235 43.00206770457925,6.362852061542235 43.008752396912236))";
                 //string bboxWkt = "POLYGON((6.373237574847899 43.004667107932384,6.3788594849431135 43.004667107932384,6.3788594849431135 43.00127755196608,6.373237574847899 43.00127755196608,6.373237574847899 43.004667107932384))";
-                var bbox = GeometryService.GetBoundingBox(bboxWkt).ReprojectTo(4326,litto3DDataset.SRID);
-                var heightMap = _elevationService.GetHeightMap(ref bbox, litto3DDataset);
-                ModelGenerationTransform transform = new ModelGenerationTransform(bbox, 3857,centerOnOrigin:false, 2f, centerOnZOrigin: false);
 
-                var min = heightMap.Coordinates.Where(g =>( g.Elevation ?? 0d) > litto3DDataset.NoDataValue).Min(g=>g.Elevation ?? 0d);
+                GenerateModel(bboxWkt, litto3DDataset, ImageryProvider.MapBoxSatellite);
+                GenerateModel(bboxWkt, litto3DDataset, ImageryProvider.EsriWorldImagery);
+                GenerateModel(bboxWkt, litto3DDataset, ImageryProvider.ThunderForestLandscape);
+                GenerateModel(bboxWkt, litto3DDataset, ImageryProvider.OpenTopoMap);
+
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, e.Message);
+            }
+        }
+
+        public void GenerateModel(string bboxWkt, DEMDataSet litto3DDataset, ImageryProvider imageryProvider, float zFactor = 3f, bool withTexture = true)
+        {
+            try
+            {
+                int TEXTURE_TILES = 20;
+                string outputDir = Directory.GetCurrentDirectory();
+
+                string modelName = $"PortCros_NE_{litto3DDataset.ResolutionMeters}m_z{zFactor}_{imageryProvider.Name}";
+
+                _logger.LogInformation($"Getting height map data...");
+
+
+                var bbox = GeometryService.GetBoundingBox(bboxWkt).ReprojectTo(4326, litto3DDataset.SRID);
+                var heightMap = _elevationService.GetHeightMap(ref bbox, litto3DDataset);
+                ModelGenerationTransform transform = new ModelGenerationTransform(bbox, 3857, centerOnOrigin: false, zFactor, centerOnZOrigin: false);
+
                 _logger.LogInformation($"Processing height map data ({heightMap.Count} coordinates)...");
                 heightMap = transform.TransformHeightMap(heightMap);
+
+                var min = heightMap.Coordinates.Where(g => (g.Elevation ?? 0d) > litto3DDataset.NoDataValue).Min(g => g.Elevation ?? 0d);
                 heightMap.Coordinates = heightMap.Coordinates.Select(p =>
                 {
                     if (p.Elevation.GetValueOrDefault(0) <= litto3DDataset.NoDataValue)
@@ -98,7 +136,7 @@ namespace SampleApp
                     }
                     return p;
                 });
-                
+
                 //=======================
                 // Textures
                 //
@@ -134,9 +172,27 @@ namespace SampleApp
                 // and add base and sides
                 _logger.LogInformation($"Triangulating height map and generating 3D mesh...");
 
+                heightMap = heightMap.BakeCoordinates();
+                var coords = heightMap.Coordinates.ToList();
+
                 var model = _sharpGltfService.CreateTerrainMesh(heightMap, pbrTexture);
-                model.SaveGLB(Path.Combine(Directory.GetCurrentDirectory(), modelName + ".glb"));
+
+                var bottomLeft = coords[heightMap.Width * (heightMap.Height - 1)].AsVector3(); bottomLeft.Z = 0;
+                var topRight = coords[heightMap.Width - 1].AsVector3(); topRight.Z = 0;
+                var topLeft = coords[0].AsVector3(); topLeft.Z = 0;
+                var bottomRight = coords.Last().AsVector3(); bottomRight.Z = 0;
                 
+                var waterSurface = _meshService.CreateWaterSurface(bottomLeft, topRight, topLeft, bottomRight,
+                                        minZ: (float)min,
+                                        color: VectorsExtensions.CreateColor(0, 150, 255, 100));
+                model = _sharpGltfService.AddMesh(model, "Water", waterSurface, doubleSided: true);
+
+                var boatInitPos = new GeoPoint(43.010625204304304, 6.3711613671060086).ReprojectTo(4326, 3857).AsVector3();
+                var axis = _meshService.CreateAxis(2, 10, 3, 3).Translate(boatInitPos);
+                model = _sharpGltfService.AddMesh(model, "Boat", axis, doubleSided: false);
+
+                model.SaveGLB(Path.Combine(Directory.GetCurrentDirectory(), modelName + ".glb"));
+
 
 
                 _logger.LogInformation($"Model exported as {Path.Combine(Directory.GetCurrentDirectory(), modelName + ".gltf")} and .glb");
@@ -163,7 +219,7 @@ namespace SampleApp
                 ResolutionMeters = 1,
                 SRID = Reprojection.SRID_PROJECTED_LAMBERT_93,
                 Attribution = new Attribution("Dataset", "Litto3D", "www.shom.fr", "Licence ouverte Etalab"),
-                NoDataValue= -99999
+                NoDataValue = -99999
             };
             if (firstRun)
             {
