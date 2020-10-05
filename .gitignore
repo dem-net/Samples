@@ -331,3 +331,6 @@ ASALocalRun/
 *.DS_Store
 DEMNet.Sample/secrets.json
 *.qgz
+DEMNet.Sample/SampleData/MNT1m Large
+DEMNet.Sample/SampleData/MNT5m Large
+DEMNet.Sample/SampleData/MNT1m PortCros.zip
