@@ -72,7 +72,7 @@ namespace SampleApp
             try
             {
 
-                float zFactor = 2f;
+                float zFactor = 1.5f;
                 string outputDir = Directory.GetCurrentDirectory();
                 ImageryProvider imageryProvider = ImageryProvider.MapBoxSatellite;
 
@@ -81,7 +81,7 @@ namespace SampleApp
 
 
 
-                DEMDataSet litto3DDataset = litto3DDataset5m;
+                DEMDataSet litto3DDataset = litto3DDataset1m;
 
                 string modelName = $"PortCros_NE_{litto3DDataset.ResolutionMeters}m_z{zFactor}_{imageryProvider.Name}";
 
@@ -111,13 +111,21 @@ namespace SampleApp
 
 
 
-                var bboxWkt = "POLYGON ((977978.21701945551 6217156.6239589937, 980875.37294482859 6217156.6239589937, 980875.37294482859 6219837.3511766745, 977978.21701945551 6219837.3511766745, 977978.21701945551 6217156.6239589937))";
-                var b = GeometryService.GetBoundingBox(bboxWkt);
-                b.SRID = 2154;
-                b = b.ReprojectTo(2154, 4326);
-                bboxWkt = b.WKT;
+                //var bboxWkt = "POLYGON ((977978.21701945551 6217156.6239589937, 980875.37294482859 6217156.6239589937, 980875.37294482859 6219837.3511766745, 977978.21701945551 6219837.3511766745, 977978.21701945551 6217156.6239589937))";
+                //var b = GeometryService.GetBoundingBox(bboxWkt);
+                //b.SRID = 2154;
+                //b = b.ReprojectTo(2154, 4326);
+                //bboxWkt = b.WKT;
+                //
+                //
 
-                GenerateModel(bboxWkt, litto3DDataset, ImageryProvider.EsriWorldImagery, zFactor, withTexture: true, withboat: true);
+                // zone sympa identifiée avec FAU
+                //var bboxWkt = "POLYGON((6.362128423047508 43.015629205135106,6.4158584340338365 43.015629205135106,6.4158584340338365 42.99190262031489,6.362128423047508 42.99190262031489,6.362128423047508 43.015629205135106))";
+
+                // zoom zone FAU
+                string bboxWkt = "POLYGON((6.374880326536019 43.009262752246585,6.379128945615609 43.009262752246585,6.379128945615609 43.00643834657017,6.374880326536019 43.00643834657017,6.374880326536019 43.009262752246585))";
+
+                GenerateModel(bboxWkt, litto3DDataset, ImageryProvider.EsriWorldImagery, zFactor, withTexture: true, withboat: false, withWaterSurface: true);
                 GenerateModel(bboxWkt, litto3DDataset, ImageryProvider.MapBoxSatellite, zFactor, withTexture: true, withboat: true);
                 GenerateModel(bboxWkt, litto3DDataset, ImageryProvider.ThunderForestLandscape);
                 GenerateModel(bboxWkt, litto3DDataset, ImageryProvider.OpenTopoMap);
@@ -133,11 +141,11 @@ namespace SampleApp
         {
             FeatureCollection fc = JsonConvert.DeserializeObject<FeatureCollection>(geoJson);
 
-            var lineCoords = ((LineString)fc.Features.First().Geometry).Coordinates.Select(c => new GeoPoint(c.Latitude, c.Longitude, 2)).ToList();
+            var lineCoords = ((LineString)fc.Features.First().Geometry).Coordinates.Select(c => new GeoPoint(c.Latitude, c.Longitude, 0.1)).ToList();
             return lineCoords;
         }
 
-        public void GenerateModel(string bboxWkt, DEMDataSet litto3DDataset, ImageryProvider imageryProvider, float zFactor = 3f, bool withTexture = true, bool withboat = true)
+        public void GenerateModel(string bboxWkt, DEMDataSet litto3DDataset, ImageryProvider imageryProvider, float zFactor = 3f, bool withTexture = true, bool withboat = true, bool withWaterSurface = true)
         {
             try
             {
@@ -182,7 +190,8 @@ namespace SampleApp
                     Console.WriteLine("Construct texture...");
                     //TextureInfo texInfo = _imageryService.ConstructTexture(tiles, bbox4326, fileName, TextureImageFormat.image_jpeg);
 
-                    TextureInfo texInfo = _imageryService.ConstructTextureWithGpxTrack(tiles, bbox4326, fileName, TextureImageFormat.image_jpeg, GetGeoPointFromGeoJson(BoatCourseGeoJson), drawGpxVertices: false, color: SixLabors.ImageSharp.PixelFormats.Rgba32.Green, 30);
+                    var trackPoints = GetGeoPointFromGeoJson(BoatCourseGeoJson);
+                    TextureInfo texInfo = _imageryService.ConstructTextureWithGpxTrack(tiles, bbox4326, fileName, TextureImageFormat.image_jpeg, trackPoints, drawGpxVertices: true, color: SixLabors.ImageSharp.PixelFormats.Rgba32.Green, 30);
 
                     //
                     //=======================
@@ -210,15 +219,20 @@ namespace SampleApp
 
                 var model = _sharpGltfService.CreateTerrainMesh(heightMap, pbrTexture);
 
-                var bottomLeft = coords[heightMap.Width * (heightMap.Height - 1)].AsVector3(); bottomLeft.Z = 0;
-                var topRight = coords[heightMap.Width - 1].AsVector3(); topRight.Z = 0;
-                var topLeft = coords[0].AsVector3(); topLeft.Z = 0;
-                var bottomRight = coords.Last().AsVector3(); bottomRight.Z = 0;
+                
 
-                var waterSurface = _meshService.CreateWaterSurface(bottomLeft, topRight, topLeft, bottomRight,
-                                        minZ: (float)min,
-                                        color: VectorsExtensions.CreateColor(0, 150, 255, 64));
-                model = _sharpGltfService.AddMesh(model, "Water", waterSurface, doubleSided: true);
+                if (withWaterSurface)
+                {
+                    var bottomLeft = coords[heightMap.Width * (heightMap.Height - 1)].AsVector3(); bottomLeft.Z = 0;
+                    var topRight = coords[heightMap.Width - 1].AsVector3(); topRight.Z = 0;
+                    var topLeft = coords[0].AsVector3(); topLeft.Z = 0;
+                    var bottomRight = coords.Last().AsVector3(); bottomRight.Z = 0;
+
+                    var waterSurface = _meshService.CreateWaterSurface(bottomLeft, topRight, topLeft, bottomRight,
+                                            minZ: (float)min,
+                                            color: VectorsExtensions.CreateColor(0, 150, 255, 64));
+                    model = _sharpGltfService.AddMesh(model, "Water", waterSurface, doubleSided: true);
+                }
 
                 if (withboat)
                 {
@@ -226,10 +240,12 @@ namespace SampleApp
                     var axis = _meshService.CreateAxis(2, 10, 3, 3).Translate(boatInitPos);
                     model = _sharpGltfService.AddMesh(model, "Boat", axis, doubleSided: false);
 
-                    var boatCourse = transformFrom4326.TransformPoints(GetGeoPointFromGeoJson(BoatCourseGeoJson)).ToList(); //ReprojectGeodeticToCartesian().CenterOnOrigin().ToList();
-                    model = _sharpGltfService.AddLine(model, "BoatCourse", boatCourse, VectorsExtensions.CreateColor(255, 0, 0, 128), 4);
-
                 }
+
+                var boatCourse = transformFrom4326.TransformPoints(GetGeoPointFromGeoJson(BoatCourseGeoJson)).ToList(); //ReprojectGeodeticToCartesian().CenterOnOrigin().ToList();
+                model = _sharpGltfService.AddLine(model, "BoatCourse", boatCourse, VectorsExtensions.CreateColor(255, 0, 0, 128), 4);
+
+
 
                 model.SaveGLB(Path.Combine(Directory.GetCurrentDirectory(), modelName + ".glb"));
 
@@ -286,7 +302,119 @@ namespace SampleApp
         }
 
 
-        private const string BoatCourseGeoJson = "{\"type\":\"FeatureCollection\",\"features\":[{\"type\":\"Feature\",\"properties\":{},\"geometry\":{\"type\":\"LineString\",\"coordinates\":[[6.420661211013787,43.0177720507463],[6.419143080711358,43.018262317787865],[6.417624950408928,43.01875258091498],[6.416106820106499,43.01924284012759],[6.414588689804071,43.01973309542576],[6.4130759239196715,43.02022726880471],[6.411563158035271,43.02072143820629],[6.41027569770813,43.021223447494066],[6.408988237380974,43.0217254526772],[6.408419609069824,43.02200782878891],[6.408301591873169,43.02210195387087],[6.408258676528931,43.02225098495551],[6.408365964889526,43.02238432825091],[6.40851616859436,43.02241570310187],[6.408698558807373,43.022447077936775],[6.4088380336761475,43.02240785939063],[6.409331560134881,43.02222745375566],[6.410806775093079,43.02173329647561],[6.4122819900512695,43.02123913521819],[6.4137572050094604,43.02074496998336],[6.415232419967651,43.02025080077117],[6.416707634925842,43.0197566275816],[6.418182849884033,43.019262450414686],[6.419658064842223,43.0187682692704],[6.421133279800408,43.018274084148764]]}}]}";
+        private const string BoatCourseGeoJsonOld = @"{
+  'type': 'FeatureCollection',
+  'features': [
+    {
+      'type': 'Feature',
+      'properties': {},
+      'geometry': {
+        'type': 'LineString',
+        'coordinates': [
+          [
+            6.376361846923828,
+            43.00660074586711
+          ],
+          [
+            6.37630820274353,
+            43.00725978373205
+          ],
+          [
+            6.375524997711182,
+            43.00774621190648
+          ],
+          [
+            6.375299692153931,
+            43.00816202648563
+          ],
+          [
+            6.3754069805145255,
+            43.00879751125322
+          ],
+          [
+            6.375975608825684,
+            43.00897795634676
+          ],
+          [
+            6.376737356185913,
+            43.00882104759982
+          ],
+          [
+            6.376866102218627,
+            43.008318936916055
+          ]
+        ]
+      }
+    }
+  ]
+}";
+
+        private const string BoatCourseGeoJson = @"{
+  'type': 'FeatureCollection',
+  'features': [
+    {
+      'type': 'Feature',
+      'properties': {},
+      'geometry': {
+        'type': 'LineString',
+        'coordinates': [
+          [
+            6.376361846923828,
+            43.00660074586711
+          ],
+          [
+            6.376383304595947,
+            43.00692241999404
+          ],
+          [
+            6.37630820274353,
+            43.00725978373205
+          ],
+          [
+            6.375524997711182,
+            43.00774621190648
+          ],
+          [
+            6.375299692153931,
+            43.00816202648563
+          ],
+          [
+            6.37530505657196,
+            43.008562147291066
+          ],
+          [
+            6.3754069805145255,
+            43.00879751125322
+          ],
+          [
+            6.375685930252075,
+            43.00891519289609
+          ],
+          [
+            6.375975608825684,
+            43.00897795634676
+          ],
+          [
+            6.376367211341858,
+            43.00895049734498
+          ],
+          [
+            6.376737356185913,
+            43.00882104759982
+          ],
+          [
+            6.376850008964539,
+            43.008562147291066
+          ],
+          [
+            6.376866102218627,
+            43.008318936916055
+          ]
+        ]
+      }
+    }
+  ]
+}";
 
 
 
