@@ -74,14 +74,17 @@ namespace SampleApp
 
                 float zFactor = 1.5f;
                 string outputDir = Directory.GetCurrentDirectory();
+                var codePath = string.Join(Path.DirectorySeparatorChar, outputDir.Split(Path.DirectorySeparatorChar).TakeWhile(s => s != "bin"));
                 ImageryProvider imageryProvider = ImageryProvider.MapBoxSatellite;
 
-                DEMDataSet litto3DDataset1m = GetLitto3D_1Metre(@"C:\Repos\DEM.Net.Samples\DEMNet.Sample\SampleData\MNT1m Large", firstRun: false);
-                DEMDataSet litto3DDataset5m = GetLitto3D_5Metres(@"C:\Repos\DEM.Net.Samples\DEMNet.Sample\SampleData\MNT5m Large", firstRun: false);
 
+                //DEMDataSet litto3DDataset1m = GetLitto3D_1Metre(Path.Combine("SampleData","MNT1m Large"), firstRun: false);
+                DEMDataSet litto3DDataset5m = GetLitto3D_5Metres(Path.Combine(codePath, "SampleData", "MNT5m PortCros"), firstRun: false);
 
+                DEMDataSet litto3DDataset = litto3DDataset5m;
 
-                DEMDataSet litto3DDataset = litto3DDataset1m;
+                var metadata = _rasterService.LoadManifestMetadata(litto3DDataset, false);
+                var mpoly = "MULTIPOLYGON(" + string.Join(",", metadata.Select(m => m.BoundingBox.ReprojectTo(litto3DDataset.SRID, 4326).WKT.Replace("POLYGON", ""))) + ")";
 
                 string modelName = $"PortCros_NE_{litto3DDataset.ResolutionMeters}m_z{zFactor}_{imageryProvider.Name}";
 
@@ -123,7 +126,8 @@ namespace SampleApp
                 //var bboxWkt = "POLYGON((6.362128423047508 43.015629205135106,6.4158584340338365 43.015629205135106,6.4158584340338365 42.99190262031489,6.362128423047508 42.99190262031489,6.362128423047508 43.015629205135106))";
 
                 // zoom zone FAU
-                string bboxWkt = "POLYGON((6.374880326536019 43.009262752246585,6.379128945615609 43.009262752246585,6.379128945615609 43.00643834657017,6.374880326536019 43.00643834657017,6.374880326536019 43.009262752246585))";
+                string bboxWkt = "POLYGON((6.364505136544718 43.02153904188613,6.405360544259562 43.02153904188613,6.405360544259562 42.99147415573158,6.364505136544718 42.99147415573158,6.364505136544718 43.02153904188613))";
+                //string bboxWkt = "POLYGON((6.374880326536019 43.009262752246585,6.379128945615609 43.009262752246585,6.379128945615609 43.00643834657017,6.374880326536019 43.00643834657017,6.374880326536019 43.009262752246585))";
 
                 GenerateModel(bboxWkt, litto3DDataset, ImageryProvider.EsriWorldImagery, zFactor, withTexture: true, withboat: false, withWaterSurface: true);
                 GenerateModel(bboxWkt, litto3DDataset, ImageryProvider.MapBoxSatellite, zFactor, withTexture: true, withboat: true);
@@ -219,7 +223,7 @@ namespace SampleApp
 
                 var model = _sharpGltfService.CreateTerrainMesh(heightMap, pbrTexture);
 
-                
+
 
                 if (withWaterSurface)
                 {
