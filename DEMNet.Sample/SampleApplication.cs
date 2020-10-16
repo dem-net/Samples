@@ -71,6 +71,16 @@ namespace SampleApp
                 rasterService.SetLocalDirectory(DATA_FILES_PATH);
             }
 
+            //using (_logger.BeginScope($"Running {nameof(Gpx3DSamples)}.."))
+            //{
+            //    var gpx3DSamples = services.GetService<Gpx3DSamples>();
+            //    gpx3DSamples.Run(gpx3DSamples.GetUSGSNED(@"C:\Repos\DEM.Net.Samples\DEMNet.Sample\SampleData",true), true, false, Reprojection.SRID_PROJECTED_MERCATOR);
+            //    //gpx3DSamples.Run(DEMDataSet.SRTM_GL1, true, false, Reprojection.SRID_PROJECTED_MERCATOR);
+            //    //gpx3DSamples.Run(DEMDataSet.SRTM_GL3, true, false, Reprojection.SRID_PROJECTED_MERCATOR);
+            //    //gpx3DSamples.Run(DEMDataSet.ASTER_GDEMV3, true, false, Reprojection.SRID_PROJECTED_MERCATOR);
+            //    _logger.LogInformation($"Sample {gpx3DSamples.GetType().Name} done. Press any key to run the next sample...");
+            //    if (pauseAfterEachSample) Console.ReadLine();
+            //}
             using (_logger.BeginScope($"Running {nameof(CustomRasterElevationSample)}.."))
             {
                 var sample = services.GetService<CustomRasterElevationSample>();
@@ -132,16 +142,7 @@ namespace SampleApp
                 _logger.LogInformation($"Sample {glTF3DSamples.GetType().Name} done. Press any key to run the next sample...");
                 if (pauseAfterEachSample) Console.ReadLine();
             }
-            using (_logger.BeginScope($"Running {nameof(Gpx3DSamples)}.."))
-            {
-                var gpx3DSamples = services.GetService<Gpx3DSamples>();
-                gpx3DSamples.Run(DEMDataSet.ASTER_GDEMV3, true, false, Reprojection.SRID_PROJECTED_MERCATOR);
-                //gpx3DSamples.Run(DEMDataSet.SRTM_GL1, true, false, Reprojection.SRID_PROJECTED_MERCATOR);
-                //gpx3DSamples.Run(DEMDataSet.SRTM_GL3, true, false, Reprojection.SRID_PROJECTED_MERCATOR);
-                //gpx3DSamples.Run(DEMDataSet.ASTER_GDEMV3, true, false, Reprojection.SRID_PROJECTED_MERCATOR);
-                _logger.LogInformation($"Sample {gpx3DSamples.GetType().Name} done. Press any key to run the next sample...");
-                if (pauseAfterEachSample) Console.ReadLine();
-            }
+            
             using (_logger.BeginScope($"Running {nameof(TINSamples)}.."))
             {
                 var tinSamples = services.GetService<TINSamples>();

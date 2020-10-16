@@ -41,6 +41,9 @@
     <None Update="SampleData\GPX\20191023-Puch-Pöllau-sensorlog.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+    <None Update="SampleData\GPX\lake-pleasant-camping.gpx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
     <None Update="SampleData\GPX\lauzannier.gpx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>

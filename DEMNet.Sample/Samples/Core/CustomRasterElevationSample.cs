@@ -86,6 +86,18 @@ namespace SampleApp
                 var metadata = _rasterService.LoadManifestMetadata(litto3DDataset, false);
                 var mpoly = "MULTIPOLYGON(" + string.Join(",", metadata.Select(m => m.BoundingBox.ReprojectTo(litto3DDataset.SRID, 4326).WKT.Replace("POLYGON", ""))) + ")";
 
+                var lineElevated = _elevationService.GetLineGeometryElevation(GetGeoPointFromGeoJson(BoatCourseGeoJson).ReprojectTo(4326, 2154), litto3DDataset);
+                lineElevated = lineElevated.ReprojectTo(litto3DDataset.SRID, Reprojection.SRID_GEODETIC).ToList();
+                var metrics = lineElevated.ComputeMetrics();
+                StringBuilder sb = new StringBuilder();
+                sb.AppendLine(string.Join(";", "Latitude", "Longitude", "Elevation", "DistanceFromOriginMeters"));
+                
+                foreach ( var pt in lineElevated)
+                {
+                    sb.AppendLine(string.Join(";", pt.Latitude, pt.Longitude, pt.Elevation ?? 0, pt.DistanceFromOriginMeters ?? 0));
+                }
+                File.WriteAllText("Elevation.csv", sb.ToString());
+
                 string modelName = $"PortCros_NE_{litto3DDataset.ResolutionMeters}m_z{zFactor}_{imageryProvider.Name}";
 
                 //string modelName = $"TourFondue_{litto3DDataset.ResolutionMeters}m_z{zFactor}_{imageryProvider.Name}";
@@ -125,12 +137,14 @@ namespace SampleApp
                 // zone sympa identifiée avec FAU
                 //var bboxWkt = "POLYGON((6.362128423047508 43.015629205135106,6.4158584340338365 43.015629205135106,6.4158584340338365 42.99190262031489,6.362128423047508 42.99190262031489,6.362128423047508 43.015629205135106))";
 
+                // les medes
+                string bboxWkt = "POLYGON((6.237930076749669 43.02881092834541,6.244667785795079 43.02881092834541,6.244667785795079 43.02360302605932,6.237930076749669 43.02360302605932,6.237930076749669 43.02881092834541))";
+
                 // zoom zone FAU
-                string bboxWkt = "POLYGON((6.364505136544718 43.02153904188613,6.405360544259562 43.02153904188613,6.405360544259562 42.99147415573158,6.364505136544718 42.99147415573158,6.364505136544718 43.02153904188613))";
                 //string bboxWkt = "POLYGON((6.374880326536019 43.009262752246585,6.379128945615609 43.009262752246585,6.379128945615609 43.00643834657017,6.374880326536019 43.00643834657017,6.374880326536019 43.009262752246585))";
 
                 GenerateModel(bboxWkt, litto3DDataset, ImageryProvider.EsriWorldImagery, zFactor, withTexture: true, withboat: false, withWaterSurface: true);
-                GenerateModel(bboxWkt, litto3DDataset, ImageryProvider.MapBoxSatellite, zFactor, withTexture: true, withboat: true);
+                GenerateModel(bboxWkt, litto3DDataset, ImageryProvider.MapBoxSatellite, zFactor, withTexture: true, withboat: true withWaterSurface: true);
                 GenerateModel(bboxWkt, litto3DDataset, ImageryProvider.ThunderForestLandscape);
                 GenerateModel(bboxWkt, litto3DDataset, ImageryProvider.OpenTopoMap);
 
@@ -148,6 +162,8 @@ namespace SampleApp
             var lineCoords = ((LineString)fc.Features.First().Geometry).Coordinates.Select(c => new GeoPoint(c.Latitude, c.Longitude, 0.1)).ToList();
             return lineCoords;
         }
+
+        
 
         public void GenerateModel(string bboxWkt, DEMDataSet litto3DDataset, ImageryProvider imageryProvider, float zFactor = 3f, bool withTexture = true, bool withboat = true, bool withWaterSurface = true)
         {
@@ -194,7 +210,17 @@ namespace SampleApp
                     Console.WriteLine("Construct texture...");
                     //TextureInfo texInfo = _imageryService.ConstructTexture(tiles, bbox4326, fileName, TextureImageFormat.image_jpeg);
 
-                    var trackPoints = GetGeoPointFromGeoJson(BoatCourseGeoJson);
+                    TextureInfo texInfo;
+                    if (withboat)
+                    {
+                        var trackPoints = GetGeoPointFromGeoJson(BoatCourseGeoJson);
+                        texInfo = _imageryService.ConstructTextureWithGpxTrack(tiles, bbox4326, fileName, TextureImageFormat.image_jpeg, trackPoints, drawGpxVertices: true, color: SixLabors.ImageSharp.PixelFormats.Rgba32.Green, 30);
+                    }
+                    else
+                    {
+                        texInfo = _imageryService.ConstructTexture(tiles, bbox4326, fileName, TextureImageFormat.image_jpeg);
+                    }
+                    
                     TextureInfo texInfo = _imageryService.ConstructTextureWithGpxTrack(tiles, bbox4326, fileName, TextureImageFormat.image_jpeg, trackPoints, drawGpxVertices: true, color: SixLabors.ImageSharp.PixelFormats.Rgba32.Green, 30);
 
                     //
@@ -243,11 +269,11 @@ namespace SampleApp
                     var boatInitPos = centerOnOrigin ? new GeoPoint(0, 0).AsVector3() : new GeoPoint(43.010625204304304, 6.3711613671060086).ReprojectTo(4326, 3857).AsVector3();
                     var axis = _meshService.CreateAxis(2, 10, 3, 3).Translate(boatInitPos);
                     model = _sharpGltfService.AddMesh(model, "Boat", axis, doubleSided: false);
+                    var boatCourse = transformFrom4326.TransformPoints(GetGeoPointFromGeoJson(BoatCourseGeoJson)).ToList(); //ReprojectGeodeticToCartesian().CenterOnOrigin().ToList();
+                    model = _sharpGltfService.AddLine(model, "BoatCourse", boatCourse, VectorsExtensions.CreateColor(255, 0, 0, 128), 4);
 
                 }
 
-                var boatCourse = transformFrom4326.TransformPoints(GetGeoPointFromGeoJson(BoatCourseGeoJson)).ToList(); //ReprojectGeodeticToCartesian().CenterOnOrigin().ToList();
-                model = _sharpGltfService.AddLine(model, "BoatCourse", boatCourse, VectorsExtensions.CreateColor(255, 0, 0, 128), 4);
 
 
 

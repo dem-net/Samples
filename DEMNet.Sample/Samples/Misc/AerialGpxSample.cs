@@ -235,7 +235,7 @@ namespace SampleApp
                 /// Line strip from GPX
                 ///
                 // Get GPX points
-                var segments = GpxImport.ReadGPX_Segments<GpxTrackPoint>(_gpxFile, p => p);
+                var segments = GpxImport.ReadGPX_Segments<GpxTrackPoint>(_gpxFile, p => p, p => null);
                 var pointsGpx = segments.SelectMany(seg => seg);
                 var geoPoints = pointsGpx.ToGeoPoints();
 
