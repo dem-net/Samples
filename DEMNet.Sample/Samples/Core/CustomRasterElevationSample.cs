@@ -83,20 +83,20 @@ namespace SampleApp
 
                 DEMDataSet litto3DDataset = litto3DDataset5m;
 
-                var metadata = _rasterService.LoadManifestMetadata(litto3DDataset, false);
-                var mpoly = "MULTIPOLYGON(" + string.Join(",", metadata.Select(m => m.BoundingBox.ReprojectTo(litto3DDataset.SRID, 4326).WKT.Replace("POLYGON", ""))) + ")";
+                //var metadata = _rasterService.LoadManifestMetadata(litto3DDataset, false);
+                //var mpoly = "MULTIPOLYGON(" + string.Join(",", metadata.Select(m => m.BoundingBox.ReprojectTo(litto3DDataset.SRID, 4326).WKT.Replace("POLYGON", ""))) + ")";
 
-                var lineElevated = _elevationService.GetLineGeometryElevation(GetGeoPointFromGeoJson(BoatCourseGeoJson).ReprojectTo(4326, 2154), litto3DDataset);
-                lineElevated = lineElevated.ReprojectTo(litto3DDataset.SRID, Reprojection.SRID_GEODETIC).ToList();
-                var metrics = lineElevated.ComputeMetrics();
-                StringBuilder sb = new StringBuilder();
-                sb.AppendLine(string.Join(";", "Latitude", "Longitude", "Elevation", "DistanceFromOriginMeters"));
-                
-                foreach ( var pt in lineElevated)
-                {
-                    sb.AppendLine(string.Join(";", pt.Latitude, pt.Longitude, pt.Elevation ?? 0, pt.DistanceFromOriginMeters ?? 0));
-                }
-                File.WriteAllText("Elevation.csv", sb.ToString());
+                // export line elevation
+                //var lineElevated = _elevationService.GetLineGeometryElevation(GetGeoPointFromGeoJson(BoatCourseGeoJson).ReprojectTo(4326, 2154), litto3DDataset);
+                //lineElevated = lineElevated.ReprojectTo(litto3DDataset.SRID, Reprojection.SRID_GEODETIC).ToList();
+                //var metrics = lineElevated.ComputeMetrics();
+                //StringBuilder sb = new StringBuilder();
+                //sb.AppendLine(string.Join(";", "Latitude", "Longitude", "Elevation", "DistanceFromOriginMeters"));
+                //foreach ( var pt in lineElevated)
+                //{
+                //    sb.AppendLine(string.Join(";", pt.Latitude, pt.Longitude, pt.Elevation ?? 0, pt.DistanceFromOriginMeters ?? 0));
+                //}
+                //File.WriteAllText("Elevation.csv", sb.ToString());
 
                 string modelName = $"PortCros_NE_{litto3DDataset.ResolutionMeters}m_z{zFactor}_{imageryProvider.Name}";
 
@@ -142,6 +142,9 @@ namespace SampleApp
 
                 // FULL Port-Cros
                 bboxWkt = "POLYGON((6.354481172211255 43.023253715296505,6.429325532562817 43.023253715296505,6.429325532562817 42.98458826852103,6.354481172211255 42.98458826852103,6.354481172211255 43.023253715296505))";
+
+                // PortCros + Levant - buggy
+                //bboxWkt = "POLYGON((6.353542565309054 43.05907106004858,6.517307518922335 43.05907106004858,6.517307518922335 42.9827655965132,6.353542565309054 42.9827655965132,6.353542565309054 43.05907106004858))";
 
                 // les medes
                 //string bboxWkt = "POLYGON((6.237930076749669 43.02881092834541,6.244667785795079 43.02881092834541,6.244667785795079 43.02360302605932,6.237930076749669 43.02360302605932,6.237930076749669 43.02881092834541))";
