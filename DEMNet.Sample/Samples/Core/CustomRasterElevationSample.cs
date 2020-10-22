@@ -80,7 +80,7 @@ namespace SampleApp
 
                 //DEMDataSet litto3DDataset1m = GetLitto3D_1Metre(Path.Combine("SampleData","MNT1m Large"), firstRun: false);
                 DEMDataSet litto3DDataset5m = GetLitto3D_5Metres(Path.Combine(codePath, "SampleData", "MNT5m Large"), firstRun: false);
-
+                DEMDataSet gebco2020 = GetGebco2020(@"D:\Data\ELEVATION_DO_NOT_DELETE\GEBCO2020\cote azur", false);
                 DEMDataSet litto3DDataset = litto3DDataset5m;
 
                 //var metadata = _rasterService.LoadManifestMetadata(litto3DDataset, false);
@@ -151,10 +151,12 @@ namespace SampleApp
                 // les medes
                 bboxWkt = "POLYGON((6.237930076749669 43.02881092834541,6.244667785795079 43.02881092834541,6.244667785795079 43.02360302605932,6.237930076749669 43.02360302605932,6.237930076749669 43.02881092834541))";
 
+                bboxWkt = "POLYGON((6.302766091236887 43.10689293065665,6.549958474049387 43.10689293065665,6.549958474049387 42.94023304061307,6.302766091236887 42.94023304061307,6.302766091236887 43.10689293065665))";
+
                 //// zoom zone FAU
                 //bboxWkt = "POLYGON((6.374880326536019 43.009262752246585,6.379128945615609 43.009262752246585,6.379128945615609 43.00643834657017,6.374880326536019 43.00643834657017,6.374880326536019 43.009262752246585))";
 
-                GenerateModel(bboxWkt, litto3DDataset, ImageryProvider.EsriWorldImagery, zFactor, withTexture: true, withboat: false, withWaterSurface: true);
+                GenerateModel(bboxWkt, litto3DDataset, ImageryProvider.EsriWorldImagery, zFactor, withTexture: true, withboat: false, withWaterSurface: true, fallbackDataset: gebco2020);
                 GenerateModel(bboxWkt, litto3DDataset, ImageryProvider.MapBoxSatellite, zFactor, withTexture: true, withboat: true, withWaterSurface: true);
                 GenerateModel(bboxWkt, litto3DDataset, ImageryProvider.ThunderForestLandscape);
                 GenerateModel(bboxWkt, litto3DDataset, ImageryProvider.OpenTopoMap);
@@ -174,9 +176,9 @@ namespace SampleApp
             return lineCoords;
         }
 
-        
 
-        public void GenerateModel(string bboxWkt, DEMDataSet litto3DDataset, ImageryProvider imageryProvider, float zFactor = 3f, bool withTexture = true, bool withboat = true, bool withWaterSurface = true)
+
+        public void GenerateModel(string bboxWkt, DEMDataSet litto3DDataset, ImageryProvider imageryProvider, float zFactor = 3f, bool withTexture = true, bool withboat = true, bool withWaterSurface = true, DEMDataSet fallbackDataset = null)
         {
             try
             {
@@ -191,6 +193,27 @@ namespace SampleApp
 
                 var bbox = GeometryService.GetBoundingBox(bboxWkt).ReprojectTo(4326, litto3DDataset.SRID);
                 var heightMap = _elevationService.GetHeightMap(ref bbox, litto3DDataset);
+
+                heightMap = heightMap.BakeCoordinates();
+                var nullCoordsEnumerator = heightMap.Coordinates.Where(c => (c.Elevation ?? litto3DDataset.NoDataValue) == litto3DDataset.NoDataValue);
+
+                var interpolator = _elevationService.GetInterpolator(InterpolationMode.Bilinear);
+                using (IRasterFile raster = _rasterService.OpenFile(@"D:\Data\ELEVATION_DO_NOT_DELETE\GEBCO2020\cote azur\gebco_2020_subset.tif", DEMFileType.GEOTIFF))
+                using (RasterFileDictionary dic = new RasterFileDictionary())
+                {
+                    var metadata = raster.ParseMetaData(fallbackDataset.FileFormat);
+                    dic.Add(metadata, raster);
+                    foreach (var pt in nullCoordsEnumerator)
+                    {
+                        var proj = pt.ReprojectTo(litto3DDataset.SRID, fallbackDataset.SRID);
+                        pt.Elevation = _elevationService.GetElevationAtPoint(raster, dic, metadata, proj.Latitude, proj.Longitude, 0, interpolator, NoDataBehavior.UseNoDataDefinedInDem);
+                    }
+                }
+
+                var nullCoords = heightMap.Coordinates.Where(c => (c.Elevation ?? litto3DDataset.NoDataValue) == litto3DDataset.NoDataValue).ToList();
+                var nullCoordsFallbackProj = nullCoords.ReprojectTo(litto3DDataset.SRID, fallbackDataset.SRID, nullCoords.Count);
+                var nullCoordsFallbackProj2 = _elevationService.GetPointsElevation(nullCoordsFallbackProj, fallbackDataset, InterpolationMode.Bilinear, NoDataBehavior.UseNoDataDefinedInDem);
+
                 ModelGenerationTransform transform = new ModelGenerationTransform(bbox, 3857, centerOnOrigin: centerOnOrigin, zFactor, centerOnZOrigin: false);
                 ModelGenerationTransform transformFrom4326 = new ModelGenerationTransform(bbox.ReprojectTo(2154, 4326), 3857, centerOnOrigin: centerOnOrigin, zFactor, centerOnZOrigin: false);
 
@@ -231,8 +254,8 @@ namespace SampleApp
                     {
                         texInfo = _imageryService.ConstructTexture(tiles, bbox4326, fileName, TextureImageFormat.image_jpeg);
                     }
-                    
-                    
+
+
                     //
                     //=======================
 
@@ -334,13 +357,29 @@ namespace SampleApp
                 Attribution = new Attribution("Dataset", "Litto3D", "www.shom.fr", "Licence ouverte Etalab"),
                 NoDataValue = -99999
             };
-            if (firstRun)
-            {
-                _rasterService.GenerateDirectoryMetadata(dataSetLitto3D, force: firstRun);
-            }
+            _rasterService.GenerateDirectoryMetadata(dataSetLitto3D, force: firstRun);
+
             return dataSetLitto3D;
         }
+        private DEMDataSet GetGebco2020(string datasetPath, bool firstRun)
+        {
+            // D:\Data\ELEVATION_DO_NOT_DELETE\GEBCO2020\gebco_2020_n43.8079833984375_s42.176513671875_w4.47967529296875_e7.19329833984375.tif
+            var dataset = new DEMDataSet()
+            {
+                Name = "GEBCO_2020",
+                Description = "GEBCO_2020",
+                PublicUrl = "https://www.gebco.net/data_and_products/gridded_bathymetry_data/#a1",
+                DataSource = new LocalFileSystem(datasetPath),
+                FileFormat = new DEMFileDefinition("GeoTiff", DEMFileType.GEOTIFF, ".tif", DEMFileRegistrationMode.Cell),
+                ResolutionMeters = 464,
+                SRID = Reprojection.SRID_GEODETIC,
+                Attribution = new Attribution("Dataset", "GEBCO_2020", "https://www.gebco.net", "GEBCO Compilation Group (2020) GEBCO 2020 Grid (doi:10.5285/a29c5465-b138-234d-e053-6c86abc040b9)"),
+                NoDataValue = -99999
+            };
+            _rasterService.GenerateDirectoryMetadata(dataset, force: firstRun);
 
+            return dataset;
+        }
 
         private const string BoatCourseGeoJsonOld = @"{
   'type': 'FeatureCollection',
