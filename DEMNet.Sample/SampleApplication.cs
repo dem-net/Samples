@@ -81,6 +81,14 @@ namespace SampleApp
             //    _logger.LogInformation($"Sample {gpx3DSamples.GetType().Name} done. Press any key to run the next sample...");
             //    if (pauseAfterEachSample) Console.ReadLine();
             //}
+
+            using (_logger.BeginScope($"Running {nameof(Text3DSample)}.."))
+            {
+                var sample = services.GetService<Text3DSample>();
+                sample.Run();
+                _logger.LogInformation($"Sample {sample.GetType().Name} done. Press any key to run the next sample...");
+                if (pauseAfterEachSample) Console.ReadLine();
+            }
             using (_logger.BeginScope($"Running {nameof(CustomRasterElevationSample)}.."))
             {
                 var sample = services.GetService<CustomRasterElevationSample>();
@@ -142,7 +150,7 @@ namespace SampleApp
                 _logger.LogInformation($"Sample {glTF3DSamples.GetType().Name} done. Press any key to run the next sample...");
                 if (pauseAfterEachSample) Console.ReadLine();
             }
-            
+
             using (_logger.BeginScope($"Running {nameof(TINSamples)}.."))
             {
                 var tinSamples = services.GetService<TINSamples>();
