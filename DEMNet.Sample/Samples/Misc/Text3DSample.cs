@@ -6,6 +6,7 @@ using Microsoft.Extensions.Logging;
 using SharpGLTF.Schema2;
 using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Drawing;
 using System.Drawing.Drawing2D;
 using System.IO;
@@ -44,18 +45,11 @@ namespace SampleApp
 
 
             // DjebelMarra
-            var bbox = new BoundingBox(24.098067346557492, 24.42468219234563, 12.7769822830208, 13.087504129660111);
+            var bbox = GeometryService.GetBoundingBox("POLYGON((5.5327544667894735 43.56440094804517,5.597985790031661 43.56440094804517,5.597985790031661 43.506658259161576,5.5327544667894735 43.506658259161576,5.5327544667894735 43.56440094804517))");
             var dataset = DEMDataSet.SRTM_GL3;
 
             string modelName = $"{dataset.Name}_{DateTime.Now:yyyyMMdd_HHmmss}";
             string outputDir = Directory.GetCurrentDirectory();
-
-            var northText = CreateText("8".ToUpper()).Scale(10)
-                .ToGlTFSpace();
-            var textModel = _sharpGltfService.AddMesh(_sharpGltfService.CreateNewModel(), "Text", northText);
-
-            textModel.SaveGLB(Path.Combine(outputDir, modelName + ".glb"));
-
 
             var modelAndBbox = GenerateSampleModel(bbox, dataset, withTexture: true);
             if (modelAndBbox.Model != null)
@@ -64,17 +58,21 @@ namespace SampleApp
 
                 // bbox size
                 float arrowSizeFactor = (float)modelAndBbox.ProjectedBbox.Height / 3f;
+                float height = (float)modelAndBbox.ProjectedBbox.Height;
                 float width = (float)modelAndBbox.ProjectedBbox.Width;
                 float zCenter = (float)modelAndBbox.ProjectedBbox.Center[1];
                 // 
                 float PI = (float)Math.PI;
-                var arrow = _meshService.CreateArrow()
+                TriangulationList<Vector3> arrow = _meshService.CreateArrow()
                     .Scale(arrowSizeFactor)
-                    .Translate(new Vector3(-width * 0.6f, 0, zCenter))
-                    .ToGlTFSpace();
-                model = _sharpGltfService.AddMesh(model, "Arrow", arrow);
+                    .Translate(new Vector3(-width * 0.6f, -zCenter, 0));
 
+                arrow += CreateText("N", VectorsExtensions.CreateColor(255, 255, 255))
+                           .Scale(10)
+                           .RotateX(-PI / 2f)
+                           .Translate(new Vector3(-width * 0.6f, -zCenter, arrowSizeFactor * 1.1f));
 
+                model = _sharpGltfService.AddMesh(model, "Arrow", arrow.ToGlTFSpace());
 
                 //var northText = CreateText("N").Scale(arrowSizeFactor)
                 //    .Translate(new Vector3(-width * 0.6f, arrowSizeFactor * 1.2f, zCenter))
@@ -94,8 +92,52 @@ namespace SampleApp
             }
         }
 
-        public TriangulationList<Vector3> CreateText(string text)
+
+        public TriangulationList<Vector3> CreateText(string text, Vector4 vector4)
         {
+            Dictionary<int, Polygon<Vector3>> letterPolygons = GetTextPolygons(text);
+            TriangulationList<Vector3> triangulation = new TriangulationList<Vector3>();
+
+            foreach (var letter in letterPolygons)
+            {
+                triangulation += _meshService.Tesselate(letter.Value.ExteriorRing, letter.Value.InteriorRings);
+            }
+            triangulation.Colors = triangulation.Positions.Select(p => vector4).ToList();
+            return triangulation.CenterOnOrigin();
+
+
+
+
+            //if (currentLetterPoints.Count > 0)
+            //{
+            //    triangulation += _meshService.Tesselate(currentLetterPoints, currentLetterPointsInt);
+            //}
+
+
+            ////var points = gp.PathPoints.Select(p => new Vector3(p.X, p.Y, 0)).ToList();
+            ////var triangulation = _meshService.Tesselate(points, null);
+
+            //// Triangulate wall for each ring
+            //// (We add floor indices before copying the vertices, they will be duplicated and z shifted later on)
+            //List<int> numVerticesPerRing = new List<int>();
+            //numVerticesPerRing.Add(points.Count - 1);
+            ////numVerticesPerRing.AddRange(building.InteriorRings.Select(r => r.Count - 1));
+            //triangulation = this.TriangulateRingsWalls(triangulation, numVerticesPerRing);
+
+            //// Roof
+            //// Building has real elevations
+
+            //// Create floor vertices by copying roof vertices and setting their z min elevation (floor or min height)
+            //var floorVertices = triangulation.Positions.Select(pt => new Vector3(pt.X, pt.Y, -10)).ToList();
+            //triangulation.Positions.AddRange(floorVertices);
+
+
+
+        }
+
+        public Dictionary<int, Polygon<Vector3>> GetTextPolygons(string text)
+        {
+            Dictionary<int, Polygon<Vector3>> letterPolygons = new Dictionary<int, Polygon<Vector3>>();
 
             using (Bitmap bmp = new Bitmap(400, 400))
             using (GraphicsPath gp = new GraphicsPath())
@@ -109,9 +151,6 @@ namespace SampleApp
                 //g.DrawPath(Pens.DarkSlateBlue, gp);
                 //gp.SetMarkers();
 
-                var globalBounds = gp.GetBounds();
-                var avgCharSize = globalBounds.Width / text.Length;
-
                 using (GraphicsPathIterator gpi = new GraphicsPathIterator(gp))
                 {
 
@@ -120,81 +159,67 @@ namespace SampleApp
                     var triangulation = new TriangulationList<Vector3>();
                     using (GraphicsPath gsubPath = new GraphicsPath())
                     {
-                        RectangleF bounds = RectangleF.Empty;
-                        List<Vector3> currentLetterPoints = new List<Vector3>();
-                        List<List<Vector3>> currentLetterPointsInt = new List<List<Vector3>>();
+
+
                         // Read all subpaths and their properties  
                         for (int i = 0; i < gpi.SubpathCount; i++)
                         {
-                            bool bClosedCurve;
-                            gpi.NextSubpath(gsubPath, out bClosedCurve);
+                            gpi.NextSubpath(gsubPath, out bool bClosedCurve);
+                            Debug.Assert(bClosedCurve, "Unclosed character. That's not possible");
 
-                            var curBounds = gsubPath.GetBounds();
-                            bool isInside = bounds.Contains(curBounds);
-                            bool isEnclosing = curBounds.Contains(bounds);
-                            bool isIntersecting = curBounds.IntersectsWith(bounds);
-                            var closeness = (curBounds.X + curBounds.Width / 2f) + avgCharSize / 2f - bounds.X;
-                            bool isAnotherChar = closeness < avgCharSize * 0.25f;
+                            var currentRing = gsubPath.PathPoints.Select(p => new Vector3(p.X, p.Y, 0)).ToList();
 
-                            if (isInside)
+                            List<int> childs = GetIncludedPolygons(currentRing, letterPolygons);
+                            List<int> parents = GetContainerPolygons(currentRing, letterPolygons);
+                            // contains other polygon ?
+                            if (childs.Any())
                             {
-                                var points = gsubPath.PathPoints.Select(p => new Vector3(p.X, p.Y, 0));
-                                currentLetterPointsInt.Add(new List<Vector3>(points));
+                                Polygon<Vector3> newPoly = new Polygon<Vector3>(currentRing);
+                                foreach (var key in childs)
+                                {
+                                    letterPolygons.Remove(key, out var child);
+                                    newPoly.InteriorRings.Add(child.ExteriorRing);
+                                }
+                                letterPolygons.Add(i, newPoly);
+                            }
+                            else if (parents.Any())
+                            {
+                                Debug.Assert(parents.Count == 1);
+                                letterPolygons[parents.First()].InteriorRings.Add(currentRing);
                             }
                             else
                             {
-                                if (currentLetterPoints.Count > 0)
-                                {
-                                    triangulation += _meshService.Tesselate(currentLetterPoints, currentLetterPointsInt);
-                                    currentLetterPoints.Clear();
-                                    currentLetterPointsInt.Clear();
-                                    bounds = curBounds;
-                                }
-                                else if (bounds == RectangleF.Empty)
-                                {
-                                    bounds = curBounds;
-                                }
-                                var points = gsubPath.PathPoints.Select(p => new Vector3(p.X, p.Y, 0));
-                                currentLetterPoints.AddRange(points);
-                               
-
+                                letterPolygons.Add(i, new Polygon<Vector3>(currentRing));
                             }
+
+                            // triangulation += _meshService.Tesselate(currentLetterPoints, currentLetterPointsInt);
+
                             gsubPath.Reset();
-
-
-                        }
-                        if (currentLetterPoints.Count > 0)
-                        {
-                            triangulation += _meshService.Tesselate(currentLetterPoints, currentLetterPointsInt);
                         }
                     }
-
-                    ////var points = gp.PathPoints.Select(p => new Vector3(p.X, p.Y, 0)).ToList();
-                    ////var triangulation = _meshService.Tesselate(points, null);
-
-                    //// Triangulate wall for each ring
-                    //// (We add floor indices before copying the vertices, they will be duplicated and z shifted later on)
-                    //List<int> numVerticesPerRing = new List<int>();
-                    //numVerticesPerRing.Add(points.Count - 1);
-                    ////numVerticesPerRing.AddRange(building.InteriorRings.Select(r => r.Count - 1));
-                    //triangulation = this.TriangulateRingsWalls(triangulation, numVerticesPerRing);
-
-                    //// Roof
-                    //// Building has real elevations
-
-                    //// Create floor vertices by copying roof vertices and setting their z min elevation (floor or min height)
-                    //var floorVertices = triangulation.Positions.Select(pt => new Vector3(pt.X, pt.Y, -10)).ToList();
-                    //triangulation.Positions.AddRange(floorVertices);
-
-                    return triangulation;
-                }
-                for (int i = 0; i < gp.PathPoints.Length; i++)
-                {
-                    PointF p = gp.PathPoints[i];
-                    g.FillEllipse(Brushes.DarkOrange, p.X - 1, p.Y - 1, 2, 2);
                 }
             }
+
+            return letterPolygons;
         }
+
+        private List<int> GetContainerPolygons(List<Vector3> currentPolygon, Dictionary<int, Polygon<Vector3>> polygons)
+        {
+            List<int> parents = polygons.Where(p => IsPointInPolygon4(p.Value.ExteriorRing, currentPolygon[0]))
+                                        .Select(p => p.Key)
+                                        .ToList();
+            return parents;
+        }
+
+        private List<int> GetIncludedPolygons(List<Vector3> currentPolygon, Dictionary<int, Polygon<Vector3>> polygons)
+        {
+            List<int> childs = polygons.Where(p => IsPointInPolygon4(currentPolygon, p.Value.ExteriorRing[0]))
+                                        .Select(p => p.Key)
+                                        .ToList();
+            return childs;
+        }
+
+
 
         /// <summary>
         /// https://stackoverflow.com/questions/4243042/c-sharp-point-in-polygon
@@ -203,11 +228,11 @@ namespace SampleApp
         /// <param name="polygon">the vertices of polygon</param>
         /// <param name="testPoint">the given point</param>
         /// <returns>true if the point is inside the polygon; otherwise, false</returns>
-        public static bool IsPointInPolygon4(PointF[] polygon, PointF testPoint)
+        public static bool IsPointInPolygon4(List<Vector3> polygon, Vector3 testPoint)
         {
             bool result = false;
-            int j = polygon.Count() - 1;
-            for (int i = 0; i < polygon.Count(); i++)
+            int j = polygon.Count - 1;
+            for (int i = 0; i < polygon.Count; i++)
             {
                 if (polygon[i].Y < testPoint.Y && polygon[j].Y >= testPoint.Y || polygon[j].Y < testPoint.Y && polygon[i].Y >= testPoint.Y)
                 {
