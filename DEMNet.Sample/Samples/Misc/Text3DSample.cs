@@ -45,7 +45,7 @@ namespace SampleApp
 
 
             // DjebelMarra
-            var bbox = GeometryService.GetBoundingBox("POLYGON((5.5327544667894735 43.56440094804517,5.597985790031661 43.56440094804517,5.597985790031661 43.506658259161576,5.5327544667894735 43.506658259161576,5.5327544667894735 43.56440094804517))");
+            var bbox = GeometryService.GetBoundingBox("POLYGON((5.393053755022272 43.653840622859114,5.816027387834772 43.653840622859114,5.816027387834772 43.37498595774968,5.393053755022272 43.37498595774968,5.393053755022272 43.653840622859114))");
             var dataset = DEMDataSet.SRTM_GL3;
 
             string modelName = $"{dataset.Name}_{DateTime.Now:yyyyMMdd_HHmmss}";
@@ -57,10 +57,10 @@ namespace SampleApp
                 var model = modelAndBbox.Model;
 
                 // bbox size
-                float arrowSizeFactor = (float)modelAndBbox.ProjectedBbox.Height / 3f;
                 float height = (float)modelAndBbox.ProjectedBbox.Height;
+                float arrowSizeFactor = height / 3f;
                 float width = (float)modelAndBbox.ProjectedBbox.Width;
-                float zCenter = (float)modelAndBbox.ProjectedBbox.Center[1];
+                float zCenter = (float)modelAndBbox.ProjectedBbox.Center[2];
                 // 
                 float PI = (float)Math.PI;
                 TriangulationList<Vector3> arrow = _meshService.CreateArrow().ToGlTFSpace()
@@ -69,10 +69,16 @@ namespace SampleApp
 
                 arrow += CreateText("N", VectorsExtensions.CreateColor(255, 255, 255)).ToGlTFSpace()
                            .Scale(10)
-                           .RotateX(-PI/2)
+                           .RotateX(-PI / 2)
                            .Translate(new Vector3(-width * 0.6f, arrowSizeFactor * 1.1f, zCenter));
 
                 model = _sharpGltfService.AddMesh(model, "Arrow", arrow);
+
+                var scaleBar = CreateScaleBar(width, radius: height / 200f).ToGlTFSpace()
+                    .RotateZ(PI / 2f)
+                    .Translate(new Vector3(width / 2, -height / 2 - height * 0.05f, zCenter));
+
+                model = _sharpGltfService.AddMesh(model, "Scale", scaleBar);
 
                 //arrow += _meshService.CreateCylinder(new Vector3(0, 0, 0), 50, 250, VectorsExtensions.CreateColor(0, 255, 0));
 
@@ -86,8 +92,55 @@ namespace SampleApp
             }
         }
 
+        private TriangulationList<Vector3> CreateScaleBar(float modelSize, float radius = 10f)
+        {
+            int nSteps = 4;
+            ScaleBarInfo scaleInfo = GetScaleBarWidth(modelSize, scaleBarSizeRelativeToModel: 0.5f, nSteps);
 
-        public TriangulationList<Vector3> CreateText(string text, Vector4 vector4)
+            Vector3 currentPosition = Vector3.Zero;
+            TriangulationList<Vector3> triangulation = new TriangulationList<Vector3>();
+            for (int i = 0; i < nSteps; i++)
+            {
+                currentPosition.Z = scaleInfo.StepSize * i;
+
+                triangulation += _meshService.CreateCylinder(currentPosition, radius, scaleInfo.StepSize
+                        , color: i % 2 == 0 ? VectorsExtensions.CreateColor(0, 0, 0) : VectorsExtensions.CreateColor(255, 255, 255));
+            }
+
+            // scale units (m or km ?)
+            string scaleLabel = (scaleInfo.TotalSize / 1000f > 1) ? $"{scaleInfo.TotalSize / 1000:F0} km" : $"{scaleInfo.TotalSize} m";          
+
+            triangulation += CreateText(scaleLabel, color: VectorsExtensions.CreateColor(255, 255, 255))
+                            .Scale(radius / 5)
+                            .RotateY((float)Math.PI / 2)
+                            .RotateZ((float)Math.PI / 2)
+                            .Translate(new Vector3(radius * 5, 0, scaleInfo.TotalSize / 2));
+
+            return triangulation;
+        }
+
+        private struct ScaleBarInfo
+        {
+            public float TotalSize;
+            public int NumSteps;
+            public float StepSize;
+        }
+        private ScaleBarInfo GetScaleBarWidth(float totalWidth, float scaleBarSizeRelativeToModel = 0.5f, int nSteps = 4)
+        {
+            // must be divisible by 4
+            float[] smallestScaleStep = { 1, 2, 5, 10, 20, 25, 50, 100, 250, 500, 1000, 2000, 2500, 5000, 10000, 20000, 25000, 50000, 100000, 200000, 500000, 1000000, 2000000, 5000000, 10000000 };
+
+            var scaleBarTotalSize = totalWidth * scaleBarSizeRelativeToModel;
+            var bestScale = smallestScaleStep.Select(s => new { Step = s, diff = Math.Abs(1 - (scaleBarTotalSize / (s * nSteps))) })
+                              .OrderBy(s => s.diff)
+                              .First();
+
+
+            return new ScaleBarInfo { NumSteps = nSteps, TotalSize = bestScale.Step * nSteps, StepSize = bestScale.Step };
+
+        }
+
+        public TriangulationList<Vector3> CreateText(string text, Vector4 color)
         {
             Dictionary<int, Polygon<Vector3>> letterPolygons = GetTextPolygons(text);
             TriangulationList<Vector3> triangulation = new TriangulationList<Vector3>();
@@ -96,7 +149,7 @@ namespace SampleApp
             {
                 triangulation += _meshService.Tesselate(letter.Value.ExteriorRing, letter.Value.InteriorRings);
             }
-            triangulation.Colors = triangulation.Positions.Select(p => vector4).ToList();
+            triangulation.Colors = triangulation.Positions.Select(p => color).ToList();
             return triangulation.CenterOnOrigin();
 
 
