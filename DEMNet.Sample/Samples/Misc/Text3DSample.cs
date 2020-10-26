@@ -63,22 +63,16 @@ namespace SampleApp
                 float zCenter = (float)modelAndBbox.ProjectedBbox.Center[1];
                 // 
                 float PI = (float)Math.PI;
-                TriangulationList<Vector3> arrow = _meshService.CreateArrow()
+                TriangulationList<Vector3> arrow = _meshService.CreateArrow().ToGlTFSpace()
                     .Scale(arrowSizeFactor)
-                    .Translate(new Vector3(-width * 0.6f, -zCenter, 0));
+                    .Translate(new Vector3(-width * 0.6f, 0, zCenter));
 
-                arrow += CreateText("N", VectorsExtensions.CreateColor(255, 255, 255))
+                arrow += CreateText("N", VectorsExtensions.CreateColor(255, 255, 255)).ToGlTFSpace()
                            .Scale(10)
-                           .RotateX(-PI / 2f)
-                           .Translate(new Vector3(-width * 0.6f, -zCenter, arrowSizeFactor * 1.1f));
+                           .RotateX(-PI/2)
+                           .Translate(new Vector3(-width * 0.6f, arrowSizeFactor * 1.1f, zCenter));
 
-                model = _sharpGltfService.AddMesh(model, "Arrow", arrow.ToGlTFSpace());
-
-                //var northText = CreateText("N").Scale(arrowSizeFactor)
-                //    .Translate(new Vector3(-width * 0.6f, arrowSizeFactor * 1.2f, zCenter))
-                //    .ToGlTFSpace();
-
-                //model = _sharpGltfService.AddMesh(_sharpGltfService.CreateNewModel(), "Text", northText);
+                model = _sharpGltfService.AddMesh(model, "Arrow", arrow);
 
                 //arrow += _meshService.CreateCylinder(new Vector3(0, 0, 0), 50, 250, VectorsExtensions.CreateColor(0, 255, 0));
 
