@@ -63,30 +63,28 @@ namespace SampleApp
                 float zCenter = (float)modelAndBbox.ProjectedBbox.Center[2];
                 // 
                 float PI = (float)Math.PI;
-                TriangulationList<Vector3> arrow = _meshService.CreateArrow().ToGlTFSpace()
+
+                // Arrow
+                TriangulationList<Vector3> adornments = _meshService.CreateArrow().ToGlTFSpace()
                     .Scale(arrowSizeFactor)
                     .Translate(new Vector3(-width * 0.6f, 0, zCenter));
 
-                arrow += CreateText("N", VectorsExtensions.CreateColor(255, 255, 255)).ToGlTFSpace()
-                           .Scale(10)
+                // North text 'N'
+                adornments += CreateText("N", VectorsExtensions.CreateColor(255, 255, 255)).ToGlTFSpace()
+                           .Scale(height / 200f / 5f)
                            .RotateX(-PI / 2)
                            .Translate(new Vector3(-width * 0.6f, arrowSizeFactor * 1.1f, zCenter));
 
-                model = _sharpGltfService.AddMesh(model, "Arrow", arrow);
-
-                var scaleBar = CreateScaleBar(width, radius: height / 200f).ToGlTFSpace()
+                // Scale bar
+                adornments += CreateScaleBar(width, radius: height / 200f).ToGlTFSpace()
                     .RotateZ(PI / 2f)
                     .Translate(new Vector3(width / 2, -height / 2 - height * 0.05f, zCenter));
 
-                model = _sharpGltfService.AddMesh(model, "Scale", scaleBar);
+                // add adornments
+                model = _sharpGltfService.AddMesh(model, "Adornments", adornments);
 
-                //arrow += _meshService.CreateCylinder(new Vector3(0, 0, 0), 50, 250, VectorsExtensions.CreateColor(0, 255, 0));
-
-
-
+                // Save model
                 model.SaveGLB(Path.Combine(outputDir, modelName + ".glb"));
-
-
 
                 _logger.LogInformation($"Model exported as {Path.Combine(outputDir, modelName + ".glb")}");
             }
@@ -108,7 +106,7 @@ namespace SampleApp
             }
 
             // scale units (m or km ?)
-            string scaleLabel = (scaleInfo.TotalSize / 1000f > 1) ? $"{scaleInfo.TotalSize / 1000:F0} km" : $"{scaleInfo.TotalSize} m";          
+            string scaleLabel = (scaleInfo.TotalSize / 1000f > 1) ? $"{scaleInfo.TotalSize / 1000:F0} km" : $"{scaleInfo.TotalSize} m";
 
             triangulation += CreateText(scaleLabel, color: VectorsExtensions.CreateColor(255, 255, 255))
                             .Scale(radius / 5)
@@ -147,10 +145,74 @@ namespace SampleApp
 
             foreach (var letter in letterPolygons)
             {
-                triangulation += _meshService.Tesselate(letter.Value.ExteriorRing, letter.Value.InteriorRings);
+                triangulation += _meshService.Tesselate(letter.Value.ExteriorRing, letter.Value.InteriorRings)
+                                             .Extrude(10);
             }
             triangulation.Colors = triangulation.Positions.Select(p => color).ToList();
-            return triangulation.CenterOnOrigin();
+            triangulation = triangulation.CenterOnOrigin();
+
+            int numFootPrintIndices = triangulation.Indices.Count;
+
+            /////
+            // Now extrude it (build the sides)
+            // Algo
+            // First triangulate the foot print (with inner rings if existing)
+            // This triangulation is the roof top if building is flat
+
+            int totalPoints = triangulation.Positions.Count;
+            int totalCheck = letterPolygons.Values.Sum(v=> v.ExteriorRing.Count-1 + v.InteriorRings.Sum(r=>r.Count-1));
+
+            // Triangulate wall for each ring
+            // (We add floor indices before copying the vertices, they will be duplicated and z shifted later on)
+            List<int> numVerticesPerRing = new List<int>();
+            numVerticesPerRing.Add(building.ExteriorRing.Count - 1);
+            numVerticesPerRing.AddRange(building.InteriorRings.Select(r => r.Count - 1));
+            triangulation = this.TriangulateRingsWalls(triangulation, numVerticesPerRing, totalPoints);
+
+            // Roof
+            // Building has real elevations
+
+            // Create floor vertices by copying roof vertices and setting their z min elevation (floor or min height)
+            var floorVertices = triangulation.Positions.Select(pt => pt.Clone(building.ComputedFloorAltitude)).ToList();
+            triangulation.Positions.AddRange(floorVertices);
+
+            // Take the first vertices and z shift them
+            foreach (var pt in triangulation.Positions.Take(totalPoints))
+            {
+                pt.Elevation = building.ComputedRoofAltitude;
+            }
+
+            //==========================
+            // Colors: if walls and roof color is the same, all vertices can have the same color
+            // otherwise we must duplicate vertices to ensure consistent triangles color (avoid unrealistic shades)
+            // AND shift the roof triangulation indices
+            // Before:
+            //      Vertices: <roof_wallcolor_0..i> / <floor_wallcolor_i..j>
+            //      Indices: <roof_triangulation_0..i> / <roof_wall_triangulation_0..j>
+            // After:
+            //      Vertices: <roof_wallcolor_0..i> / <floor_wallcolor_i..j> // <roof_roofcolor_j..k>
+            //      Indices: <roof_triangulation_j..k> / <roof_wall_triangulation_0..j>
+            Vector4 DefaultColor = Vector4.One;
+            bool mustCopyVerticesForRoof = (building.Color ?? DefaultColor) != (building.RoofColor ?? building.Color);
+            // assign wall or default color to all vertices
+            triangulation.Colors = triangulation.Positions.Select(p => building.Color ?? DefaultColor).ToList();
+
+            if (mustCopyVerticesForRoof)
+            {
+                triangulation.Positions.AddRange(triangulation.Positions.Take(totalPoints));
+                triangulation.Colors.AddRange(Enumerable.Range(1, totalPoints).Select(_ => building.RoofColor ?? DefaultColor));
+
+                // shift roof triangulation indices
+                for (int i = 0; i < numFootPrintIndices; i++)
+                {
+                    triangulation.Indices[i] += (triangulation.Positions.Count - totalPoints);
+                }
+
+            }
+
+            Debug.Assert(triangulation.Colors.Count == 0 || triangulation.Colors.Count == triangulation.Positions.Count);
+
+            return triangulation;
 
 
 
@@ -191,7 +253,7 @@ namespace SampleApp
             using (Graphics g = Graphics.FromImage(bmp))
             using (Font f = new Font("Tahoma", 40f))
             {
-                g.ScaleTransform(4, 4);
+                //g.ScaleTransform(4, 4);
                 gp.AddString(text, f.FontFamily, 0, 40f, new Point(0, 0), StringFormat.GenericDefault);
                 g.DrawPath(Pens.Gray, gp);
                 gp.Flatten(new Matrix(), 0.1f);  // <<== *
@@ -252,7 +314,7 @@ namespace SampleApp
 
         private List<int> GetContainerPolygons(List<Vector3> currentPolygon, Dictionary<int, Polygon<Vector3>> polygons)
         {
-            List<int> parents = polygons.Where(p => IsPointInPolygon4(p.Value.ExteriorRing, currentPolygon[0]))
+            List<int> parents = polygons.Where(p => IsPointInPolygon(p.Value.ExteriorRing, currentPolygon[0]))
                                         .Select(p => p.Key)
                                         .ToList();
             return parents;
@@ -260,7 +322,7 @@ namespace SampleApp
 
         private List<int> GetIncludedPolygons(List<Vector3> currentPolygon, Dictionary<int, Polygon<Vector3>> polygons)
         {
-            List<int> childs = polygons.Where(p => IsPointInPolygon4(currentPolygon, p.Value.ExteriorRing[0]))
+            List<int> childs = polygons.Where(p => IsPointInPolygon(currentPolygon, p.Value.ExteriorRing[0]))
                                         .Select(p => p.Key)
                                         .ToList();
             return childs;
@@ -270,12 +332,12 @@ namespace SampleApp
 
         /// <summary>
         /// https://stackoverflow.com/questions/4243042/c-sharp-point-in-polygon
-        /// Determines if the given point is inside the polygon
+        /// Determines if the given point is inside the polygon. (does not support inner 'holes' rings)
         /// </summary>
         /// <param name="polygon">the vertices of polygon</param>
         /// <param name="testPoint">the given point</param>
         /// <returns>true if the point is inside the polygon; otherwise, false</returns>
-        public static bool IsPointInPolygon4(List<Vector3> polygon, Vector3 testPoint)
+        private bool IsPointInPolygon(List<Vector3> polygon, Vector3 testPoint)
         {
             bool result = false;
             int j = polygon.Count - 1;
