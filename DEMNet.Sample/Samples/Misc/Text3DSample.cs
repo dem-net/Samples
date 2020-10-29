@@ -44,12 +44,22 @@ namespace SampleApp
 
 
 
+
             // DjebelMarra
-            var bbox = GeometryService.GetBoundingBox("POLYGON((5.393053755022272 43.653840622859114,5.816027387834772 43.653840622859114,5.816027387834772 43.37498595774968,5.393053755022272 43.37498595774968,5.393053755022272 43.653840622859114))");
-            var dataset = DEMDataSet.SRTM_GL3;
+            var bbox = GeometryService.GetBoundingBox("POLYGON((5.530707378231727 43.555422288955455,5.627181072079384 43.555422288955455,5.627181072079384 43.491942643353426,5.530707378231727 43.491942643353426,5.530707378231727 43.555422288955455))");
+            var dataset = DEMDataSet.AW3D30;
 
             string modelName = $"{dataset.Name}_{DateTime.Now:yyyyMMdd_HHmmss}";
             string outputDir = Directory.GetCurrentDirectory();
+
+            //var modelTest = _sharpGltfService.CreateNewModel();
+            //var triangulation = CreateText("20 km", VectorsExtensions.CreateColor(255, 255, 255));
+            //_sharpGltfService.AddMesh(modelTest, "Text", triangulation);
+
+            //// Save model
+            //modelTest.SaveGLB(Path.Combine(outputDir, modelName + ".glb"));
+
+
 
             var modelAndBbox = GenerateSampleModel(bbox, dataset, withTexture: true);
             if (modelAndBbox.Model != null)
@@ -57,10 +67,10 @@ namespace SampleApp
                 var model = modelAndBbox.Model;
 
                 // bbox size
-                float height = (float)modelAndBbox.ProjectedBbox.Height;
+                float height = (float)modelAndBbox.heightMeters;
                 float arrowSizeFactor = height / 3f;
-                float width = (float)modelAndBbox.ProjectedBbox.Width;
-                float zCenter = (float)modelAndBbox.ProjectedBbox.Center[2];
+                float width = (float)modelAndBbox.heightMeters;
+                float zCenter = (float)modelAndBbox.averageElevation;
                 // 
                 float PI = (float)Math.PI;
 
@@ -80,8 +90,18 @@ namespace SampleApp
                     .RotateZ(PI / 2f)
                     .Translate(new Vector3(width / 2, -height / 2 - height * 0.05f, zCenter));
 
+                adornments += CreateText($"{dataset.Attribution.Subject}: {dataset.Attribution.Text}", VectorsExtensions.CreateColor(255, 255, 255)).ToGlTFSpace()
+                                .Scale(height / 200f / 5f)
+                                .RotateX(-PI / 2)
+                                .Translate(new Vector3(-width * 0.5f, -height * 0.7f, zCenter));
+
+                adornments += CreateText($"{ImageryProvider.MapBoxSatellite.Attribution.Subject}: {ImageryProvider.MapBoxSatellite.Attribution.Text}", VectorsExtensions.CreateColor(255, 0, 255)).ToGlTFSpace()
+                                .Scale(height / 200f / 5f)
+                                .RotateX(-PI / 2)
+                                .Translate(new Vector3(-width * 0.5f, -height * 0.8f, zCenter));
+
                 // add adornments
-                model = _sharpGltfService.AddMesh(model, "Adornments", adornments);
+                model = _sharpGltfService.AddMesh(model, "Adornments", adornments,default(Vector4) ,false);
 
                 // Save model
                 model.SaveGLB(Path.Combine(outputDir, modelName + ".glb"));
@@ -112,7 +132,7 @@ namespace SampleApp
                             .Scale(radius / 5)
                             .RotateY((float)Math.PI / 2)
                             .RotateZ((float)Math.PI / 2)
-                            .Translate(new Vector3(radius * 5, 0, scaleInfo.TotalSize / 2));
+                            .Translate(new Vector3(radius * 5, -radius, scaleInfo.TotalSize / 2));
 
             return triangulation;
         }
@@ -134,117 +154,20 @@ namespace SampleApp
                               .First();
 
 
-            return new ScaleBarInfo { NumSteps = nSteps, TotalSize = bestScale.Step * nSteps, StepSize = bestScale.Step };
+            return new ScaleBarInfo { NumSteps = nSteps, TotalSize = scaleBarTotalSize, StepSize = bestScale.Step };
 
         }
 
         public TriangulationList<Vector3> CreateText(string text, Vector4 color)
         {
-            Dictionary<int, Polygon<Vector3>> letterPolygons = GetTextPolygons(text);
-            TriangulationList<Vector3> triangulation = new TriangulationList<Vector3>();
-
-            foreach (var letter in letterPolygons)
-            {
-                triangulation += _meshService.Tesselate(letter.Value.ExteriorRing, letter.Value.InteriorRings)
-                                             .Extrude(10);
-            }
+            List<Polygon<Vector3>> letterPolygons = GetTextPolygons(text);
+            TriangulationList<Vector3> triangulation = _meshService.Extrude(letterPolygons);
             triangulation.Colors = triangulation.Positions.Select(p => color).ToList();
             triangulation = triangulation.CenterOnOrigin();
-
-            int numFootPrintIndices = triangulation.Indices.Count;
-
-            /////
-            // Now extrude it (build the sides)
-            // Algo
-            // First triangulate the foot print (with inner rings if existing)
-            // This triangulation is the roof top if building is flat
-
-            int totalPoints = triangulation.Positions.Count;
-            int totalCheck = letterPolygons.Values.Sum(v=> v.ExteriorRing.Count-1 + v.InteriorRings.Sum(r=>r.Count-1));
-
-            // Triangulate wall for each ring
-            // (We add floor indices before copying the vertices, they will be duplicated and z shifted later on)
-            List<int> numVerticesPerRing = new List<int>();
-            numVerticesPerRing.Add(building.ExteriorRing.Count - 1);
-            numVerticesPerRing.AddRange(building.InteriorRings.Select(r => r.Count - 1));
-            triangulation = this.TriangulateRingsWalls(triangulation, numVerticesPerRing, totalPoints);
-
-            // Roof
-            // Building has real elevations
-
-            // Create floor vertices by copying roof vertices and setting their z min elevation (floor or min height)
-            var floorVertices = triangulation.Positions.Select(pt => pt.Clone(building.ComputedFloorAltitude)).ToList();
-            triangulation.Positions.AddRange(floorVertices);
-
-            // Take the first vertices and z shift them
-            foreach (var pt in triangulation.Positions.Take(totalPoints))
-            {
-                pt.Elevation = building.ComputedRoofAltitude;
-            }
-
-            //==========================
-            // Colors: if walls and roof color is the same, all vertices can have the same color
-            // otherwise we must duplicate vertices to ensure consistent triangles color (avoid unrealistic shades)
-            // AND shift the roof triangulation indices
-            // Before:
-            //      Vertices: <roof_wallcolor_0..i> / <floor_wallcolor_i..j>
-            //      Indices: <roof_triangulation_0..i> / <roof_wall_triangulation_0..j>
-            // After:
-            //      Vertices: <roof_wallcolor_0..i> / <floor_wallcolor_i..j> // <roof_roofcolor_j..k>
-            //      Indices: <roof_triangulation_j..k> / <roof_wall_triangulation_0..j>
-            Vector4 DefaultColor = Vector4.One;
-            bool mustCopyVerticesForRoof = (building.Color ?? DefaultColor) != (building.RoofColor ?? building.Color);
-            // assign wall or default color to all vertices
-            triangulation.Colors = triangulation.Positions.Select(p => building.Color ?? DefaultColor).ToList();
-
-            if (mustCopyVerticesForRoof)
-            {
-                triangulation.Positions.AddRange(triangulation.Positions.Take(totalPoints));
-                triangulation.Colors.AddRange(Enumerable.Range(1, totalPoints).Select(_ => building.RoofColor ?? DefaultColor));
-
-                // shift roof triangulation indices
-                for (int i = 0; i < numFootPrintIndices; i++)
-                {
-                    triangulation.Indices[i] += (triangulation.Positions.Count - totalPoints);
-                }
-
-            }
-
-            Debug.Assert(triangulation.Colors.Count == 0 || triangulation.Colors.Count == triangulation.Positions.Count);
-
             return triangulation;
-
-
-
-
-            //if (currentLetterPoints.Count > 0)
-            //{
-            //    triangulation += _meshService.Tesselate(currentLetterPoints, currentLetterPointsInt);
-            //}
-
-
-            ////var points = gp.PathPoints.Select(p => new Vector3(p.X, p.Y, 0)).ToList();
-            ////var triangulation = _meshService.Tesselate(points, null);
-
-            //// Triangulate wall for each ring
-            //// (We add floor indices before copying the vertices, they will be duplicated and z shifted later on)
-            //List<int> numVerticesPerRing = new List<int>();
-            //numVerticesPerRing.Add(points.Count - 1);
-            ////numVerticesPerRing.AddRange(building.InteriorRings.Select(r => r.Count - 1));
-            //triangulation = this.TriangulateRingsWalls(triangulation, numVerticesPerRing);
-
-            //// Roof
-            //// Building has real elevations
-
-            //// Create floor vertices by copying roof vertices and setting their z min elevation (floor or min height)
-            //var floorVertices = triangulation.Positions.Select(pt => new Vector3(pt.X, pt.Y, -10)).ToList();
-            //triangulation.Positions.AddRange(floorVertices);
-
-
-
         }
 
-        public Dictionary<int, Polygon<Vector3>> GetTextPolygons(string text)
+        public List<Polygon<Vector3>> GetTextPolygons(string text)
         {
             Dictionary<int, Polygon<Vector3>> letterPolygons = new Dictionary<int, Polygon<Vector3>>();
 
@@ -309,7 +232,7 @@ namespace SampleApp
                 }
             }
 
-            return letterPolygons;
+            return letterPolygons.Values.ToList();
         }
 
         private List<int> GetContainerPolygons(List<Vector3> currentPolygon, Dictionary<int, Polygon<Vector3>> polygons)
@@ -355,59 +278,25 @@ namespace SampleApp
             return result;
         }
 
-        private TriangulationList<Vector3> TriangulateRingsWalls(TriangulationList<Vector3> triangulation, List<int> numVerticesPerRing)
-        {
-            int offset = numVerticesPerRing.Sum();
-
-            int ringOffset = 0;
-            foreach (var numRingVertices in numVerticesPerRing)
-            {
-                int i = 0;
-                do
-                {
-                    triangulation.Indices.Add(ringOffset + i);
-                    triangulation.Indices.Add(ringOffset + i + offset);
-                    triangulation.Indices.Add(ringOffset + i + 1);
-
-                    triangulation.Indices.Add(ringOffset + i + offset);
-                    triangulation.Indices.Add(ringOffset + i + offset + 1);
-                    triangulation.Indices.Add(ringOffset + i + 1);
-
-                    i++;
-                }
-                while (i < numRingVertices - 1);
-
-                // Connect last vertices to start vertices
-                triangulation.Indices.Add(ringOffset + i);
-                triangulation.Indices.Add(ringOffset + i + offset);
-                triangulation.Indices.Add(ringOffset + 0);
-
-                triangulation.Indices.Add(ringOffset + i + offset);
-                triangulation.Indices.Add(ringOffset + 0 + offset);
-                triangulation.Indices.Add(ringOffset + 0);
-
-                ringOffset += numRingVertices;
-
-            }
-            return triangulation;
-        }
-        private (ModelRoot Model, BoundingBox ProjectedBbox) GenerateSampleModel(BoundingBox bbox, DEMDataSet dataset, bool withTexture = true)
+        private (ModelRoot Model, double widthMeters, double heightMeters, double averageElevation) GenerateSampleModel(BoundingBox bbox, DEMDataSet dataset, bool withTexture = true)
         {
 
             try
             {
 
-                int TEXTURE_TILES = 4; // 4: med, 8: high
+                int TEXTURE_TILES = 8; // 4: med, 8: high
                 string outputDir = Directory.GetCurrentDirectory();
 
                 //_rasterService.GenerateDirectoryMetadata(dataset, false);
 
-                ImageryProvider provider = ImageryProvider.EsriWorldImagery;// new TileDebugProvider(new GeoPoint(43.5,5.5));
+                ImageryProvider provider = ImageryProvider.MapBoxSatellite;// new TileDebugProvider(new GeoPoint(43.5,5.5));
 
 
                 _logger.LogInformation($"Getting height map data...");
 
                 var heightMap = _elevationService.GetHeightMap(ref bbox, dataset);
+
+                var wgs84bbox = bbox;
                 ModelGenerationTransform transform = new ModelGenerationTransform(bbox, 3857, true, 1.5f, true);
 
                 _logger.LogInformation($"Processing height map data ({heightMap.Count} coordinates)...");
@@ -438,9 +327,9 @@ namespace SampleApp
                     //float Z_FACTOR = 0.00002f;
 
                     //hMap = hMap.CenterOnOrigin().ZScale(Z_FACTOR);
-                    var normalMap = _imageryService.GenerateNormalMap(heightMap, outputDir);
+                    //var normalMap = _imageryService.GenerateNormalMap(heightMap, outputDir);
 
-                    pbrTexture = PBRTexture.Create(texInfo, normalMap);
+                    pbrTexture = PBRTexture.Create(texInfo, null);
 
                     //hMap = hMap.CenterOnOrigin(Z_FACTOR);
                     //
@@ -451,13 +340,17 @@ namespace SampleApp
                 _logger.LogInformation($"Triangulating height map and generating 3D mesh...");
 
                 var model = _sharpGltfService.CreateTerrainMesh(heightMap, pbrTexture);
-                return (model, heightMap.BoundingBox);
+
+                var width = new GeoPoint(wgs84bbox.Center[1], wgs84bbox.xMin).DistanceTo(new GeoPoint(wgs84bbox.Center[1], wgs84bbox.xMax));
+                var height = new GeoPoint(wgs84bbox.yMin, wgs84bbox.Center[0]).DistanceTo(new GeoPoint(wgs84bbox.yMax, wgs84bbox.Center[0]));
+
+                return (model, width, height, wgs84bbox.Center[2]);
 
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, ex.Message);
-                return (null, null);
+                return (null, 0, 0, 0);
             }
         }
     }
