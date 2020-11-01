@@ -46,8 +46,8 @@ namespace SampleApp
 
 
             // DjebelMarra
-            var bbox = GeometryService.GetBoundingBox("POLYGON((4.226929086345006 44.32344747870201,5.490356820720006 44.32344747870201,5.490356820720006 43.60385639227976,4.226929086345006 43.60385639227976,4.226929086345006 44.32344747870201))");
-            var dataset = DEMDataSet.SRTM_GL3;
+            var bbox = GeometryService.GetBoundingBox("POLYGON((7.713614662985839 46.03014517094771,7.990332802634277 46.03014517094771,7.990332802634277 45.86877753239648,7.713614662985839 45.86877753239648,7.713614662985839 46.03014517094771))");
+            var dataset = DEMDataSet.NASADEM;
 
             string modelName = $"{dataset.Name}_{DateTime.Now:yyyyMMdd_HHmmss}";
             string outputDir = Directory.GetCurrentDirectory();
@@ -67,8 +67,8 @@ namespace SampleApp
                 var model = modelAndBbox.Model;
 
                 // bbox size
-                float height = (float)modelAndBbox.heightMeters;
-                float arrowSizeFactor = height / 3f;
+                float projHeight = (float)modelAndBbox.projectedBbox.Height;
+                float arrowSizeFactor = projHeight / 3f;
                 float width = (float)modelAndBbox.widthMeters;
                 float zCenter = (float)modelAndBbox.averageElevation;
                 float projWidth = (float)modelAndBbox.projectedBbox.Width;
@@ -78,31 +78,32 @@ namespace SampleApp
                 // Arrow
                 TriangulationList<Vector3> adornments = _meshService.CreateArrow().ToGlTFSpace()
                     .Scale(arrowSizeFactor)
-                    .Translate(new Vector3(-width * 0.6f, 0, zCenter));
+                    .Translate(new Vector3(-projWidth * 0.55f, 0, zCenter));
 
                 // North text 'N'
                 adornments += CreateText("N", VectorsExtensions.CreateColor(255, 255, 255)).ToGlTFSpace()
-                           .Scale(height / 200f / 5f)
+                           .Scale(projHeight / 200f / 5f)
                            .RotateX(-PI / 2)
-                           .Translate(new Vector3(-width * 0.6f, arrowSizeFactor * 1.1f, zCenter));
+                           .Translate(new Vector3(-projWidth * 0.55f, arrowSizeFactor * 1.1f, zCenter));
 
                 // Scale bar
-                adornments += CreateScaleBar(width, projWidth, radius: height / 200f).ToGlTFSpace()
+                var scaleBar = CreateScaleBar(width, projWidth, radius: projHeight / 200f).ToGlTFSpace();
+                var scaleBarSize = scaleBar.GetBoundingBox().Height;
+                adornments += scaleBar
                     .RotateZ(PI / 2f)
-                    .Translate(new Vector3(width / 2, -height / 2 - height * 0.05f, zCenter));
+                    .Translate(new Vector3(projWidth / 2, -projHeight / 2 - projHeight * 0.05f, zCenter));
 
-                adornments += CreateText($"{dataset.Attribution.Subject}: {dataset.Attribution.Text}", VectorsExtensions.CreateColor(255, 255, 255)).ToGlTFSpace()
-                                .Scale(height / 200f / 5f)
-                                .RotateX(-PI / 2)
-                                .Translate(new Vector3(-width * 0.5f, -height * 0.7f, zCenter));
+                var text = CreateText($"{dataset.Attribution.Subject}: {dataset.Attribution.Text}{Environment.NewLine}{ImageryProvider.MapBoxSatellite.Attribution.Subject}: {ImageryProvider.MapBoxSatellite.Attribution.Text}", VectorsExtensions.CreateColor(255, 255, 255)).ToGlTFSpace();
+                var scale = ((projWidth - scaleBarSize) * 0.9f) / text.GetBoundingBox().Width;
 
-                adornments += CreateText($"{ImageryProvider.MapBoxSatellite.Attribution.Subject}: {ImageryProvider.MapBoxSatellite.Attribution.Text}", VectorsExtensions.CreateColor(255, 0, 255)).ToGlTFSpace()
-                                .Scale(height / 200f / 5f)
+                text = text.Scale((float)scale)
                                 .RotateX(-PI / 2)
-                                .Translate(new Vector3(-width * 0.5f, -height * 0.8f, zCenter));
+                                .Translate(new Vector3(-projWidth * 0.25f, -projHeight * 0.55f, zCenter));
+                adornments += text;
+
 
                 // add adornments
-                model = _sharpGltfService.AddMesh(model, "Adornments", adornments,default(Vector4) ,false);
+                model = _sharpGltfService.AddMesh(model, "Adornments", adornments, default(Vector4), doubleSided: true);
 
                 // Save model
                 model.SaveGLB(Path.Combine(outputDir, modelName + ".glb"));
@@ -164,7 +165,7 @@ namespace SampleApp
                 NumSteps = nSteps,
                 TotalSizeProjected = projSize,
                 StepSizeProjected = projStepSize,
-                StepSize= bestScale.Step,
+                StepSize = bestScale.Step,
                 TotalSize = scaleBarTotalSize
             };
 
