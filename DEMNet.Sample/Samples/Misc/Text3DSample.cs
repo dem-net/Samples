@@ -70,46 +70,12 @@ namespace SampleApp
             {
                 var model = modelAndBbox.Model;
 
-                // bbox size
-                float projHeight = (float)modelAndBbox.projectedBbox.Height;
-                float arrowSizeFactor = projHeight / 3f;
-                float width = (float)modelAndBbox.widthMeters;
-                float zCenter = (float)modelAndBbox.averageElevation;
-                float projWidth = (float)modelAndBbox.projectedBbox.Width;
-                // 
-                float PI = (float)Math.PI;
-
-                Stopwatch swAdornments = Stopwatch.StartNew();
-                // Arrow
-                TriangulationList<Vector3> adornments = _meshService.CreateArrow().ToGlTFSpace()
-                    .Scale(arrowSizeFactor)
-                    .Translate(new Vector3(-projWidth * 0.55f, 0, zCenter));
-
-                // North text 'N'
-                adornments += _adornmentsService.CreateText("N", VectorsExtensions.CreateColor(255, 255, 255)).ToGlTFSpace()
-                           .Scale(projHeight / 200f / 5f)
-                           .RotateX(-PI / 2)
-                           .Translate(new Vector3(-projWidth * 0.55f, arrowSizeFactor * 1.1f, zCenter));
-
-                // Scale bar
-                var scaleBar = _adornmentsService.CreateScaleBar(width, projWidth, radius: projHeight / 200f).ToGlTFSpace();
-                var scaleBarSize = scaleBar.GetBoundingBox().Height;
-                adornments += scaleBar
-                    .RotateZ(PI / 2f)
-                    .Translate(new Vector3(projWidth / 2, -projHeight / 2 - projHeight * 0.05f, zCenter));
-
-                var text = _adornmentsService.CreateText($"{dataset.Attribution.Subject}: {dataset.Attribution.Text}{Environment.NewLine}{ImageryProvider.MapBoxSatellite.Attribution.Subject}: {ImageryProvider.MapBoxSatellite.Attribution.Text}", VectorsExtensions.CreateColor(255, 255, 255)).ToGlTFSpace();
-                var scale = ((projWidth - scaleBarSize) * 0.9f) / text.GetBoundingBox().Width;
-
-                text = text.Scale((float)scale)
-                                .RotateX(-PI / 2)
-                                .Translate(new Vector3(-projWidth * 0.25f, -projHeight * 0.55f, zCenter));
-                adornments += text;
-
-
                 // add adornments
+                Stopwatch swAdornments = Stopwatch.StartNew();
+                TriangulationList<Vector3> adornments = _adornmentsService.CreateModelAdornments(dataset, ImageryProvider.MapBoxSatellite, bbox, modelAndBbox.projectedBbox);
                 model = _sharpGltfService.AddMesh(model, "Adornments", adornments, default(Vector4), doubleSided: true);
                 swAdornments.Stop();
+
                 _logger.LogInformation($"Adornments generation: {swAdornments.ElapsedMilliseconds:N1} ms");
 
                 // Save model
@@ -119,7 +85,7 @@ namespace SampleApp
             }
         }
 
-      
+
         private (ModelRoot Model, double widthMeters, double heightMeters, double averageElevation, BoundingBox projectedBbox) GenerateSampleModel(BoundingBox bbox, DEMDataSet dataset, bool withTexture = true)
         {
 
