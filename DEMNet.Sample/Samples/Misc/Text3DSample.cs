@@ -46,8 +46,8 @@ namespace SampleApp
 
 
             // DjebelMarra
-            var bbox = GeometryService.GetBoundingBox("POLYGON((5.530707378231727 43.555422288955455,5.627181072079384 43.555422288955455,5.627181072079384 43.491942643353426,5.530707378231727 43.491942643353426,5.530707378231727 43.555422288955455))");
-            var dataset = DEMDataSet.AW3D30;
+            var bbox = GeometryService.GetBoundingBox("POLYGON((4.226929086345006 44.32344747870201,5.490356820720006 44.32344747870201,5.490356820720006 43.60385639227976,4.226929086345006 43.60385639227976,4.226929086345006 44.32344747870201))");
+            var dataset = DEMDataSet.SRTM_GL3;
 
             string modelName = $"{dataset.Name}_{DateTime.Now:yyyyMMdd_HHmmss}";
             string outputDir = Directory.GetCurrentDirectory();
@@ -69,8 +69,9 @@ namespace SampleApp
                 // bbox size
                 float height = (float)modelAndBbox.heightMeters;
                 float arrowSizeFactor = height / 3f;
-                float width = (float)modelAndBbox.heightMeters;
+                float width = (float)modelAndBbox.widthMeters;
                 float zCenter = (float)modelAndBbox.averageElevation;
+                float projWidth = (float)modelAndBbox.projectedBbox.Width;
                 // 
                 float PI = (float)Math.PI;
 
@@ -86,7 +87,7 @@ namespace SampleApp
                            .Translate(new Vector3(-width * 0.6f, arrowSizeFactor * 1.1f, zCenter));
 
                 // Scale bar
-                adornments += CreateScaleBar(width, radius: height / 200f).ToGlTFSpace()
+                adornments += CreateScaleBar(width, projWidth, radius: height / 200f).ToGlTFSpace()
                     .RotateZ(PI / 2f)
                     .Translate(new Vector3(width / 2, -height / 2 - height * 0.05f, zCenter));
 
@@ -110,18 +111,18 @@ namespace SampleApp
             }
         }
 
-        private TriangulationList<Vector3> CreateScaleBar(float modelSize, float radius = 10f)
+        private TriangulationList<Vector3> CreateScaleBar(float modelSize4326, float modelSizeProjected, float radius = 10f)
         {
             int nSteps = 4;
-            ScaleBarInfo scaleInfo = GetScaleBarWidth(modelSize, scaleBarSizeRelativeToModel: 0.5f, nSteps);
+            ScaleBarInfo scaleInfo = GetScaleBarWidth(modelSize4326, modelSizeProjected, scaleBarSizeRelativeToModel: 0.5f, nSteps);
 
             Vector3 currentPosition = Vector3.Zero;
             TriangulationList<Vector3> triangulation = new TriangulationList<Vector3>();
             for (int i = 0; i < nSteps; i++)
             {
-                currentPosition.Z = scaleInfo.StepSize * i;
+                currentPosition.Z = scaleInfo.StepSizeProjected * i;
 
-                triangulation += _meshService.CreateCylinder(currentPosition, radius, scaleInfo.StepSize
+                triangulation += _meshService.CreateCylinder(currentPosition, radius, scaleInfo.StepSizeProjected
                         , color: i % 2 == 0 ? VectorsExtensions.CreateColor(0, 0, 0) : VectorsExtensions.CreateColor(255, 255, 255));
             }
 
@@ -132,7 +133,7 @@ namespace SampleApp
                             .Scale(radius / 5)
                             .RotateY((float)Math.PI / 2)
                             .RotateZ((float)Math.PI / 2)
-                            .Translate(new Vector3(radius * 5, -radius, scaleInfo.TotalSize / 2));
+                            .Translate(new Vector3(radius * 5, -radius, scaleInfo.TotalSizeProjected / 2));
 
             return triangulation;
         }
@@ -140,21 +141,32 @@ namespace SampleApp
         private struct ScaleBarInfo
         {
             public float TotalSize;
+            public float TotalSizeProjected;
             public int NumSteps;
             public float StepSize;
+            public float StepSizeProjected;
         }
-        private ScaleBarInfo GetScaleBarWidth(float totalWidth, float scaleBarSizeRelativeToModel = 0.5f, int nSteps = 4)
+        private ScaleBarInfo GetScaleBarWidth(float totalWidth, float modelSizeProjected, float scaleBarSizeRelativeToModel = 0.5f, int nSteps = 4)
         {
             // must be divisible by 4
             float[] smallestScaleStep = { 1, 2, 5, 10, 20, 25, 50, 100, 250, 500, 1000, 2000, 2500, 5000, 10000, 20000, 25000, 50000, 100000, 200000, 500000, 1000000, 2000000, 5000000, 10000000 };
 
-            var scaleBarTotalSize = totalWidth * scaleBarSizeRelativeToModel;
-            var bestScale = smallestScaleStep.Select(s => new { Step = s, diff = Math.Abs(1 - (scaleBarTotalSize / (s * nSteps))) })
+            var scaleBarTotalRequestedSize = totalWidth * scaleBarSizeRelativeToModel;
+            var bestScale = smallestScaleStep.Select(s => new { Step = s, diff = Math.Abs(1 - (scaleBarTotalRequestedSize / (s * nSteps))) })
                               .OrderBy(s => s.diff)
                               .First();
+            var scaleBarTotalSize = bestScale.Step * nSteps;
 
-
-            return new ScaleBarInfo { NumSteps = nSteps, TotalSize = scaleBarTotalSize, StepSize = bestScale.Step };
+            var projSize = MathHelper.Map(0, totalWidth, 0, modelSizeProjected, scaleBarTotalSize, false);
+            var projStepSize = MathHelper.Map(0, totalWidth, 0, modelSizeProjected, bestScale.Step, false);
+            return new ScaleBarInfo
+            {
+                NumSteps = nSteps,
+                TotalSizeProjected = projSize,
+                StepSizeProjected = projStepSize,
+                StepSize= bestScale.Step,
+                TotalSize = scaleBarTotalSize
+            };
 
         }
 
@@ -278,7 +290,7 @@ namespace SampleApp
             return result;
         }
 
-        private (ModelRoot Model, double widthMeters, double heightMeters, double averageElevation) GenerateSampleModel(BoundingBox bbox, DEMDataSet dataset, bool withTexture = true)
+        private (ModelRoot Model, double widthMeters, double heightMeters, double averageElevation, BoundingBox projectedBbox) GenerateSampleModel(BoundingBox bbox, DEMDataSet dataset, bool withTexture = true)
         {
 
             try
@@ -341,16 +353,16 @@ namespace SampleApp
 
                 var model = _sharpGltfService.CreateTerrainMesh(heightMap, pbrTexture);
 
-                var width = new GeoPoint(wgs84bbox.Center[1], wgs84bbox.xMin).DistanceTo(new GeoPoint(wgs84bbox.Center[1], wgs84bbox.xMax));
-                var height = new GeoPoint(wgs84bbox.yMin, wgs84bbox.Center[0]).DistanceTo(new GeoPoint(wgs84bbox.yMax, wgs84bbox.Center[0]));
+                var width = new GeoPoint(wgs84bbox.Center[1], bbox.Center[0] - bbox.Width / 2f).DistanceTo(new GeoPoint(wgs84bbox.Center[1], bbox.Center[0] + bbox.Width / 2f));
+                var height = new GeoPoint(bbox.Center[1] - bbox.Height / 2f, wgs84bbox.Center[0]).DistanceTo(new GeoPoint(bbox.Center[1] + bbox.Height, wgs84bbox.Center[0]));
 
-                return (model, width, height, wgs84bbox.Center[2]);
+                return (model, width, height, wgs84bbox.Center[2], heightMap.BoundingBox);
 
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, ex.Message);
-                return (null, 0, 0, 0);
+                return (null, 0, 0, 0, null);
             }
         }
     }
