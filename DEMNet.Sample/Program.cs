@@ -36,6 +36,7 @@ using Microsoft.Extensions.Configuration;
 using DEM.Net.Core.Configuration;
 using Microsoft.Extensions.Hosting;
 using System.Threading.Tasks;
+using SharpGLTF.Schema2;
 
 namespace SampleApp
 {
@@ -85,17 +86,21 @@ namespace SampleApp
                     .AddTransient<CustomSamples>()
                     .AddTransient<AerialGpxSample>()
                     .AddTransient<ImagerySample>()
-                    .AddTransient<IntervisibilitySample>();
+                    .AddTransient<IntervisibilitySample>()
+                    .AddTransient<CustomRasterElevationSample>()
+                    .AddTransient<GpxSTLSample>()
+                    .AddTransient<Text3DSample>();
 
 
             services.AddTransient<SampleApplication>();
             // .. more samples here
         }
 
-        private static void RegisterServices(IConfiguration config, IServiceCollection services)
+        private static void RegisterServices(IConfiguration configuration, IServiceCollection services)
         {
             services.AddLogging(config =>
             {
+                //config.AddConfiguration(configuration.GetSection("Logging"));
                 config.AddDebug(); // Log to debug (debug window in Visual Studio or any debugger attached)
                 config.AddConsole(o =>
                 {
@@ -111,8 +116,8 @@ namespace SampleApp
                // Comment this line to see all internal DEM.Net logs
                //options.AddFilter<ConsoleLoggerProvider>("DEM.Net", LogLevel.Information);
            })
-           .Configure<AppSecrets>(config.GetSection(nameof(AppSecrets)))
-           .Configure<DEMNetOptions>(config.GetSection(nameof(DEMNetOptions)))
+           .Configure<AppSecrets>(configuration.GetSection(nameof(AppSecrets)))
+           .Configure<DEMNetOptions>(configuration.GetSection(nameof(DEMNetOptions)))
            .AddDemNetCore()
            .AddDemNetglTF();
 

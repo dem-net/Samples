@@ -1,32 +1,27 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
-
   <PropertyGroup>
     <OutputType>Exe</OutputType>
     <TargetFramework>netcoreapp3.1</TargetFramework>
     <RootNamespace>SampleApp</RootNamespace>
   </PropertyGroup>
-
   <ItemGroup>
     <Compile Remove="Samples\OldSamples.cs" />
     <Compile Remove="Samples\ReprojectionSamples.cs" />
     <Compile Remove="Samples\TextureSamples.cs" />
   </ItemGroup>
-
   <ItemGroup>
     <None Remove=".DS_Store" />
     <None Remove="._.DS_Store" />
     <None Remove="appsettings.json" />
   </ItemGroup>
-
   <ItemGroup>
     <Content Include="appsettings.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Content>
   </ItemGroup>
-
   <ItemGroup>
-    <PackageReference Include="DEM.Net.Core" Version="0.2.7.3" />
-    <PackageReference Include="DEM.Net.glTF" Version="0.2.7.3" />
+    <PackageReference Include="DEM.Net.Core" Version="0.2.8" />
+    <PackageReference Include="DEM.Net.glTF" Version="0.2.8" />
     <PackageReference Include="GeoJSON.Net" Version="1.2.19" />
     <PackageReference Include="Microsoft.Extensions.Configuration.CommandLine" Version="3.1.5" />
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="3.1.5" />
@@ -36,22 +31,26 @@
     <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="3.1.5" />
     <PackageReference Include="ScottPlot" Version="4.0.38" />
     <PackageReference Include="SharpGLTF.Toolkit" Version="1.0.0-alpha0018" />
+    <PackageReference Include="System.Drawing.Common" Version="4.7.0" />
     <PackageReference Include="System.Security.Permissions" Version="4.7.0" />
   </ItemGroup>
-
-
-
   <ItemGroup>
-    <None Update="SampleData\20191022-Puch-Pöllau.gpx">
+    <None Update="SampleData\GPX\20191022-Puch-Pöllau.gpx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="SampleData\20191023-Puch-Pöllau-sensorlog.trunk.json">
+    <None Update="SampleData\GPX\20191023-Puch-Pöllau-sensorlog.trunk.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="SampleData\20191023-Puch-Pöllau-sensorlog.json">
+    <None Update="SampleData\GPX\20191023-Puch-Pöllau-sensorlog.json">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="SampleData\lauzannier.gpx">
+    <None Update="SampleData\GPX\lake-pleasant-camping.gpx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="SampleData\GPX\lauzannier.gpx">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
+    <None Update="SampleData\GPX\Mt_Whitney_2017.gpx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="SampleData\N043E005_AVE_DSM.tif.zip">
@@ -60,7 +59,7 @@
     <None Update="SampleData\N43E005.hgt.zip">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="SampleData\BikeRide.gpx">
+    <None Update="SampleData\GPX\BikeRide.gpx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="SampleData\OE-SOE.glb">
@@ -69,7 +68,7 @@
     <None Update="SampleData\OE-SOX.glb">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Update="SampleData\trail.gpx">
+    <None Update="SampleData\GPX\trail.gpx">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
     <None Update="SampleData\VisualTopo\small\0 bifurc\Test 3 arcs.tro">
@@ -106,7 +105,6 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
   </ItemGroup>
-
   <ItemGroup>
     <Compile Condition=" '$(EnableDefaultCompileItems)' == 'true' " Update="Samples\Core\Gpx3DSamples.cs">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>

@@ -25,6 +25,7 @@
 // THE SOFTWARE.
 
 using DEM.Net.Core;
+using DEM.Net.Core.Datasets;
 using DEM.Net.Core.Imagery;
 using DEM.Net.glTF.SharpglTF;
 using Microsoft.Extensions.Logging;
@@ -64,9 +65,9 @@ namespace SampleApp
         {
             try
             {
-                string _gpxFile = Path.Combine("SampleData", "BikeRide.gpx");
+                string _gpxFile = Path.Combine("SampleData", "GPX", "lake-pleasant-camping.gpx");
                 bool withTexture = true;
-                float Z_FACTOR = 4f;
+                float Z_FACTOR = 1.8f;
                 float Z_TRANSLATE_GPX_TRACK_METERS = 5;
                 float trailWidthMeters = 5f;
                 int skipGpxPointsEvery = 1;
@@ -81,7 +82,7 @@ namespace SampleApp
                 // Get GPX points
                 var segments = GpxImport.ReadGPX_Segments(_gpxFile);
                 var points = segments.SelectMany(seg => seg);
-                var bbox = points.GetBoundingBox().Scale(1.3, 1.3);
+                var bbox = points.GetBoundingBox().Scale(1.1, 1.1).ReprojectTo(4326,dataSet.SRID);
                 // DEBUG
                 // Test case : ASTER GDEMv3 : 5.5 43.5 Z=315
                 // 303     307     308
@@ -109,7 +110,7 @@ namespace SampleApp
                 //                hMapRefPoint.Elevation += 60;
                 //                gpxRefPoint.Elevation += 60;
 
-                hMap = hMap.ReprojectTo(4326, outputSrid)
+                hMap = hMap.ReprojectTo(dataSet.SRID, outputSrid)
                     //.CenterOnOrigin()
                     .ZScale(Z_FACTOR)
                     .BakeCoordinates();
@@ -125,11 +126,12 @@ namespace SampleApp
 
 
                     Console.WriteLine("Download image tiles...");
-                    TileRange tiles = _imageryService.DownloadTiles(bbox, provider, 8);
+                    TileRange tiles = _imageryService.DownloadTiles(bbox, provider, 12);
                     string fileName = Path.Combine(outputDir, "Texture.jpg");
 
                     Console.WriteLine("Construct texture...");
-                    TextureInfo texInfo = _imageryService.ConstructTextureWithGpxTrack(tiles, bbox, fileName, TextureImageFormat.image_jpeg, gpxPointsElevated, false);
+                    //TextureInfo texInfo = _imageryService.ConstructTextureWithGpxTrack(tiles, bbox, fileName, TextureImageFormat.image_jpeg, gpxPointsElevated, false);
+                    TextureInfo texInfo = _imageryService.ConstructTexture(tiles, bbox, fileName, TextureImageFormat.image_jpeg);
 
                     //
                     //=======================
@@ -140,9 +142,10 @@ namespace SampleApp
                     //float Z_FACTOR = 0.00002f;
 
                     //hMap = hMap.CenterOnOrigin().ZScale(Z_FACTOR);
-                    var normalMap = _imageryService.GenerateNormalMap(hMap, outputDir);
+                    //var normalMap = _imageryService.GenerateNormalMap(hMap, outputDir);
+                    //pbrTexture = PBRTexture.Create(texInfo, normalMap);
 
-                    pbrTexture = PBRTexture.Create(texInfo, normalMap);
+                    pbrTexture = PBRTexture.Create(texInfo, null);
 
                     //hMap = hMap.CenterOnOrigin(Z_FACTOR);
                     //
@@ -175,7 +178,7 @@ namespace SampleApp
                     // take 1 point evert nth
                     gpxPointsElevated = gpxPointsElevated.Where((x, i) => (i + 1) % skipGpxPointsEvery == 0);
                     gpxPointsElevated = gpxPointsElevated.ZTranslate(Z_TRANSLATE_GPX_TRACK_METERS)
-                                                            .ReprojectTo(4326, outputSrid)
+                                                            .ReprojectTo(dataSet.SRID, outputSrid)
                                                             //.CenterOnOrigin()
                                                             //.CenterOnOrigin(hMap.BoundingBox)
                                                             .ZScale(Z_FACTOR);
@@ -218,6 +221,27 @@ namespace SampleApp
                 }
 
             }
+        }
+
+        public DEMDataSet GetUSGSNED(string datasetPath, bool firstRun)
+        {
+            var dst = new DEMDataSet()
+            {
+                Name = "USGS NED",
+                Description = "USGS NED",
+                PublicUrl = null,
+                DataSource = new LocalFileSystem(datasetPath),
+                FileFormat = new DEMFileDefinition("GeoTiff", DEMFileType.GEOTIFF, ".tif", DEMFileRegistrationMode.Cell),
+                ResolutionMeters = 1,
+                SRID = Reprojection.SRID_NAD83,
+                Attribution = new Attribution("NED", "USGS NED", "https://www.sciencebase.gov/catalog/item/581d268ee4b08da350d5c59d", "USGS NED"),
+                NoDataValue = -99999
+            };
+            if (firstRun)
+            {
+                _rasterService.GenerateDirectoryMetadata(dst, force: firstRun);
+            }
+            return dst;
         }
     }
 

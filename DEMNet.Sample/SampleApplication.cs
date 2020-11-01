@@ -34,6 +34,7 @@ using DEM.Net.Core.Configuration;
 using Microsoft.Extensions.Hosting;
 using System.Threading;
 using System.Threading.Tasks;
+using System.IO;
 
 namespace SampleApp
 {
@@ -70,6 +71,45 @@ namespace SampleApp
                 rasterService.SetLocalDirectory(DATA_FILES_PATH);
             }
 
+            //using (_logger.BeginScope($"Running {nameof(Gpx3DSamples)}.."))
+            //{
+            //    var gpx3DSamples = services.GetService<Gpx3DSamples>();
+            //    gpx3DSamples.Run(gpx3DSamples.GetUSGSNED(@"C:\Repos\DEM.Net.Samples\DEMNet.Sample\SampleData",true), true, false, Reprojection.SRID_PROJECTED_MERCATOR);
+            //    //gpx3DSamples.Run(DEMDataSet.SRTM_GL1, true, false, Reprojection.SRID_PROJECTED_MERCATOR);
+            //    //gpx3DSamples.Run(DEMDataSet.SRTM_GL3, true, false, Reprojection.SRID_PROJECTED_MERCATOR);
+            //    //gpx3DSamples.Run(DEMDataSet.ASTER_GDEMV3, true, false, Reprojection.SRID_PROJECTED_MERCATOR);
+            //    _logger.LogInformation($"Sample {gpx3DSamples.GetType().Name} done. Press any key to run the next sample...");
+            //    if (pauseAfterEachSample) Console.ReadLine();
+            //}
+
+            using (_logger.BeginScope($"Running {nameof(Text3DSample)}.."))
+            {
+                var sample = services.GetService<Text3DSample>();
+                sample.Run();
+                _logger.LogInformation($"Sample {sample.GetType().Name} done. Press any key to run the next sample...");
+                if (pauseAfterEachSample) Console.ReadLine();
+            }
+            using (_logger.BeginScope($"Running {nameof(CustomRasterElevationSample)}.."))
+            {
+                var sample = services.GetService<CustomRasterElevationSample>();
+                sample.Run();
+                _logger.LogInformation($"Sample {sample.GetType().Name} done. Press any key to run the next sample...");
+                if (pauseAfterEachSample) Console.ReadLine();
+            }
+            //using (_logger.BeginScope($"Running {nameof(ElevationSamples)}.."))
+            //{
+            //    var elevationSamples = services.GetService<ElevationSamples>();
+            //    elevationSamples.Run();
+            //    _logger.LogInformation($"Sample {elevationSamples.GetType().Name} done. Press any key to run the next sample...");
+            //    if (pauseAfterEachSample) Console.ReadLine();
+            //}
+            //using (_logger.BeginScope($"Running {nameof(GpxSTLSample)}.."))
+            //{
+            //    var sample = services.GetService<GpxSTLSample>();
+            //    sample.Run(Path.Combine("SampleData", "GPX", "Mt_Whitney_2017.gpx"), DEMDataSet.NASADEM);
+            //    _logger.LogInformation($"Sample {sample.GetType().Name} done. Press any key to run the next sample...");
+            //    if (pauseAfterEachSample) Console.ReadLine();
+            //}
             // Visual topo sample moved to DEM.Net.Extensions repo
             //using (_logger.BeginScope($"Running {nameof(VisualTopoSample)}.."))
             //{
@@ -110,16 +150,7 @@ namespace SampleApp
                 _logger.LogInformation($"Sample {glTF3DSamples.GetType().Name} done. Press any key to run the next sample...");
                 if (pauseAfterEachSample) Console.ReadLine();
             }
-            using (_logger.BeginScope($"Running {nameof(Gpx3DSamples)}.."))
-            {
-                var gpx3DSamples = services.GetService<Gpx3DSamples>();
-                gpx3DSamples.Run(DEMDataSet.ASTER_GDEMV3, true, false, Reprojection.SRID_PROJECTED_MERCATOR);
-                //gpx3DSamples.Run(DEMDataSet.SRTM_GL1, true, false, Reprojection.SRID_PROJECTED_MERCATOR);
-                //gpx3DSamples.Run(DEMDataSet.SRTM_GL3, true, false, Reprojection.SRID_PROJECTED_MERCATOR);
-                //gpx3DSamples.Run(DEMDataSet.ASTER_GDEMV3, true, false, Reprojection.SRID_PROJECTED_MERCATOR);
-                _logger.LogInformation($"Sample {gpx3DSamples.GetType().Name} done. Press any key to run the next sample...");
-                if (pauseAfterEachSample) Console.ReadLine();
-            }
+
             using (_logger.BeginScope($"Running {nameof(TINSamples)}.."))
             {
                 var tinSamples = services.GetService<TINSamples>();
@@ -144,13 +175,7 @@ namespace SampleApp
                 if (pauseAfterEachSample) Console.ReadLine();
             }
 
-            using (_logger.BeginScope($"Running {nameof(ElevationSamples)}.."))
-            {
-                var elevationSamples = services.GetService<ElevationSamples>();
-                elevationSamples.Run();
-                _logger.LogInformation($"Sample {elevationSamples.GetType().Name} done. Press any key to run the next sample...");
-                if (pauseAfterEachSample) Console.ReadLine();
-            }
+
             using (_logger.BeginScope($"Running {nameof(DatasetSamples)}.."))
             {
                 var datasetSamples = services.GetService<DatasetSamples>();
