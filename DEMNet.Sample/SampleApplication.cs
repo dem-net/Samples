@@ -71,6 +71,14 @@ namespace SampleApp
                 rasterService.SetLocalDirectory(DATA_FILES_PATH);
             }
 
+            using (_logger.BeginScope($"Running {nameof(DownloaderSample)}.."))
+            {
+                var sample = services.GetRequiredService<DownloaderSample>();
+                sample.Run(DEMDataSet.AW3D30);
+                _logger.LogInformation($"Sample {sample.GetType().Name} done. Press any key to run the next sample...");
+                if (pauseAfterEachSample) Console.ReadLine();
+            }
+
             //using (_logger.BeginScope($"Running {nameof(Gpx3DSamples)}.."))
             //{
             //    var gpx3DSamples = services.GetService<Gpx3DSamples>();
@@ -194,13 +202,7 @@ namespace SampleApp
             }
 
 
-            //using (_logger.BeginScope($"Running {nameof(DownloaderSample)}.."))
-            //{
-            //    var sample = serviceProvider.GetRequiredService<DownloaderSample>();
-            //    sample.Run(DEMDataSet.ASTER_GDEMV3);
-            //    _logger.LogInformation($"Sample {sample.GetType().Name} done. Press any key to run the next sample...");
-            //    if (pauseAfterEachSample) Console.ReadLine();
-            //}
+           
             //using (_logger.BeginScope($"Running {nameof(CustomSamples)}.."))
             //{
             //    customSamples.Run(cancellationToken);
