@@ -280,7 +280,7 @@ namespace SampleApp
                 heightMap = heightMap.BakeCoordinates();
                 var coords = heightMap.Coordinates.ToList();
 
-                var model = _sharpGltfService.CreateTerrainMesh(heightMap, pbrTexture);
+                var model = _sharpGltfService.CreateTerrainMesh(heightMap, pbrTexture, reduceFactor: 0.75f);
 
 
 

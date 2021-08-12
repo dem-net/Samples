@@ -132,7 +132,7 @@ namespace SampleApp
                 // and add base and sides
                 _logger.LogInformation($"Triangulating height map and generating 3D mesh...");
 
-                var model = _sharpGltfService.CreateTerrainMesh(heightMap, pbrTexture);
+                var model = _sharpGltfService.CreateTerrainMesh(heightMap, pbrTexture, reduceFactor: 0.75f);
                 model.SaveGLB(Path.Combine(Directory.GetCurrentDirectory(), modelName + ".glb"));
                 model.SaveAsWavefront(Path.Combine(Directory.GetCurrentDirectory(), modelName + ".obj"));
 

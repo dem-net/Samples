@@ -170,7 +170,7 @@ namespace SampleApp
                 {
                     //hMap = hMap.CenterOnOrigin().ZScale(Z_FACTOR);
                     // generate mesh with texture
-                    model = _sharpGltfService.CreateTerrainMesh(hMap, pbrTexture);
+                    model = _sharpGltfService.CreateTerrainMesh(hMap, pbrTexture, reduceFactor: 0.75f);
                 }
 
                 if (trackIn3D)

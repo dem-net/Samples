@@ -402,7 +402,7 @@ namespace SampleApp
                 else
                 {
                     // generate mesh with texture
-                    model = _sharpGltfService.AddTerrainMesh(model, hMap, pbrTexture);
+                    model = _sharpGltfService.AddTerrainMesh(model, hMap, pbrTexture, reduceFactor: 0.75f);
                 }
 
                 return model;
