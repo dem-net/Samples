@@ -45,7 +45,7 @@ namespace SampleApp
     {
         private readonly ILogger<SampleApplication> _logger;
         private readonly RasterService rasterService;
-        private const string DATA_FILES_PATH = null; //@"C:\Users\ElevationAPI\AppData\Local"; // Leave to null for default location (Environment.SpecialFolder.LocalApplicationData)
+        private const string DATA_FILES_PATH = @"C:\Users\ElevationAPI\AppData\Local"; // Leave to null for default location (Environment.SpecialFolder.LocalApplicationData)
 
         public SampleApplication(ILogger<SampleApplication> logger,
             RasterService rasterService
@@ -74,6 +74,10 @@ namespace SampleApp
             using (_logger.BeginScope($"Running {nameof(DownloaderSample)}.."))
             {
                 var sample = services.GetRequiredService<DownloaderSample>();
+                sample.Generate_Ign5_Metadata();
+                //sample.PrepareIgn5_1_Deduplicate_DezipManualAfter();
+                //sample.Generate_Ign5_Metadata();
+
                 sample.Run(DEMDataSet.AW3D30);
                 _logger.LogInformation($"Sample {sample.GetType().Name} done. Press any key to run the next sample...");
                 if (pauseAfterEachSample) Console.ReadLine();
