@@ -72,6 +72,19 @@ namespace SampleApp
             try
             {
 
+                // 5.98485,46.14738
+                GeoPoint geoPoint = new GeoPoint(46.14738, 5.98485);
+                geoPoint = geoPoint.ReprojectTo(4326, 2056);
+                var fileName = @"C:\Users\xavier.fischer\Downloads\swissalti3d_2019_2487-1111_0.5_2056_5728.tif";
+                using (IRasterFile raster = _rasterService.OpenFile(fileName, DEMFileType.GEOTIFF))
+                {
+                    FileMetadata metaData = raster.ParseMetaData(new DEMFileDefinition(DEMFileType.GEOTIFF, DEMFileRegistrationMode.Cell));
+
+                    float elevation = raster.GetElevationAtPoint(metaData, 1000, 200);
+
+                    elevation = raster.GetElevationAtPoint(metaData, 200, 1000);
+
+                }
                 float zFactor = 1.5f;
                 string outputDir = Directory.GetCurrentDirectory();
                 var codePath = string.Join(Path.DirectorySeparatorChar, outputDir.Split(Path.DirectorySeparatorChar).TakeWhile(s => s != "bin"));

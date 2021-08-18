@@ -42,19 +42,20 @@ namespace SampleApp
     {
         private readonly ILogger<ElevationSamples> _logger;
         private readonly ElevationService _elevationService;
+        private readonly RasterService _rasterService;
 
         public ElevationSamples(ILogger<ElevationSamples> logger
-                , ElevationService elevationService)
+                , ElevationService elevationService
+                , RasterService rasterService)
         {
             _logger = logger;
             _elevationService = elevationService;
+            _rasterService = rasterService;
         }
         public void Run()
         {
             try
             {
-
-
                 double lat1 = 46.00000000000004;
                 double lon1 = 10.000000000000007;
                 double lat2 = 45.212278;

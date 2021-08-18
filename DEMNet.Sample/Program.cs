@@ -89,8 +89,9 @@ namespace SampleApp
                     .AddTransient<IntervisibilitySample>()
                     .AddTransient<CustomRasterElevationSample>()
                     .AddTransient<GpxSTLSample>()
-                    .AddTransient<Text3DSample>();
-
+                    .AddTransient<Text3DSample>()
+                    .AddTransient<OBJSamples>()
+                    ;
 
             services.AddTransient<SampleApplication>();
             // .. more samples here

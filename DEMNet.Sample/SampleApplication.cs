@@ -70,19 +70,28 @@ namespace SampleApp
             {
                 rasterService.SetLocalDirectory(DATA_FILES_PATH);
             }
-
+            //using (_logger.BeginScope($"Running {nameof(OBJSamples)}.."))
+            //{
+            //    var sample = services.GetRequiredService<OBJSamples>();
+            //    sample.Run();
+            //    _logger.LogInformation($"Sample {sample.GetType().Name} done. Press any key to run the next sample...");
+            //    if (pauseAfterEachSample) Console.ReadLine();
+            //}
             using (_logger.BeginScope($"Running {nameof(DownloaderSample)}.."))
             {
                 var sample = services.GetRequiredService<DownloaderSample>();
-                sample.Generate_Ign5_Metadata();
+                sample.Run(DEMDataSet.swissALTI3D2m);
+
+                //IGN
+                //sample.PrepareIgn5_2_AfterDezip_MoveAndCompressAsc(@"E:\Perso\data\RGE_Alti5m\DEM.Net\IGN_5m");
                 //sample.PrepareIgn5_1_Deduplicate_DezipManualAfter();
                 //sample.Generate_Ign5_Metadata();
 
-                sample.Run(DEMDataSet.AW3D30);
+                
                 _logger.LogInformation($"Sample {sample.GetType().Name} done. Press any key to run the next sample...");
                 if (pauseAfterEachSample) Console.ReadLine();
             }
-
+           
             //using (_logger.BeginScope($"Running {nameof(Gpx3DSamples)}.."))
             //{
             //    var gpx3DSamples = services.GetService<Gpx3DSamples>();
@@ -93,6 +102,13 @@ namespace SampleApp
             //    _logger.LogInformation($"Sample {gpx3DSamples.GetType().Name} done. Press any key to run the next sample...");
             //    if (pauseAfterEachSample) Console.ReadLine();
             //}
+            //using (_logger.BeginScope($"Running {nameof(CustomRasterElevationSample)}.."))
+            //{
+            //    var sample = services.GetService<CustomRasterElevationSample>();
+            //    sample.Run();
+            //    _logger.LogInformation($"Sample {sample.GetType().Name} done. Press any key to run the next sample...");
+            //    if (pauseAfterEachSample) Console.ReadLine();
+            //}
 
             using (_logger.BeginScope($"Running {nameof(Text3DSample)}.."))
             {
@@ -101,13 +117,7 @@ namespace SampleApp
                 _logger.LogInformation($"Sample {sample.GetType().Name} done. Press any key to run the next sample...");
                 if (pauseAfterEachSample) Console.ReadLine();
             }
-            using (_logger.BeginScope($"Running {nameof(CustomRasterElevationSample)}.."))
-            {
-                var sample = services.GetService<CustomRasterElevationSample>();
-                sample.Run();
-                _logger.LogInformation($"Sample {sample.GetType().Name} done. Press any key to run the next sample...");
-                if (pauseAfterEachSample) Console.ReadLine();
-            }
+            
             //using (_logger.BeginScope($"Running {nameof(ElevationSamples)}.."))
             //{
             //    var elevationSamples = services.GetService<ElevationSamples>();
