@@ -80,7 +80,7 @@ namespace SampleApp
             using (_logger.BeginScope($"Running {nameof(DownloaderSample)}.."))
             {
                 var sample = services.GetRequiredService<DownloaderSample>();
-                sample.Run(DEMDataSet.swissALTI3D2m);
+                sample.Run(DEMDataSet.swissALTI3D50cm);
 
                 //IGN
                 //sample.PrepareIgn5_2_AfterDezip_MoveAndCompressAsc(@"E:\Perso\data\RGE_Alti5m\DEM.Net\IGN_5m");
