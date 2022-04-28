@@ -70,13 +70,13 @@ namespace SampleApp
             {
                 rasterService.SetLocalDirectory(DATA_FILES_PATH);
             }
-            //using (_logger.BeginScope($"Running {nameof(OBJSamples)}.."))
-            //{
-            //    var sample = services.GetRequiredService<OBJSamples>();
-            //    sample.Run();
-            //    _logger.LogInformation($"Sample {sample.GetType().Name} done. Press any key to run the next sample...");
-            //    if (pauseAfterEachSample) Console.ReadLine();
-            //}
+            using (_logger.BeginScope($"Running {nameof(OBJSamples)}.."))
+            {
+                var sample = services.GetRequiredService<OBJSamples>();
+                sample.Run();
+                _logger.LogInformation($"Sample {sample.GetType().Name} done. Press any key to run the next sample...");
+                if (pauseAfterEachSample) Console.ReadLine();
+            }
             using (_logger.BeginScope($"Running {nameof(DownloaderSample)}.."))
             {
                 var sample = services.GetRequiredService<DownloaderSample>();
