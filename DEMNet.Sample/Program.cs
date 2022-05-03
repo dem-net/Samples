@@ -103,11 +103,7 @@ namespace SampleApp
             {
                 //config.AddConfiguration(configuration.GetSection("Logging"));
                 config.AddDebug(); // Log to debug (debug window in Visual Studio or any debugger attached)
-                config.AddConsole(o =>
-                {
-                    o.IncludeScopes = false;
-                    o.DisableColors = false;
-                }); // Log to console (colored !)
+                config.AddConsole();
             })
            .Configure<LoggerFilterOptions>(options =>
            {

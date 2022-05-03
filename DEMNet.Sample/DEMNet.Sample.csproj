@@ -27,8 +27,8 @@
     <PackageReference Include="Microsoft.Extensions.Logging" Version="5.0.0" />
     <PackageReference Include="Microsoft.Extensions.Logging.Console" Version="5.0.0" />
     <PackageReference Include="Microsoft.Extensions.Logging.Debug" Version="5.0.0" />
-    <PackageReference Include="ScottPlot" Version="4.0.38" />
-    <PackageReference Include="System.Security.Permissions" Version="4.7.0" />
+    <PackageReference Include="ScottPlot" Version="4.1.41" />
+    <PackageReference Include="System.Security.Permissions" Version="5.0.0" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\DEM.Net\DEM.Net.Core\DEM.Net.Core.csproj" />
