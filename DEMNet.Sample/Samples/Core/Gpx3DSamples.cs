@@ -74,9 +74,9 @@ namespace SampleApp
                 float gpxBboxScale = 2f;
                 float reduceFactor = 0.5f;// 0.75f
                 int zoomLevel = 12;
-                int resolution = 4096;
+                int resolution = 1024;
 
-                ImageryProvider provider = ImageryProvider.MapBoxSatellite; // new TileDebugProvider(null, maxDegreeOfParallelism: 1);//  ImageryProvider.MapBoxSatellite;
+                ImageryProvider provider = ImageryProvider.EsriWorldImagery; // new TileDebugProvider(null, maxDegreeOfParallelism: 1);//  ImageryProvider.MapBoxSatellite;
 
                 string outputDir = Path.GetFullPath(".");
 
