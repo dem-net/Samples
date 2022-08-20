@@ -74,7 +74,7 @@ namespace SampleApp
                     _logger.LogInformation($"{dataset.Name}:");
 
                     _rasterService.GenerateDirectoryMetadata(dataset, false);
-                    _elevationService.DownloadMissingFiles(dataset);
+                    _elevationService.DownloadMissingFilesAsync(dataset);
 
                 }
                 //);

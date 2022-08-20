@@ -65,7 +65,7 @@ namespace SampleApp
 
             var services = serviceCollection.BuildServiceProvider();
 
-            services.GetService<SampleApplication>().Start(services);
+            services.GetService<SampleApplication>().StartAsync(services);
         }
 
 

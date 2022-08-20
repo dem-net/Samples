@@ -71,7 +71,7 @@ namespace SampleApp
 
                 DEMDataSet dataSet = DEMDataSet.SRTM_GL3;
                 //_rasterService.GenerateDirectoryMetadata(dataSet, true, false, 1);
-                _elevationService.DownloadMissingFiles(dataSet, lat, lon);
+                _elevationService.DownloadMissingFilesAsync(dataSet, lat, lon);
                 var tiles = _rasterService.GenerateReportForLocation(dataSet, lat, lon);
                 Debug.Assert(tiles.Count == 4);
                 //_rasterService.GenerateFileMetadata(tile.LocalName, dataSet.FileFormat, true);
@@ -91,7 +91,7 @@ namespace SampleApp
                 foreach (var dataset in DEMDataSet.RegisteredNonLocalDatasets)
                 {
 
-                    _elevationService.DownloadMissingFiles(dataset, lat, lon);
+                    _elevationService.DownloadMissingFilesAsync(dataset, lat, lon);
                     //foreach (var file in _rasterService.GenerateReportForLocation(dataset, lat, lon))
                     //{
                     //    _rasterService.GenerateFileMetadata(file.LocalName, dataset.FileFormat, true);
@@ -110,7 +110,7 @@ namespace SampleApp
         {
             var elevationLine = GeometryService.ParseGeoPointAsGeometryLine(new GeoPoint(latStart, lonStart), new GeoPoint(latEnd, lonEnd));
             
-            _elevationService.DownloadMissingFiles(dataSet, elevationLine.GetBoundingBox());
+            _elevationService.DownloadMissingFilesAsync(dataSet, elevationLine.GetBoundingBox());
 
             var geoPoints = _elevationService.GetLineGeometryElevation(elevationLine, dataSet);
            
@@ -130,7 +130,7 @@ namespace SampleApp
             //                                        , force: true
             //                                        , deleteOnError: false
             //                                        , maxDegreeOfParallelism: 1);
-            _elevationService.DownloadMissingFiles(dataSet, lat, lon);
+            _elevationService.DownloadMissingFilesAsync(dataSet, lat, lon);
             var tiles = _rasterService.GenerateReportForLocation(dataSet, lat, lon);
             Debug.Assert(tiles.Count == 4);
             Debug.Assert(tiles.Any(t => string.Equals(Path.GetFileName(t.LocalName), rasterSouthWestName, StringComparison.OrdinalIgnoreCase)));

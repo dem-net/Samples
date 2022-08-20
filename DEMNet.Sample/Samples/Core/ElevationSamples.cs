@@ -52,7 +52,7 @@ namespace SampleApp
             _elevationService = elevationService;
             _rasterService = rasterService;
         }
-        public void Run()
+        public async Task RunAsync()
         {
             try
             {
@@ -63,12 +63,16 @@ namespace SampleApp
 
                 _logger.LogInformation($"Getting location elevation for each dataset (location lat: {lat1:N2}, lon: {lon1:N2})");
                 Stopwatch sw = new Stopwatch();
-                Parallel.ForEach(DEMDataSet.RegisteredNonLocalDatasets, (dataSet, loopState) =>
+
+                await _elevationService.DownloadMissingFilesAsync(DEMDataSet.AW3D30, lat1, lon1);
+                    GeoPoint geoPoint = _elevationService.GetPointElevation(lat1, lon1, DEMDataSet.AW3D30);
+
+                await Parallel.ForEachAsync(DEMDataSet.RegisteredNonLocalDatasets, async (dataSet, cancellationToken) =>
                 //foreach (var dataSet in DEMDataSet.RegisteredNonSingleFileDatasets)
                 {
                     sw.Restart();
 
-                    _elevationService.DownloadMissingFiles(dataSet, lat1, lon1);
+                    await _elevationService.DownloadMissingFilesAsync(dataSet, lat1, lon1);
                     GeoPoint geoPoint = _elevationService.GetPointElevation(lat1, lon1, dataSet);
 
                     _logger.LogInformation($"{dataSet.Name} elevation: {geoPoint.Elevation:N2} (time taken: {sw.Elapsed.TotalMilliseconds:N1}ms)");
@@ -99,7 +103,7 @@ namespace SampleApp
                 Parallel.ForEach(DEMDataSet.RegisteredNonLocalDatasets, (dataSet, loopState) =>
                 //foreach (var dataSet in DEMDataSet.RegisteredNonSingleFileDatasets)
                 {
-                    _elevationService.DownloadMissingFiles(dataSet, elevationLine.GetBoundingBox());
+                    _elevationService.DownloadMissingFilesAsync(dataSet, elevationLine.GetBoundingBox());
                     var geoPoints = _elevationService.GetLineGeometryElevation(elevationLine, dataSet);
                     var metrics = geoPoints.ComputeMetrics();
                     _logger.LogInformation($"{dataSet.Name} metrics: {metrics.ToString()}");
