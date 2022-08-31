@@ -426,7 +426,7 @@ namespace SampleApp
                     var fileInfo = new FileInfo(file);
                     // 0       1   2    3    4   
                     // RGEALTI_FXX_0705_6940_MNT_LAMB93_IGN69.asc
-                    var fileParts = file.Split(".")[0].Split("_");
+                    var fileParts = fileInfo.Name.Split('.')[0].Split('_');
                     var dep = fileInfo.Directory.Name;
                     var fileKey = fileParts[2] + "_" + fileParts[3];
                     var size = fileInfo.Length / 1024f;
