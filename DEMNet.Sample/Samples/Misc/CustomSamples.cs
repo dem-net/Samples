@@ -63,15 +63,13 @@ namespace SampleApp
                 double lat = 46;
                 double lon = 10;
 
-                LineSample(DEMDataSet.ASTER_GDEMV3, latStart: 45.9993826389, lonStart: 9.9997211693, latEnd: 46.00002905, lonEnd: 10.00063093);
+                LineSample(DEMDataSet.NASADEM, latStart: 45.9993826389, lonStart: 9.9997211693, latEnd: 46.00002905, lonEnd: 10.00063093);
 
-                TestEdges(DEMDataSet.ASTER_GDEMV3, lat, lon, "ASTGTMV003_N45E009_dem.tif", "ASTGTMV003_N45E010_dem.tif", "ASTGTMV003_N46E009_dem.tif", "ASTGTMV003_N46E010_dem.tif");
                 TestEdges(DEMDataSet.SRTM_GL3, lat, lon, "N45E009.hgt", "N45E010.hgt", "N46E009.hgt", "N46E010.hgt");
-                TestEdges(DEMDataSet.SRTM_GL1, lat, lon, "N45E009.hgt", "N45E010.hgt", "N46E009.hgt", "N46E010.hgt");
                 TestEdges(DEMDataSet.AW3D30, lat, lon, "N045E009_AVE_DSM.tif", "N045E010_AVE_DSM.tif", "N046E009_AVE_DSM.tif", "N046E010_AVE_DSM.tif");
 
 
-                DEMDataSet dataSet = DEMDataSet.SRTM_GL1;
+                DEMDataSet dataSet = DEMDataSet.SRTM_GL3;
                 //_rasterService.GenerateDirectoryMetadata(dataSet, true, false, 1);
                 _elevationService.DownloadMissingFiles(dataSet, lat, lon);
                 var tiles = _rasterService.GenerateReportForLocation(dataSet, lat, lon);

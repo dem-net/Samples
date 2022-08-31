@@ -71,7 +71,7 @@ namespace SampleApp
                 {
                     _logger.LogError($"Cannot run sample: {_gpxFile} is missing !");
                 }
-                DEMDataSet _dataSet = DEMDataSet.SRTM_GL1;
+                DEMDataSet _dataSet = DEMDataSet.SRTM_GL3;
 
                 // Read GPX points
                 var segments = GpxImport.ReadGPX_Segments(_gpxFile);

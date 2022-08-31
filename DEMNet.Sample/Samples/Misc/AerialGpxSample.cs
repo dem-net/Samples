@@ -311,7 +311,6 @@ namespace SampleApp
                 var rotationCurve = points
                     .Select(p =>
                     {
-                        Matrix4x4 mat;
                         Quaternion quaternion = Quaternion.CreateFromAxisAngle(Vector3.UnitY, GetAngleRadians(lastBearing.Value, p.Bearing));
                         lastBearing = p.Bearing ?? lastBearing;
                         return ((float)((p.Time.Value - initialPoint.Time.Value).TotalSeconds / timeFactor)
@@ -391,7 +390,6 @@ namespace SampleApp
                 // MESH 3D terrain
 
                 Console.WriteLine($"{dataSet.Name} GenerateTriangleMesh...");
-                MeshPrimitive triangleMesh = null;
                 //hMap = _elevationService.GetHeightMap(bbox, _dataSet);
                 if (generateTIN)
                 {
@@ -402,7 +400,7 @@ namespace SampleApp
                 else
                 {
                     // generate mesh with texture
-                    model = _sharpGltfService.AddTerrainMesh(model, hMap, pbrTexture);
+                    model = _sharpGltfService.AddTerrainMesh(model, hMap, pbrTexture, reduceFactor: 0.75f);
                 }
 
                 return model;

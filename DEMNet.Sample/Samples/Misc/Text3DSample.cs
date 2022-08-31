@@ -105,7 +105,7 @@ namespace SampleApp
                 var heightMap = _elevationService.GetHeightMap(ref bbox, dataset);
 
                 var wgs84bbox = bbox;
-                ModelGenerationTransform transform = new ModelGenerationTransform(bbox, 3857, true, 1.5f, true);
+                ModelGenerationTransform transform = new ModelGenerationTransform(bbox, 3857, 4326, true, 1.5f, true);
 
                 _logger.LogInformation($"Processing height map data ({heightMap.Count} coordinates)...");
                 heightMap = transform.TransformHeightMap(heightMap);
@@ -147,7 +147,7 @@ namespace SampleApp
                 // and add base and sides
                 _logger.LogInformation($"Triangulating height map and generating 3D mesh...");
 
-                var model = _sharpGltfService.CreateTerrainMesh(heightMap, pbrTexture);
+                var model = _sharpGltfService.CreateTerrainMesh(heightMap, pbrTexture, reduceFactor: 0.75f);
 
                 var width = new GeoPoint(wgs84bbox.Center[1], bbox.Center[0] - bbox.Width / 2f).DistanceTo(new GeoPoint(wgs84bbox.Center[1], bbox.Center[0] + bbox.Width / 2f));
                 var height = new GeoPoint(bbox.Center[1] - bbox.Height / 2f, wgs84bbox.Center[0]).DistanceTo(new GeoPoint(bbox.Center[1] + bbox.Height, wgs84bbox.Center[0]));

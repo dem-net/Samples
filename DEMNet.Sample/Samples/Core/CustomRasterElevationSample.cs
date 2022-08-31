@@ -72,6 +72,19 @@ namespace SampleApp
             try
             {
 
+                // 5.98485,46.14738
+                GeoPoint geoPoint = new GeoPoint(46.14738, 5.98485);
+                geoPoint = geoPoint.ReprojectTo(4326, 2056);
+                var fileName = @"C:\Users\xavier.fischer\Downloads\swissalti3d_2019_2487-1111_0.5_2056_5728.tif";
+                using (IRasterFile raster = _rasterService.OpenFile(fileName, DEMFileType.GEOTIFF))
+                {
+                    FileMetadata metaData = raster.ParseMetaData(new DEMFileDefinition(DEMFileType.GEOTIFF, DEMFileRegistrationMode.Cell));
+
+                    float elevation = raster.GetElevationAtPoint(metaData, 1000, 200);
+
+                    elevation = raster.GetElevationAtPoint(metaData, 200, 1000);
+
+                }
                 float zFactor = 1.5f;
                 string outputDir = Directory.GetCurrentDirectory();
                 var codePath = string.Join(Path.DirectorySeparatorChar, outputDir.Split(Path.DirectorySeparatorChar).TakeWhile(s => s != "bin"));
@@ -214,8 +227,8 @@ namespace SampleApp
                 var nullCoordsFallbackProj = nullCoords.ReprojectTo(litto3DDataset.SRID, fallbackDataset.SRID, nullCoords.Count);
                 var nullCoordsFallbackProj2 = _elevationService.GetPointsElevation(nullCoordsFallbackProj, fallbackDataset, InterpolationMode.Bilinear, NoDataBehavior.UseNoDataDefinedInDem);
 
-                ModelGenerationTransform transform = new ModelGenerationTransform(bbox, 3857, centerOnOrigin: centerOnOrigin, zFactor, centerOnZOrigin: false);
-                ModelGenerationTransform transformFrom4326 = new ModelGenerationTransform(bbox.ReprojectTo(2154, 4326), 3857, centerOnOrigin: centerOnOrigin, zFactor, centerOnZOrigin: false);
+                ModelGenerationTransform transform = new ModelGenerationTransform(bbox, 3857,4326, centerOnOrigin: centerOnOrigin, zFactor, centerOnZOrigin: false);
+                ModelGenerationTransform transformFrom4326 = new ModelGenerationTransform(bbox.ReprojectTo(2154, 4326), 3857,4326, centerOnOrigin: centerOnOrigin, zFactor, centerOnZOrigin: false);
 
                 _logger.LogInformation($"Processing height map data ({heightMap.Count} coordinates)...");
                 heightMap = transform.TransformHeightMap(heightMap);
@@ -280,7 +293,7 @@ namespace SampleApp
                 heightMap = heightMap.BakeCoordinates();
                 var coords = heightMap.Coordinates.ToList();
 
-                var model = _sharpGltfService.CreateTerrainMesh(heightMap, pbrTexture);
+                var model = _sharpGltfService.CreateTerrainMesh(heightMap, pbrTexture, reduceFactor: 0.75f);
 
 
 

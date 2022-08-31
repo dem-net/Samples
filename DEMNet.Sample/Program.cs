@@ -89,8 +89,9 @@ namespace SampleApp
                     .AddTransient<IntervisibilitySample>()
                     .AddTransient<CustomRasterElevationSample>()
                     .AddTransient<GpxSTLSample>()
-                    .AddTransient<Text3DSample>();
-
+                    .AddTransient<Text3DSample>()
+                    .AddTransient<OBJSamples>()
+                    ;
 
             services.AddTransient<SampleApplication>();
             // .. more samples here
@@ -102,11 +103,7 @@ namespace SampleApp
             {
                 //config.AddConfiguration(configuration.GetSection("Logging"));
                 config.AddDebug(); // Log to debug (debug window in Visual Studio or any debugger attached)
-                config.AddConsole(o =>
-                {
-                    o.IncludeScopes = false;
-                    o.DisableColors = false;
-                }); // Log to console (colored !)
+                config.AddConsole();
             })
            .Configure<LoggerFilterOptions>(options =>
            {

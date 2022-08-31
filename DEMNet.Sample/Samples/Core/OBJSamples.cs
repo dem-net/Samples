@@ -33,30 +33,77 @@ using System.IO;
 using System.Linq;
 using DEM.Net.Core.Imagery;
 using SharpGLTF.Schema2;
+using g3;
+using DEM.Net.glTF;
+using DEM.Net.glTF.Export;
 
 namespace SampleApp
 {
     /// <summary>
     /// Extracts a DEM from a bbox and generates a 3D export in glTF format
     /// </summary>
-    public class glTF3DSamples
+    public class OBJSamples
     {
-        private readonly ILogger<glTF3DSamples> _logger;
+        private readonly ILogger<OBJSamples> _logger;
         private readonly ElevationService _elevationService;
         private readonly ImageryService _imageryService;
+        private readonly MeshReducer _meshReducer;
         private readonly SharpGltfService _sharpGltfService;
+        private readonly OBJExportService _objExporter;
+        private readonly AdornmentsService _adornmentsService;
 
-        public glTF3DSamples(ILogger<glTF3DSamples> logger
+        public OBJSamples(ILogger<OBJSamples> logger
                 , ElevationService elevationService
                 , SharpGltfService sharpGltfService
+                , MeshReducer meshReducer
+                , AdornmentsService adornmentsService
+                , OBJExportService oBJExportService 
                 , ImageryService imageryService)
         {
             _logger = logger;
             _elevationService = elevationService;
             _sharpGltfService = sharpGltfService;
             _imageryService = imageryService;
+            _meshReducer = meshReducer;
+            _adornmentsService = adornmentsService;
+            _objExporter = oBJExportService;
         }
-        public void Run(DEMDataSet dataset, bool withTexture = true)
+        public void Run()
+        {
+            try
+            {
+
+                TestObjExport(DEMDataSet.AW3D30, true);
+
+
+                var path = @"C:\Users\xavier.fischer\Downloads\Telegram Desktop\SinGeo\Torre Badúm.obj";
+                //var mtlPath = @"C:\Users\xavier.fischer\Downloads\Telegram Desktop\Torre BadúmGeoR38571\Torre BadúmGeoR3857.obj";
+                DMesh3 mesh = StandardMeshReader.ReadMesh(path);
+
+                DMesh3Builder builder = new DMesh3Builder();
+
+                OBJReader reader = new OBJReader();
+                using (var fs = File.OpenText(path))
+                {
+                    var options = ReadOptions.Defaults;
+                    options.ReadMaterials = false;
+                    IOReadResult result = reader.Read(fs, options, builder);
+                    if (result.code == IOCode.Ok)
+                    {
+
+                    }
+
+
+                }
+
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, ex.Message);
+            }
+        }
+
+        public void TestObjExport(DEMDataSet dataset, bool withTexture = true)
         {
             try
             {
@@ -81,7 +128,10 @@ namespace SampleApp
                 //var bbox = GeometryService.GetBoundingBox(bboxWKT);
 
                 // DjebelMarra
-                var bbox = new BoundingBox(24.098067346557492, 24.42468219234563, 12.7769822830208, 13.087504129660111);
+                //var bbox = new BoundingBox(24.098067346557492, 24.42468219234563, 12.7769822830208, 13.087504129660111);
+
+                // Ste
+                var bbox = GeometryService.GetBoundingBox("POLYGON((5.580963505931105 43.504438070335866,5.583152188487257 43.504438070335866,5.583152188487257 43.50303732097129,5.580963505931105 43.50303732097129,5.580963505931105 43.504438070335866))");
 
                 // MontBlanc
                 //var bbox = GeometryService.GetBoundingBox("POLYGON((6.618804355541963 45.9658287141746,7.052764316479463 45.9658287141746,7.052764316479463 45.72379929776474,6.618804355541963 45.72379929776474,6.618804355541963 45.9658287141746))");
@@ -89,10 +139,12 @@ namespace SampleApp
                 //var bbox = new BoundingBox(5.5613898348431485,5.597185285307553,43.49372969433046,43.50939068558466);
                 _logger.LogInformation($"Getting height map data...");
 
-                var heightMap = _elevationService.GetHeightMap(ref bbox, dataset);
-                ModelGenerationTransform transform = new ModelGenerationTransform(bbox, 3857, 4326, true, 1.5f, true);
 
+                ModelGenerationTransform transform = new ModelGenerationTransform(bbox, dataset.SRID, Reprojection.SRID_PROJECTED_MERCATOR, true, 1.5f, false);
+                bbox = bbox.ReprojectTo(4326, dataset.SRID);
+                var heightMap = _elevationService.GetHeightMap(ref bbox, dataset);
                 _logger.LogInformation($"Processing height map data ({heightMap.Count} coordinates)...");
+                transform.BoundingBox = bbox;
                 heightMap = transform.TransformHeightMap(heightMap);
 
 
@@ -120,9 +172,9 @@ namespace SampleApp
                     //float Z_FACTOR = 0.00002f;
 
                     //hMap = hMap.CenterOnOrigin().ZScale(Z_FACTOR);
-                    var normalMap = _imageryService.GenerateNormalMap(heightMap, outputDir);
+                    //var normalMap = _imageryService.GenerateNormalMap(heightMap, outputDir);
 
-                    pbrTexture = PBRTexture.Create(texInfo, normalMap);
+                    pbrTexture = PBRTexture.Create(texInfo, null);
 
                     //hMap = hMap.CenterOnOrigin(Z_FACTOR);
                     //
@@ -132,7 +184,16 @@ namespace SampleApp
                 // and add base and sides
                 _logger.LogInformation($"Triangulating height map and generating 3D mesh...");
 
-                var model = _sharpGltfService.CreateTerrainMesh(heightMap, pbrTexture, reduceFactor: 0.75f);
+                var model = _sharpGltfService.CreateTerrainMesh(heightMap, pbrTexture, reduceFactor: 1f);
+
+                bool adornments = false;
+                if (adornments)
+                {
+                    var adornmentsModel = _adornmentsService.CreateModelAdornments(dataset, provider, bbox.ReprojectTo(dataset.SRID, 4326), heightMap.BoundingBox);
+                    model = _sharpGltfService.AddMesh(model, "Adornments", adornmentsModel);
+                }
+
+                _objExporter.ExportGlTFModelToWaveFrontObj(model, "obj_export", "test1.obj", overwrite: true, zip: false);
                 model.SaveGLB(Path.Combine(Directory.GetCurrentDirectory(), modelName + ".glb"));
                 model.SaveAsWavefront(Path.Combine(Directory.GetCurrentDirectory(), modelName + ".obj"));
 

@@ -95,7 +95,7 @@ namespace SampleApp
 
                 sw.Restart();
                 // Line starting at mont ventoux peak to Mont Blanc
-                DEMDataSet dataSet = DEMDataSet.ASTER_GDEMV3;
+                DEMDataSet dataSet = DEMDataSet.NASADEM;
 
                 // High level way
                 var metrics = _elevationService.GetIntervisibilityReport(new GeoPoint(lat1, lon1), new GeoPoint(lat2, lon2), dataSet
@@ -137,8 +137,9 @@ namespace SampleApp
 
 
                 var plt = new Plot(width, height);
-                plt.PlotScatter(distancesX, elevationsY, lineWidth: 2, markerSize: 0, label: "profile");
-                plt.PlotLine(0, elevationsY[0] + metrics.OriginVerticalOffset, distancesX.Last(), elevationsY.Last(), color: System.Drawing.Color.Red, 1, "ray");
+                plt.AddScatter(distancesX, elevationsY, lineWidth: 2, markerSize: 0, label: "profile");
+                var line = plt.AddLine(0, elevationsY[0] + metrics.OriginVerticalOffset, distancesX.Last(), elevationsY.Last(), color: System.Drawing.Color.Red, 1);
+                line.Label = "ray";
                 plt.Title("Visiblity report");
                 plt.XLabel("Distance (meters)");
                 plt.YLabel("Elevation (meters)");
@@ -153,12 +154,13 @@ namespace SampleApp
                     double[] obstacleExitsX = obstacles.Select(o => o.ExitPoint.DistanceFromOriginMeters ?? 0).ToArray();
                     double[] obstacleExitsY = obstacles.Select(o => o.ExitPoint.Elevation ?? 0).ToArray();
 
-                    plt.PlotScatter(obstacleEntriesX, obstacleEntriesY, lineWidth: 0, markerSize: 5, color: System.Drawing.Color.Green, markerShape: MarkerShape.cross, label: "entry");
-                    plt.PlotScatter(obstaclePeaksX, obstaclePeaksY, lineWidth: 0, markerSize: 5, color: System.Drawing.Color.Black, markerShape: MarkerShape.cross, label: "peak");
-                    plt.PlotScatter(obstacleExitsX, obstacleExitsY, lineWidth: 0, markerSize: 5, color: System.Drawing.Color.Violet, markerShape: MarkerShape.cross, label: "exit");
+                    plt.AddScatter(obstacleEntriesX, obstacleEntriesY, lineWidth: 0, markerSize: 5, color: System.Drawing.Color.Green, markerShape: MarkerShape.cross, label: "entry");
+                    plt.AddScatter(obstacleEntriesX, obstacleEntriesY, lineWidth: 0, markerSize: 5, color: System.Drawing.Color.Green, markerShape: MarkerShape.cross, label: "entry");
+                    plt.AddScatter(obstaclePeaksX, obstaclePeaksY, lineWidth: 0, markerSize: 5, color: System.Drawing.Color.Black, markerShape: MarkerShape.cross, label: "peak");
+                    plt.AddScatter(obstacleExitsX, obstacleExitsY, lineWidth: 0, markerSize: 5, color: System.Drawing.Color.Violet, markerShape: MarkerShape.cross, label: "exit");
                 }
 
-                plt.Legend(enableLegend: true, fixedLineWidth: false);
+                plt.Legend(enable: true);
 
                 plt.SaveFig(fileName);
             }
