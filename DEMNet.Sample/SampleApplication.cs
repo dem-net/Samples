@@ -70,6 +70,13 @@ namespace SampleApp
             {
                 rasterService.SetLocalDirectory(DATA_FILES_PATH);
             }
+            using (_logger.BeginScope($"Running {nameof(Gpx3DSamples)}.."))
+            {
+                var gpx3DSamples = services.GetService<Gpx3DSamples>();
+                gpx3DSamples.Run(DEMDataSet.SRTM_GL3, true, false, Reprojection.SRID_PROJECTED_MERCATOR);
+                _logger.LogInformation($"Sample {gpx3DSamples.GetType().Name} done. Press any key to run the next sample...");
+                if (pauseAfterEachSample) Console.ReadLine();
+            }
             using (_logger.BeginScope($"Running {nameof(OBJSamples)}.."))
             {
                 var sample = services.GetRequiredService<OBJSamples>();
