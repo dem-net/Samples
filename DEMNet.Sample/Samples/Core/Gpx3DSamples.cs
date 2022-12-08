@@ -68,11 +68,15 @@ namespace SampleApp
                 string _gpxFile = Path.Combine("SampleData", "GPX", "lake-pleasant-camping.gpx");
                 bool withTexture = true;
                 float Z_FACTOR = 1.8f;
-                float Z_TRANSLATE_GPX_TRACK_METERS = 5;
-                float trailWidthMeters = 5f;
+                float Z_TRANSLATE_GPX_TRACK_METERS = 75;
+                float trailWidthMeters = 100f;
                 int skipGpxPointsEvery = 1;
+                float gpxBboxScale = 2f;
+                float reduceFactor = 0.5f;// 0.75f
+                int zoomLevel = 12;
+                int resolution = 1024;
 
-                ImageryProvider provider = ImageryProvider.MapBoxSatellite; // new TileDebugProvider(null, maxDegreeOfParallelism: 1);//  ImageryProvider.MapBoxSatellite;
+                ImageryProvider provider = ImageryProvider.EsriWorldImagery; // new TileDebugProvider(null, maxDegreeOfParallelism: 1);//  ImageryProvider.MapBoxSatellite;
 
                 string outputDir = Path.GetFullPath(".");
 
@@ -82,7 +86,9 @@ namespace SampleApp
                 // Get GPX points
                 var segments = GpxImport.ReadGPX_Segments(_gpxFile);
                 var points = segments.SelectMany(seg => seg);
-                var bbox = points.GetBoundingBox().Scale(1.1, 1.1).ReprojectTo(4326,dataSet.SRID);
+                var bbox = points.GetBoundingBox()
+                    .Scale(gpxBboxScale, gpxBboxScale)
+                    .ReprojectTo(4326,dataSet.SRID);
                 // DEBUG
                 // Test case : ASTER GDEMv3 : 5.5 43.5 Z=315
                 // 303     307     308
@@ -126,7 +132,10 @@ namespace SampleApp
 
 
                     Console.WriteLine("Download image tiles...");
-                    TileRange tiles = _imageryService.DownloadTiles(bbox, provider, 12);
+                    var tiles = _imageryService.ComputeBoundingBoxTileRangeForTargetResolution(bbox, provider, resolution, resolution);
+                    tiles = _imageryService.DownloadTiles(tiles, provider);
+                    //var tiles = _imageryService.ComputeBoundingBoxTileRangeForZoomLevel(bbox, provider, zoomLevel);
+                    //tiles = _imageryService.DownloadTiles(tiles, provider);
                     string fileName = Path.Combine(outputDir, "Texture.jpg");
 
                     Console.WriteLine("Construct texture...");
@@ -170,7 +179,7 @@ namespace SampleApp
                 {
                     //hMap = hMap.CenterOnOrigin().ZScale(Z_FACTOR);
                     // generate mesh with texture
-                    model = _sharpGltfService.CreateTerrainMesh(hMap, pbrTexture);
+                    model = _sharpGltfService.CreateTerrainMesh(hMap, pbrTexture, reduceFactor: reduceFactor);
                 }
 
                 if (trackIn3D)
@@ -184,7 +193,7 @@ namespace SampleApp
                                                             .ZScale(Z_FACTOR);
 
 
-                    model = _sharpGltfService.AddLine(model, "GPX", gpxPointsElevated, VectorsExtensions.CreateColor(255,0,0,128), trailWidthMeters);
+                    model = _sharpGltfService.AddLine(model, "GPX", gpxPointsElevated, VectorsExtensions.CreateColor(255,0,0,255), trailWidthMeters);
 
                 }
 
