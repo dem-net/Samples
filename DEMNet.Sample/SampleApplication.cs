@@ -45,7 +45,7 @@ namespace SampleApp
     {
         private readonly ILogger<SampleApplication> _logger;
         private readonly RasterService rasterService;
-        private const string DATA_FILES_PATH = @"C:\Users\ElevationAPI\AppData\Local\Temp"; // Leave to null for default location (Environment.SpecialFolder.LocalApplicationData)
+        private const string DATA_FILES_PATH = null; //@"C:\Users\ElevationAPI\AppData\Local\Temp"; // Leave to null for default location (Environment.SpecialFolder.LocalApplicationData)
 
         public SampleApplication(ILogger<SampleApplication> logger,
             RasterService rasterService
@@ -70,6 +70,13 @@ namespace SampleApp
             {
                 rasterService.SetLocalDirectory(DATA_FILES_PATH);
             }
+            using (_logger.BeginScope($"Running {nameof(PolygonMaskSample)}.."))
+            {
+                var sample = services.GetService<PolygonMaskSample>();
+                sample.Run(DEMDataSet.ETOPO1);
+                _logger.LogInformation($"Sample {sample.GetType().Name} done. Press any key to run the next sample...");
+                if (pauseAfterEachSample) Console.ReadLine();
+            }            
             using (_logger.BeginScope($"Running {nameof(Gpx3DSamples)}.."))
             {
                 var gpx3DSamples = services.GetService<Gpx3DSamples>();
