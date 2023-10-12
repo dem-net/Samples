@@ -45,7 +45,7 @@ namespace SampleApp
     {
         private readonly ILogger<SampleApplication> _logger;
         private readonly RasterService rasterService;
-        private const string DATA_FILES_PATH = @"C:\Users\ElevationAPI\AppData\Local\Temp"; // Leave to null for default location (Environment.SpecialFolder.LocalApplicationData)
+        private const string DATA_FILES_PATH = @"C:\Users\ElevationAPI\AppData\Local"; // Leave to null for default location (Environment.SpecialFolder.LocalApplicationData)
 
         public SampleApplication(ILogger<SampleApplication> logger,
             RasterService rasterService
@@ -70,29 +70,35 @@ namespace SampleApp
             {
                 rasterService.SetLocalDirectory(DATA_FILES_PATH);
             }
-            using (_logger.BeginScope($"Running {nameof(Gpx3DSamples)}.."))
-            {
-                var gpx3DSamples = services.GetService<Gpx3DSamples>();
-                gpx3DSamples.Run(DEMDataSet.SRTM_GL3, true, false, Reprojection.SRID_PROJECTED_MERCATOR);
-                _logger.LogInformation($"Sample {gpx3DSamples.GetType().Name} done. Press any key to run the next sample...");
-                if (pauseAfterEachSample) Console.ReadLine();
-            }
-            using (_logger.BeginScope($"Running {nameof(OBJSamples)}.."))
-            {
-                var sample = services.GetRequiredService<OBJSamples>();
-                sample.Run();
-                _logger.LogInformation($"Sample {sample.GetType().Name} done. Press any key to run the next sample...");
-                if (pauseAfterEachSample) Console.ReadLine();
-            }
+            //using (_logger.BeginScope($"Running {nameof(Gpx3DSamples)}.."))
+            //{
+            //    var gpx3DSamples = services.GetService<Gpx3DSamples>();
+            //    gpx3DSamples.Run(DEMDataSet.SRTM_GL3, true, false, Reprojection.SRID_PROJECTED_MERCATOR);
+            //    _logger.LogInformation($"Sample {gpx3DSamples.GetType().Name} done. Press any key to run the next sample...");
+            //    if (pauseAfterEachSample) Console.ReadLine();
+            //}
+            //using (_logger.BeginScope($"Running {nameof(OBJSamples)}.."))
+            //{
+            //    var sample = services.GetRequiredService<OBJSamples>();
+            //    sample.Run();
+            //    _logger.LogInformation($"Sample {sample.GetType().Name} done. Press any key to run the next sample...");
+            //    if (pauseAfterEachSample) Console.ReadLine();
+            //}
             using (_logger.BeginScope($"Running {nameof(DownloaderSample)}.."))
             {
                 var sample = services.GetRequiredService<DownloaderSample>();
 
-                sample.Run(DEMDataSet.swissALTI3D2m);
-                rasterService.GenerateDirectoryMetadata(DEMDataSet.swissALTI3D50cm, force: true);
-                sample.ExtractCopernicEuDem(@"C:\Data\EuDEM");
-                sample.DeduplicateCopernicEuDem(@"C:\Data\EuDEM");
-                //sample.PrepareIgn5_2_AfterDezip_MoveAndCompressAsc(@"C:\Users\admin\Downloads\IGN5\France");
+                //sample.Run(DEMDataSet.swissALTI3D2m);
+                //rasterService.GenerateDirectoryMetadata(DEMDataSet.swissALTI3D50cm, force: true);
+                //sample.ExtractCopernicEuDem(@"C:\Data\EuDEM");
+                //sample.DeduplicateCopernicEuDem(@"C:\Data\EuDEM");
+
+
+
+                sample.ExportDatasetsForBoundingBox();
+
+                sample.CompressAscFiles(@"C:\Data\IGN_DOMTOM\1m");
+                
 
                 
                 rasterService.GenerateDirectoryMetadata(DEMDataSet.FABDEM, force: false);

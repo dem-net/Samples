@@ -60,6 +60,8 @@ namespace SampleApp
         {
             try
             {
+                ExportDatasetsForBoundingBox();
+
                 //this.PrepareIgn1_3_Deduplicate(@"C:\Users\admin\Downloads\IGN1\France\Done");
                 _logger.LogInformation($"Downloading all files to {_rasterService.LocalDirectory}");
                 Stopwatch sw = new Stopwatch();
@@ -84,6 +86,15 @@ namespace SampleApp
             catch (Exception e)
             {
                 _logger.LogError(e, e.Message);
+            }
+        }
+
+        public void ExportDatasetsForBoundingBox()
+        {
+            List<DEMDataSet> datasetsToExport = new() { DEMDataSet.NASADEM, DEMDataSet.IGN_5m, DEMDataSet.IGN_1m, DEMDataSet.swissALTI3D2m, this.TINItaly };
+            foreach (var dataset in datasetsToExport)
+            {
+                ExportDatasetForBoundingBox(dataset, new BoundingBox(6.8626, 7.1071, 45.3826, 45.5251), @"C:\Data\Export");
             }
         }
 
@@ -115,7 +126,7 @@ namespace SampleApp
                 // Delete duplicate files (keep newest)
 
                 List<(string fileName, string key)> files = new List<(string fileName, string key)>();
-                foreach (var file in Directory.GetFiles(directory,"*.*", SearchOption.AllDirectories))
+                foreach (var file in Directory.GetFiles(directory, "*.*", SearchOption.AllDirectories))
                 {
                     var key = fileKey(file);
                     if (key is not null)
@@ -545,7 +556,7 @@ namespace SampleApp
                 //foreach (var file in ascFiles)
                 {
                     var outFileName = Path.ChangeExtension(file, ".asc.gz");
-                    
+
                     using (FileStream originalFileStream = File.OpenRead(file))
                     using (FileStream compressedFileStream = File.Create(outFileName))
                     using (var compressionStream = new GZipStream(compressedFileStream, CompressionMode.Compress))
@@ -567,6 +578,45 @@ namespace SampleApp
             {
                 _logger.LogError(e, e.Message);
             }
+        }
+
+        private void ExportDatasetForBoundingBox(DEMDataSet dataset, BoundingBox bbox, string outputDirectory)
+        {
+            var bboxProj = bbox.ReprojectTo(4326, dataset.SRID);
+            var files = _elevationService.GetCoveringFiles(bboxProj, dataset);
+            var dir = Directory.CreateDirectory(Path.Combine(outputDirectory, dataset.Name));
+            foreach (var file in files)
+            {
+                var localFilePath = Path.Combine(_rasterService.LocalDirectory, file.Filename);
+                if (File.Exists(localFilePath))
+                {
+                    var outFileName = Path.Combine(dir.FullName, Path.GetFileName(localFilePath));
+                    File.Copy(localFilePath, outFileName, true);
+                }
+                else
+                {
+                    _logger.LogWarning("File does not exists");
+                }
+            }
+        }
+
+        private DEMDataSet TINItaly => GetGeoTiff_Custom(@"C:\Data\TINItaly10m", 32632, 10, DEMFileRegistrationMode.Grid);
+        private DEMDataSet GetGeoTiff_Custom(string datasetPath, int srid, int resolutionMetersPerPixel, DEMFileRegistrationMode regMode)
+        {
+            var dataset = new DEMDataSet()
+            {
+                Name = nameof(GetGeoTiff_Custom),
+                Description = "Custom GeoTiff",
+                DataSource = new LocalFileSystem(localDirectory: datasetPath),
+                FileFormat = new DEMFileDefinition("GeoTiff file", DEMFileType.GEOTIFF, ".tif", regMode),
+                ResolutionMeters = 10,
+                ResolutionArcSeconds = 1,
+                PointsPerDegree = 900,
+                NoDataValue = -9999,
+                IsListed= false,
+                SRID = srid
+            };
+            return dataset;
         }
 
     }
