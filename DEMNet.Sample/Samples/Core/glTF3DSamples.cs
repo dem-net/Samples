@@ -90,7 +90,12 @@ namespace SampleApp
                 _logger.LogInformation($"Getting height map data...");
 
                 var heightMap = _elevationService.GetHeightMap(ref bbox, dataset);
-                ModelGenerationTransform transform = new ModelGenerationTransform(bbox, 3857, 4326, true, 1.5f, true);
+                ModelGenerationTransform transform = new ModelGenerationTransform(bbox,
+                    datasetSrid: Reprojection.SRID_GEODETIC,
+                    outputSrid: Reprojection.SRID_PROJECTED_MERCATOR,
+                    centerOnOrigin: true,
+                    zFactor: 1.5f,
+                    centerOnZOrigin: true);
 
                 _logger.LogInformation($"Processing height map data ({heightMap.Count} coordinates)...");
                 heightMap = transform.TransformHeightMap(heightMap);
