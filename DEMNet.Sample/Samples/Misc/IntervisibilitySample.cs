@@ -136,10 +136,14 @@ namespace SampleApp
 
 
 
-                var plt = new Plot(width, height);
-                plt.AddScatter(distancesX, elevationsY, lineWidth: 2, markerSize: 0, label: "profile");
-                var line = plt.AddLine(0, elevationsY[0] + metrics.OriginVerticalOffset, distancesX.Last(), elevationsY.Last(), color: System.Drawing.Color.Red, 1);
-                line.Label = "ray";
+                var plt = new Plot();
+                var profilePlot = plt.Add.Scatter(distancesX, elevationsY);
+                profilePlot.LineWidth = 2; 
+                profilePlot.MarkerSize = 0;
+                profilePlot.LegendText = "profile";
+                var line = plt.Add.Line(0, elevationsY[0] + metrics.OriginVerticalOffset, distancesX.Last(), elevationsY.Last());
+                line.Color = Color.FromColor(System.Drawing.Color.Red);
+                line.LegendText = "ray";
                 plt.Title("Visiblity report");
                 plt.XLabel("Distance (meters)");
                 plt.YLabel("Elevation (meters)");
@@ -154,15 +158,29 @@ namespace SampleApp
                     double[] obstacleExitsX = obstacles.Select(o => o.ExitPoint.DistanceFromOriginMeters ?? 0).ToArray();
                     double[] obstacleExitsY = obstacles.Select(o => o.ExitPoint.Elevation ?? 0).ToArray();
 
-                    plt.AddScatter(obstacleEntriesX, obstacleEntriesY, lineWidth: 0, markerSize: 5, color: System.Drawing.Color.Green, markerShape: MarkerShape.cross, label: "entry");
-                    plt.AddScatter(obstacleEntriesX, obstacleEntriesY, lineWidth: 0, markerSize: 5, color: System.Drawing.Color.Green, markerShape: MarkerShape.cross, label: "entry");
-                    plt.AddScatter(obstaclePeaksX, obstaclePeaksY, lineWidth: 0, markerSize: 5, color: System.Drawing.Color.Black, markerShape: MarkerShape.cross, label: "peak");
-                    plt.AddScatter(obstacleExitsX, obstacleExitsY, lineWidth: 0, markerSize: 5, color: System.Drawing.Color.Violet, markerShape: MarkerShape.cross, label: "exit");
+                    var scatter = plt.Add.Scatter(obstacleEntriesX, obstacleEntriesY);
+                    scatter.LineWidth = 0;
+                    scatter.MarkerSize = 5;
+                    scatter.Color = Color.FromColor(System.Drawing.Color.Green);
+                    scatter.MarkerShape = MarkerShape.Cross;
+                    scatter.LegendText = "entry";
+                    scatter = plt.Add.Scatter(obstaclePeaksX, obstaclePeaksY);
+                    scatter.LineWidth = 0;
+                    scatter.MarkerSize = 5;
+                    scatter.Color = Color.FromColor(System.Drawing.Color.Black);
+                    scatter.MarkerShape = MarkerShape.Cross;
+                    scatter.LegendText = "peak";
+                    plt.Add.Scatter(obstacleExitsX, obstacleExitsY);
+                    scatter.LineWidth = 0;
+                    scatter.MarkerSize = 5;
+                    scatter.Color = Color.FromColor(System.Drawing.Color.Violet);
+                    scatter.MarkerShape = MarkerShape.Cross;
+                    scatter.LegendText = "exit";
                 }
 
-                plt.Legend(enable: true);
+                plt.ShowLegend();
 
-                plt.SaveFig(fileName);
+                plt.SavePng(fileName, width, height);
             }
             catch (Exception)
             {

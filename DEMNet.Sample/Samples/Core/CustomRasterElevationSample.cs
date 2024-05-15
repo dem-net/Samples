@@ -32,6 +32,8 @@ using GeoJSON.Net.Feature;
 using GeoJSON.Net.Geometry;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.PixelFormats;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -261,7 +263,7 @@ namespace SampleApp
                     if (withboat)
                     {
                         var trackPoints = GetGeoPointFromGeoJson(BoatCourseGeoJson);
-                        texInfo = _imageryService.ConstructTextureWithGpxTrack(tiles, bbox4326, fileName, TextureImageFormat.image_jpeg, trackPoints, drawGpxVertices: true, color: SixLabors.ImageSharp.PixelFormats.Rgba32.Green, 30);
+                        texInfo = _imageryService.ConstructTextureWithGpxTrack(tiles, bbox4326, fileName, TextureImageFormat.image_jpeg, trackPoints, drawGpxVertices: true, color:Color.Green, 30);
                     }
                     else
                     {
