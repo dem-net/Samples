@@ -229,8 +229,8 @@ namespace SampleApp
                 var nullCoordsFallbackProj = nullCoords.ReprojectTo(litto3DDataset.SRID, fallbackDataset.SRID, nullCoords.Count);
                 var nullCoordsFallbackProj2 = _elevationService.GetPointsElevation(nullCoordsFallbackProj, fallbackDataset, InterpolationMode.Bilinear, NoDataBehavior.UseNoDataDefinedInDem);
 
-                ModelGenerationTransform transform = new ModelGenerationTransform(bbox, 3857,4326, centerOnOrigin: centerOnOrigin, zFactor, centerOnZOrigin: false);
-                ModelGenerationTransform transformFrom4326 = new ModelGenerationTransform(bbox.ReprojectTo(2154, 4326), 3857,4326, centerOnOrigin: centerOnOrigin, zFactor, centerOnZOrigin: false);
+                ModelGenerationTransform transform = new ModelGenerationTransform(bbox, datasetSrid: 4326, outputSrid: 3857, centerOnOrigin, zFactor, centerOnZOrigin: false);
+                ModelGenerationTransform transformFrom4326 = new ModelGenerationTransform(bbox.ReprojectTo(2154, 4326), 4326, 3857, centerOnOrigin, zFactor, centerOnZOrigin: false);
 
                 _logger.LogInformation($"Processing height map data ({heightMap.Count} coordinates)...");
                 heightMap = transform.TransformHeightMap(heightMap);
@@ -263,7 +263,7 @@ namespace SampleApp
                     if (withboat)
                     {
                         var trackPoints = GetGeoPointFromGeoJson(BoatCourseGeoJson);
-                        texInfo = _imageryService.ConstructTextureWithGpxTrack(tiles, bbox4326, fileName, TextureImageFormat.image_jpeg, trackPoints, drawGpxVertices: true, color:Color.Green, 30);
+                        texInfo = _imageryService.ConstructTextureWithGpxTrack(tiles, bbox4326, fileName, TextureImageFormat.image_jpeg, trackPoints, drawGpxVertices: true, color: Color.Green, 30);
                     }
                     else
                     {
