@@ -105,7 +105,7 @@ namespace SampleApp
                 var heightMap = _elevationService.GetHeightMap(ref bbox, dataset);
 
                 var wgs84bbox = bbox;
-                ModelGenerationTransform transform = new ModelGenerationTransform(bbox, 3857, 4326, true, 1.5f, true);
+                ModelGenerationTransform transform = new ModelGenerationTransform(bbox, 4326, 3857, true, 1.5f, true);
 
                 _logger.LogInformation($"Processing height map data ({heightMap.Count} coordinates)...");
                 heightMap = transform.TransformHeightMap(heightMap);

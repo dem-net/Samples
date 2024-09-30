@@ -533,6 +533,42 @@ namespace SampleApp
             }
         }
 
+        public void CompressAscFiles(string localDir)
+        {
+            try
+            {
+                _logger.LogInformation($"Loading all files in {localDir}");
+                Stopwatch sw = new Stopwatch();
+                var ascFiles = Directory.EnumerateFiles(localDir, "*.asc", SearchOption.AllDirectories).ToList();
+                int count = 0;
+                Parallel.ForEach(ascFiles, new ParallelOptions { MaxDegreeOfParallelism = 4 }, file =>
+                //foreach (var file in ascFiles)
+                {
+                    var outFileName = Path.ChangeExtension(file, ".asc.gz");
+                    
+                    using (FileStream originalFileStream = File.OpenRead(file))
+                    using (FileStream compressedFileStream = File.Create(outFileName))
+                    using (var compressionStream = new GZipStream(compressedFileStream, CompressionMode.Compress))
+                    {
+                        originalFileStream.CopyTo(compressionStream);
+                    }
+
+                    File.Delete(file);
+                    Interlocked.Increment(ref count);
+
+                    double progress = count * 1d / ascFiles.Count;
+
+                    if (count % 10 == 0)
+                        _logger.LogInformation($"Compressing files... {progress:P1}");
+                }
+                );
+            }
+            catch (Exception e)
+            {
+                _logger.LogError(e, e.Message);
+            }
+        }
+
     }
 }
 
