@@ -24,6 +24,7 @@
 // OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 // THE SOFTWARE.
 
+global using TextureInfo = DEM.Net.Core.Imagery.TextureInfo;
 using DEM.Net.Core;
 using System.IO;
 using System;
@@ -37,6 +38,7 @@ using DEM.Net.Core.Configuration;
 using Microsoft.Extensions.Hosting;
 using System.Threading.Tasks;
 using SharpGLTF.Schema2;
+
 
 namespace SampleApp
 {
