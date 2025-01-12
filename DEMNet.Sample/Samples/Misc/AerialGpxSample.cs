@@ -235,9 +235,8 @@ namespace SampleApp
                 /// Line strip from GPX
                 ///
                 // Get GPX points
-                var segments = GpxImport.ReadGPX_Segments<GpxTrackPoint>(_gpxFile, p => p, p => null);
-                var pointsGpx = segments.SelectMany(seg => seg);
-                var geoPoints = pointsGpx.ToGeoPoints();
+                var segments = GpxImport.ReadGPX_Segments(_gpxFile);
+                var geoPoints = segments.SelectMany(seg => seg);
 
                 var model = _sharpGltfService.CreateNewModel();
                 //var largeMesh = GetMeshFromGpxTrack(outputDir, largeDataSet, geoPoints
@@ -266,10 +265,11 @@ namespace SampleApp
                 Console.WriteLine("GenerateModel...");
 
                 var node = model.LogicalNodes.First();
-                pointsGpx = pointsGpx.ReprojectGeodeticToCartesian().ZScale(Z_FACTOR);
+                geoPoints = geoPoints.ReprojectGeodeticToCartesian().ZScale(Z_FACTOR);
                 // animations
-                node = CreateAnimationFromGpx("GPX", node, pointsGpx, 1f);
-                node = CreateAnimationFromGpx("GPX x500", node, pointsGpx, 500f);
+                throw new NotImplementedException("GPX points with time needed");
+                //node = CreateAnimationFromGpx("GPX", node, geoPoints, 1f);
+                //node = CreateAnimationFromGpx("GPX x500", node, pointsGpx, 500f);
 
 
                 var sceneBuilderBalloon = balloon.DefaultScene.ToSceneBuilder();
@@ -288,40 +288,40 @@ namespace SampleApp
 
         }
 
-        private Node CreateAnimationFromGpx(string name, Node node, IEnumerable<GpxTrackPoint> points, float timeFactor)
-        {
-            timeFactor = timeFactor <= 0f ? 1f : timeFactor;
-            GpxTrackPoint initialPoint = points.First();
-            Vector3 initialPointVec3 = initialPoint.ToGeoPoint().ToVector3GlTFSpace();
+        //private Node CreateAnimationFromGpx(string name, Node node, IEnumerable<GpxTrackPoint> points, float timeFactor)
+        //{
+        //    timeFactor = timeFactor <= 0f ? 1f : timeFactor;
+        //    GpxTrackPoint initialPoint = points.First();
+        //    Vector3 initialPointVec3 = initialPoint.ToGeoPoint().ToVector3GlTFSpace();
 
-            var translationCurve = points
-                .Select(p => ((float)(p.Time.Value - initialPoint.Time.Value).TotalSeconds / timeFactor
-                                , (initialPointVec3 - p.ToGeoPoint().ToVector3GlTFSpace())))
-                .ToArray();
+        //    var translationCurve = points
+        //        .Select(p => ((float)(p.Time.Value - initialPoint.Time.Value).TotalSeconds / timeFactor
+        //                        , (initialPointVec3 - p.ToGeoPoint().ToVector3GlTFSpace())))
+        //        .ToArray();
 
-            node = node.WithTranslationAnimation(name, translationCurve);
+        //    node = node.WithTranslationAnimation(name, translationCurve);
 
-            // return new Vector3((float)geoPoint.Longitude, (float)geoPoint.Elevation, -(float)geoPoint.Latitude);
-            // up vector is (0,1,0)
+        //    // return new Vector3((float)geoPoint.Longitude, (float)geoPoint.Elevation, -(float)geoPoint.Latitude);
+        //    // up vector is (0,1,0)
 
 
-            double? lastBearing = points.FirstOrDefault(p => p.Bearing.HasValue)?.Bearing;
-            if (lastBearing.HasValue)
-            {
-                var rotationCurve = points
-                    .Select(p =>
-                    {
-                        Quaternion quaternion = Quaternion.CreateFromAxisAngle(Vector3.UnitY, GetAngleRadians(lastBearing.Value, p.Bearing));
-                        lastBearing = p.Bearing ?? lastBearing;
-                        return ((float)((p.Time.Value - initialPoint.Time.Value).TotalSeconds / timeFactor)
-                                        , quaternion);
-                    })
-                    .ToArray();
+        //    double? lastBearing = points.FirstOrDefault(p => p.Bearing.HasValue)?.Bearing;
+        //    if (lastBearing.HasValue)
+        //    {
+        //        var rotationCurve = points
+        //            .Select(p =>
+        //            {
+        //                Quaternion quaternion = Quaternion.CreateFromAxisAngle(Vector3.UnitY, GetAngleRadians(lastBearing.Value, p.Bearing));
+        //                lastBearing = p.Bearing ?? lastBearing;
+        //                return ((float)((p.Time.Value - initialPoint.Time.Value).TotalSeconds / timeFactor)
+        //                                , quaternion);
+        //            })
+        //            .ToArray();
 
-                node = node.WithRotationAnimation(name + "rot", rotationCurve);
-            }
-            return node;
-        }
+        //        node = node.WithRotationAnimation(name + "rot", rotationCurve);
+        //    }
+        //    return node;
+        //}
 
         private float GetAngleRadians(double angle1Deg, double? angle2Deg)
         {
