@@ -94,6 +94,7 @@ namespace SampleApp
                     .AddTransient<Text3DSample>()
                     .AddTransient<OBJSamples>()
                     .AddTransient<PolygonMaskSample>()
+                    .AddTransient<LandscapeSample>()
                     ;
 
             services.AddTransient<SampleApplication>();
