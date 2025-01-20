@@ -110,4 +110,7 @@
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Compile>
   </ItemGroup>
+  <ItemGroup>
+    <Folder Include="SampleData\Landscape\" />
+  </ItemGroup>
 </Project>
