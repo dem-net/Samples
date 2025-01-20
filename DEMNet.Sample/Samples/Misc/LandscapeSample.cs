@@ -74,16 +74,24 @@ namespace SampleApp
 
         public void Run()
         {
+            /* 2 Ideas for Z buffer
+            * A: pass draw
+            *   1 pass for the buffer (image with triangle color = Z depth gray)
+            *   2nd pass : when drawing a triangle : check
+            * B : painter algorithm : (projected triangle Z = depth)
+            * order by depth
+            */
 
             var dataset = DEMDataSet.NASADEM;
-            double heightAboveObservationPoint = 100;
-            var observer = GetObserver(43.544450, 5.444728, dataset); // terrain des peintres
+            double heightAboveObservationPoint = 10;
+            var observer = GetObserver(43.54035,5.53098, dataset); // bimont
+            //var observer = GetObserver(43.544450, 5.444728, dataset); // terrain des peintres
             //var observer = GetObserver(43.504066, 5.530160, dataset); // bimont
-            float zFactor = 2f;
+            float zFactor = 1.2f;
             observer.Elevation += heightAboveObservationPoint;
 
-            int width = 2580;
-            int height = 1200;
+            int width = 2400;
+            int height = 1500;
             float rangeMeters = 20000;
             // Define the perspective projection matrix
             float fieldOfView = 60 * (float)(Math.PI / 180);  // 60 degree field of view
@@ -228,8 +236,8 @@ namespace SampleApp
                         var cameraProjectedPosition = ProjectVertex(new Vector4(cameraPosition, 1), viewProj, viewport);
                         for (int t = 0; t < model.ProjectedTriangles.Count; t++)
                         {
-                            var modelTriangle = model.Triangles[t];
                             var triangle = model.ProjectedTriangles[t];
+                            var modelTriangle = model.Triangles[triangle.Index];
 
                             if (!IsTriangleInView(triangle, viewport))
                             { 
@@ -305,11 +313,18 @@ namespace SampleApp
             {
                 var triangle = new Triangle3D(ProjectVertex(tri.A, viewProj, viewport),
                     ProjectVertex(tri.B, viewProj, viewport),
-                    ProjectVertex(tri.C, viewProj, viewport));
+                    ProjectVertex(tri.C, viewProj, viewport), 
+                    tri.Index);
 
                 triangles.Add(triangle);
             }
+            triangles.Sort(new TriangleZComparer());
             return triangles;
+        }
+
+        private class TriangleZComparer : Comparer<Triangle3D>
+        {
+            public override int Compare(Triangle3D x, Triangle3D y) => x.A.Z.CompareTo(y.A.Z);
         }
         bool IsTriangleInView(Triangle3D triangle, Matrix4x4 viewport)
             => IsVectorInView(triangle.A, viewport)
