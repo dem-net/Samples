@@ -83,9 +83,10 @@ namespace SampleApp
             */
 
             var dataset = DEMDataSet.IGN_5m;
+            bool downloadMissingFiles = false;
             //_rasterService.GenerateDirectoryMetadata(dataset, force: false);
             double heightAboveObservationPoint = 10;
-            var observer = GetObserver(43.54035, 5.53098, dataset); // bimont
+            var observer = GetObserver(43.54035, 5.53098, dataset, downloadMissingFiles); // bimont
             //var observer = GetObserver(43.544450, 5.444728, dataset); // terrain des peintres
             //var observer = GetObserver(43.504066, 5.530160, dataset); // bimont
             float zFactor = 1.2f;
@@ -103,7 +104,7 @@ namespace SampleApp
             _logger.LogInformation("Getting terrain");
 
             // Define a triangle in 3D space
-            Triangulation3DModel triangulation = GetTerrain(observer, dataset, rangeMeters, zFactor); //GetSampleTriangulation();
+            Triangulation3DModel triangulation = GetTerrain(observer, dataset, rangeMeters, zFactor, downloadMissingFiles); //GetSampleTriangulation();
 
             _logger.LogInformation("Updating");
             // Define the camera position and direction
@@ -381,14 +382,16 @@ namespace SampleApp
             return projectedVertex;
         }
 
-        public GeoPoint GetObserver(double lat, double lon, DEMDataSet dataset)
+        public GeoPoint GetObserver(double lat, double lon, DEMDataSet dataset, bool downloadMissingFiles)
         {
             GeoPoint observer = new GeoPoint(lat, lon);
-            _elevationService.DownloadMissingFiles(dataset, observer);
+            if (downloadMissingFiles)
+                _elevationService.DownloadMissingFiles(dataset, observer);
+
             return _elevationService.GetPointElevation(observer, dataset);
         }
 
-        public Triangulation3DModel GetTerrain(GeoPoint observer, DEMDataSet dataSet, double rangeMeters, double zFactor = 1.5f)
+        public Triangulation3DModel GetTerrain(GeoPoint observer, DEMDataSet dataSet, double rangeMeters, double zFactor = 1.5f, bool downloadMissingFiles = false)
         {
             double observerAzimuth = 90;
             double observerFieldOfViewDeg = 60;
@@ -401,12 +404,15 @@ namespace SampleApp
                 xmax: Math.Max(Math.Max(observer4326.Longitude, fovLeft.Longitude), fovRight.Longitude),
                 ymin: Math.Min(Math.Min(observer4326.Latitude, fovLeft.Latitude), fovRight.Latitude),
                 ymax: Math.Max(Math.Max(observer4326.Latitude, fovLeft.Latitude), fovRight.Latitude));
+            fovBbox = fovBbox.ReprojectTo(Reprojection.SRID_GEODETIC, dataSet.SRID);
 
             // Get required tiles
             // 1st pass: rangeMeters bbox arount point
             // for each tile, check if it is in view
 
-            var hMapBase = _elevationService.GetHeightMap(ref fovBbox, dataSet, downloadMissingFiles: true, generateMissingData: false);
+            //CopyDemFiles(dataSet, fovBbox, "D:/Temp");
+
+            var hMapBase = _elevationService.GetHeightMap(ref fovBbox, dataSet, downloadMissingFiles, generateMissingData: false);
             var hMap = hMapBase.ReprojectTo(dataSet.SRID, Reprojection.SRID_GEODETIC)
                         .ReprojectRelativeToObserver(observer4326, rangeMeters);
             hMap.BakeCoordinates();
@@ -414,6 +420,25 @@ namespace SampleApp
             var indexedTriangulation = new Triangulation3DModel(triangulation, p => new Vector3((float)p.Latitude, (float)(p.Elevation * zFactor), (float)p.Longitude));
 
             return indexedTriangulation;
+        }
+
+        private void CopyDemFiles(DEMDataSet dataSet, BoundingBox fovBbox, string directory)
+        {
+            var report = _elevationService.GetCoveringFiles(fovBbox, dataSet);
+            foreach (var dem in report)
+            {
+                var filePath = System.IO.Path.Combine(_rasterService.LocalDirectory, dem.Filename);
+                var subDir = System.IO.Path.GetDirectoryName(dem.Filename);
+
+                var outDir = System.IO.Path.Combine(directory, subDir);
+                System.IO.Directory.CreateDirectory(outDir);
+
+                var outFileName = System.IO.Path.Combine(outDir, System.IO.Path.GetFileName(dem.Filename));
+
+                System.IO.File.Copy(filePath, outFileName);
+
+
+            }
         }
 
         private static void GenerateNormalMapImage(HeightMap hMap, List<Vector3> normals, string filename = "LandscapeNormal.png")
