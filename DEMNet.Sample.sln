@@ -1,7 +1,7 @@
 ﻿
 Microsoft Visual Studio Solution File, Format Version 12.00
-# Visual Studio Version 16
-VisualStudioVersion = 16.0.28803.156
+# Visual Studio Version 17
+VisualStudioVersion = 17.12.35527.113 d17.12
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Docs", "Docs", "{BC338F65-6837-4911-A970-63F31C5B8F73}"
 	ProjectSection(SolutionItems) = preProject
@@ -13,6 +13,8 @@ EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DEM.Net.Core", "..\DEM.Net\DEM.Net.Core\DEM.Net.Core.csproj", "{D71AE468-7164-4772-AB4C-4B339BAF5501}"
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DEM.Net.glTF", "..\DEM.Net\DEM.Net.glTF\DEM.Net.glTF.csproj", "{5A8A5766-A6F4-4966-9230-D8F4A6482623}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Benchmarks", "Benchmarks\Benchmarks.csproj", "{7827DA42-4271-415E-ADF3-6FB6BF81D94D}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -32,6 +34,10 @@ Global
 		{5A8A5766-A6F4-4966-9230-D8F4A6482623}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{5A8A5766-A6F4-4966-9230-D8F4A6482623}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{5A8A5766-A6F4-4966-9230-D8F4A6482623}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7827DA42-4271-415E-ADF3-6FB6BF81D94D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7827DA42-4271-415E-ADF3-6FB6BF81D94D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7827DA42-4271-415E-ADF3-6FB6BF81D94D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7827DA42-4271-415E-ADF3-6FB6BF81D94D}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
