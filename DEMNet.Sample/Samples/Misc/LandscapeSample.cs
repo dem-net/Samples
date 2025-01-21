@@ -82,9 +82,10 @@ namespace SampleApp
             * order by depth
             */
 
-            var dataset = DEMDataSet.NASADEM;
+            var dataset = DEMDataSet.IGN_5m;
+            //_rasterService.GenerateDirectoryMetadata(dataset, force: false);
             double heightAboveObservationPoint = 10;
-            var observer = GetObserver(43.54035,5.53098, dataset); // bimont
+            var observer = GetObserver(43.54035, 5.53098, dataset); // bimont
             //var observer = GetObserver(43.544450, 5.444728, dataset); // terrain des peintres
             //var observer = GetObserver(43.504066, 5.530160, dataset); // bimont
             float zFactor = 1.2f;
@@ -240,7 +241,7 @@ namespace SampleApp
                             var modelTriangle = model.Triangles[triangle.Index];
 
                             if (!IsTriangleInView(triangle, viewport))
-                            { 
+                            {
                                 continue;
                             }
 
@@ -271,7 +272,7 @@ namespace SampleApp
 
                             using (var b = new System.Drawing.SolidBrush(fillColor))
                             {
-                                g.FillPolygon(b, 
+                                g.FillPolygon(b,
                                     new System.Drawing.PointF(triangle.A.X, triangle.A.Y),
                                     new System.Drawing.PointF(triangle.B.X, triangle.B.Y),
                                     new System.Drawing.PointF(triangle.C.X, triangle.C.Y)); // Close the triangle
@@ -313,7 +314,7 @@ namespace SampleApp
             {
                 var triangle = new Triangle3D(ProjectVertex(tri.A, viewProj, viewport),
                     ProjectVertex(tri.B, viewProj, viewport),
-                    ProjectVertex(tri.C, viewProj, viewport), 
+                    ProjectVertex(tri.C, viewProj, viewport),
                     tri.Index);
 
                 triangles.Add(triangle);
@@ -392,20 +393,22 @@ namespace SampleApp
             double observerAzimuth = 90;
             double observerFieldOfViewDeg = 60;
 
-            var fovLeft = observer.GetDestinationPointFromPointAndBearing(observerAzimuth - observerFieldOfViewDeg / 2, rangeMeters);
-            var fovRight = observer.GetDestinationPointFromPointAndBearing(observerAzimuth + observerFieldOfViewDeg / 2, rangeMeters);
+            var observer4326 = observer.ReprojectTo(dataSet.SRID, Reprojection.SRID_GEODETIC);
+            var fovLeft = observer4326.GetDestinationPointFromPointAndBearing(observerAzimuth - observerFieldOfViewDeg / 2, rangeMeters);
+            var fovRight = observer4326.GetDestinationPointFromPointAndBearing(observerAzimuth + observerFieldOfViewDeg / 2, rangeMeters);
             var fovBbox = new BoundingBox(
-                xmin: Math.Min(Math.Min(observer.Longitude, fovLeft.Longitude), fovRight.Longitude),
-                xmax: Math.Max(Math.Max(observer.Longitude, fovLeft.Longitude), fovRight.Longitude),
-                ymin: Math.Min(Math.Min(observer.Latitude, fovLeft.Latitude), fovRight.Latitude),
-                ymax: Math.Max(Math.Max(observer.Latitude, fovLeft.Latitude), fovRight.Latitude));
+                xmin: Math.Min(Math.Min(observer4326.Longitude, fovLeft.Longitude), fovRight.Longitude),
+                xmax: Math.Max(Math.Max(observer4326.Longitude, fovLeft.Longitude), fovRight.Longitude),
+                ymin: Math.Min(Math.Min(observer4326.Latitude, fovLeft.Latitude), fovRight.Latitude),
+                ymax: Math.Max(Math.Max(observer4326.Latitude, fovLeft.Latitude), fovRight.Latitude));
 
             // Get required tiles
             // 1st pass: rangeMeters bbox arount point
             // for each tile, check if it is in view
 
             var hMapBase = _elevationService.GetHeightMap(ref fovBbox, dataSet, downloadMissingFiles: true, generateMissingData: false);
-            var hMap = hMapBase.ReprojectRelativeToObserver(observer, rangeMeters);
+            var hMap = hMapBase.ReprojectTo(dataSet.SRID, Reprojection.SRID_GEODETIC)
+                        .ReprojectRelativeToObserver(observer4326, rangeMeters);
             hMap.BakeCoordinates();
             var triangulation = _meshService.TriangulateHeightMap(hMap);
             var indexedTriangulation = new Triangulation3DModel(triangulation, p => new Vector3((float)p.Latitude, (float)(p.Elevation * zFactor), (float)p.Longitude));
