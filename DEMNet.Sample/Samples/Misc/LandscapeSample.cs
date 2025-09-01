@@ -82,21 +82,24 @@ namespace SampleApp
             * order by depth
             */
 
-            var dataset = DEMDataSet.IGN_5m;
+            var dataset = DEMDataSet.AW3D30;
             bool downloadMissingFiles = false;
-            //_rasterService.GenerateDirectoryMetadata(dataset, force: false);
+            //_rasterService.GenerateDirectoryMetadata(dataset, force: true);
             double heightAboveObservationPoint = 10;
-            var observer = GetObserver(43.54035, 5.53098, dataset, downloadMissingFiles); // bimont
+            var observer = GetObserver(43.51426, 5.56142, dataset, downloadMissingFiles); // cengle NE
+            
+            //var observer = GetObserver(43.54035, 5.53098, dataset, downloadMissingFiles); // bimont
             //var observer = GetObserver(43.544450, 5.444728, dataset); // terrain des peintres
             //var observer = GetObserver(43.504066, 5.530160, dataset); // bimont
             float zFactor = 1.2f;
             observer.Elevation += heightAboveObservationPoint;
 
-            int width = 2400;
-            int height = 1500;
-            float rangeMeters = 20000;
+            int width = 1902;
+            int height = 800;
+            float observerBearingDeg = 0;
+            float rangeMeters = 50000;
             // Define the perspective projection matrix
-            float fieldOfView = 60 * (float)(Math.PI / 180);  // 60 degree field of view
+            float fieldOfViewDeg = 60;  // 60 degree field of view
             float aspectRatio = (float)width / height;           // Aspect ratio of the image
             float nearPlane = 0.1f;
             float farPlane = rangeMeters;
@@ -104,12 +107,12 @@ namespace SampleApp
             _logger.LogInformation("Getting terrain");
 
             // Define a triangle in 3D space
-            Triangulation3DModel triangulation = GetTerrain(observer, dataset, rangeMeters, zFactor, downloadMissingFiles); //GetSampleTriangulation();
+            Triangulation3DModel triangulation = GetTerrain(observer, observerBearingDeg, dataset, rangeMeters, fieldOfViewDeg, zFactor, downloadMissingFiles); //GetSampleTriangulation();
 
             _logger.LogInformation("Updating");
             // Define the camera position and direction
-            Vector3 cameraPosition = new Vector3(0, (float)observer.Elevation * zFactor, 0); ;//  new(0, 2, -5);  // Camera at the origin
-            Vector3 cameraTarget = new(0, (float)observer.Elevation * zFactor, 5000);    // Looking down the Z axis
+            Vector3 cameraPosition = new Vector3(0, (float)observer.Elevation * zFactor, 0); //  new(0, 2, -5);  // Camera at the origin
+            Vector3 cameraTarget = RotateTranslate(new(0, (float)observer.Elevation * zFactor, 5000), (observerBearingDeg - 90) * (float)(Math.PI / 180), 5000);    // Looking down the Z axis
             Vector3 upVector = Vector3.UnitY;               // "Up" is in the Y direction
 
             Matrix4x4 terrainWorld = Matrix4x4.Identity;// Matrix4x4.CreateScale(0.001f);
@@ -117,10 +120,10 @@ namespace SampleApp
             Matrix4x4 viewMatrix = Matrix4x4.CreateLookAt(cameraPosition, cameraTarget, upVector);
 
             Matrix4x4 projectionMatrix = Matrix4x4.CreatePerspectiveFieldOfView(
-                fieldOfView, aspectRatio, nearPlane, farPlane);
+                fieldOfViewDeg * (float)(Math.PI / 180), aspectRatio, nearPlane, farPlane);
 
             // Map from normalized device coordinates (-1 to 1) to screen coordinates (0 to width/height)
-            Matrix4x4 viewport = Matrix4x4.CreateViewport(0, 0, width, height, 0, 1);
+            Matrix4x4 viewport = Matrix4x4.CreateViewport(0, 0, width, height, 0, farPlane);
 
             // Project each 3D vertex to 2D screen space
             //var projectedTrianglesRaw = ModelToScreen(triangulation, terrainWorld * viewMatrix * projectionMatrix, viewport);
@@ -134,6 +137,14 @@ namespace SampleApp
 
             _logger.LogInformation("Done");
             Environment.Exit(0);
+        }
+
+        private Vector3 RotateTranslate(Vector3 cameraPosition, float angleRadians, int zTranslation)
+        {
+            var rotate = Matrix4x4.CreateRotationY(-angleRadians);
+            var translate = Matrix4x4.CreateTranslation(0, 0, zTranslation);
+
+            return Vector3.Transform(cameraPosition, translate * rotate);
         }
 
         // Calculate the normal of the triangle using cross product of two edges
@@ -212,16 +223,17 @@ namespace SampleApp
                 {
                     g.Clear(System.Drawing.Color.LightBlue);
 
-                    // Draw Axis
                     Matrix4x4 viewProj = viewMatrix * projectionMatrix;
-                    // Draw axis
-                    var zero = ProjectVertex(new Vector4(Vector3.Zero, 1), viewProj, viewport);
-                    var x = ProjectVertex(new Vector4(Vector3.UnitX, 1), viewProj, viewport);
-                    var y = ProjectVertex(new Vector4(Vector3.UnitY, 1), viewProj, viewport);
-                    var z = ProjectVertex(new Vector4(Vector3.UnitZ, 1), viewProj, viewport);
-                    g.DrawLine(System.Drawing.Pens.Red, new System.Drawing.PointF(zero.X, zero.Y), new System.Drawing.PointF(x.X, x.Y));
-                    g.DrawLine(System.Drawing.Pens.Green, new System.Drawing.PointF(zero.X, zero.Y), new System.Drawing.PointF(y.X, y.Y));
-                    g.DrawLine(System.Drawing.Pens.Blue, new System.Drawing.PointF(zero.X, zero.Y), new System.Drawing.PointF(z.X, z.Y));
+                    
+                    //// Draw Axis
+                    //// Draw axis
+                    //var zero = ProjectVertex(new Vector4(Vector3.Zero, 1), viewProj, viewport);
+                    //var x = ProjectVertex(new Vector4(Vector3.UnitX, 1), viewProj, viewport);
+                    //var y = ProjectVertex(new Vector4(Vector3.UnitY, 1), viewProj, viewport);
+                    //var z = ProjectVertex(new Vector4(Vector3.UnitZ, 1), viewProj, viewport);
+                    //g.DrawLine(System.Drawing.Pens.Red, new System.Drawing.PointF(zero.X, zero.Y), new System.Drawing.PointF(x.X, x.Y));
+                    //g.DrawLine(System.Drawing.Pens.Green, new System.Drawing.PointF(zero.X, zero.Y), new System.Drawing.PointF(y.X, y.Y));
+                    //g.DrawLine(System.Drawing.Pens.Blue, new System.Drawing.PointF(zero.X, zero.Y), new System.Drawing.PointF(z.X, z.Y));
 
                     if (drawWireFrame)
                     {
@@ -391,14 +403,11 @@ namespace SampleApp
             return _elevationService.GetPointElevation(observer, dataset);
         }
 
-        public Triangulation3DModel GetTerrain(GeoPoint observer, DEMDataSet dataSet, double rangeMeters, double zFactor = 1.5f, bool downloadMissingFiles = false)
+        public Triangulation3DModel GetTerrain(GeoPoint observer, float observerBearingDeg, DEMDataSet dataSet, double rangeMeters, double observerFieldOfViewDeg, double zFactor = 1.5f, bool downloadMissingFiles = false)
         {
-            double observerAzimuth = 90;
-            double observerFieldOfViewDeg = 60;
-
             var observer4326 = observer.ReprojectTo(dataSet.SRID, Reprojection.SRID_GEODETIC);
-            var fovLeft = observer4326.GetDestinationPointFromPointAndBearing(observerAzimuth - observerFieldOfViewDeg / 2, rangeMeters);
-            var fovRight = observer4326.GetDestinationPointFromPointAndBearing(observerAzimuth + observerFieldOfViewDeg / 2, rangeMeters);
+            var fovLeft = observer4326.GetDestinationPointFromPointAndBearing(observerBearingDeg - observerFieldOfViewDeg / 2, rangeMeters);
+            var fovRight = observer4326.GetDestinationPointFromPointAndBearing(observerBearingDeg + observerFieldOfViewDeg / 2, rangeMeters);
             var fovBbox = new BoundingBox(
                 xmin: Math.Min(Math.Min(observer4326.Longitude, fovLeft.Longitude), fovRight.Longitude),
                 xmax: Math.Max(Math.Max(observer4326.Longitude, fovLeft.Longitude), fovRight.Longitude),
@@ -415,7 +424,7 @@ namespace SampleApp
             var hMapBase = _elevationService.GetHeightMap(ref fovBbox, dataSet, downloadMissingFiles, generateMissingData: false);
             var hMap = hMapBase.ReprojectTo(dataSet.SRID, Reprojection.SRID_GEODETIC)
                         .ReprojectRelativeToObserver(observer4326, rangeMeters);
-            hMap.BakeCoordinates();
+            //hMap.BakeCoordinates();
             var triangulation = _meshService.TriangulateHeightMap(hMap);
             var indexedTriangulation = new Triangulation3DModel(triangulation, p => new Vector3((float)p.Latitude, (float)(p.Elevation * zFactor), (float)p.Longitude));
 
