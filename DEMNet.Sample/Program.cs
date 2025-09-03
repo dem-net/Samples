@@ -82,7 +82,6 @@ namespace SampleApp
                     .AddTransient<GpxSamples>()
                     .AddTransient<Gpx3DSamples>()
                     .AddTransient<DatasetSamples>()
-                    .AddTransient<TINSamples>()
                     .AddTransient<glTF3DSamples>()
                     .AddTransient<DownloaderSample>()
                     .AddTransient<CustomSamples>()

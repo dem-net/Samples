@@ -251,8 +251,6 @@ namespace SampleApp
                 model = GetMeshFromGpxTrack(model, outputDir, localDataset, geoPoints
                                             , bboxScale: (1.3, 1.5)
                                             , zFactor: Z_FACTOR
-                                            , generateTIN: false
-                                            , tinPrecision: 50d
                                             , drawGpxOnTexture: true
                                             , ImageryProvider.EsriWorldImagery);
 
@@ -330,8 +328,7 @@ namespace SampleApp
             return (float)(angle * Math.PI / 180d);
         }
 
-        internal ModelRoot GetMeshFromGpxTrack(ModelRoot model, string outputDir, DEMDataSet dataSet, IEnumerable<GeoPoint> gpxPoints4326, (double x, double y) bboxScale, float zFactor, bool generateTIN,
-            double tinPrecision, bool drawGpxOnTexture, ImageryProvider imageryProvider)
+        internal ModelRoot GetMeshFromGpxTrack(ModelRoot model, string outputDir, DEMDataSet dataSet, IEnumerable<GeoPoint> gpxPoints4326, (double x, double y) bboxScale, float zFactor, bool drawGpxOnTexture, ImageryProvider imageryProvider)
         {
             using (TimeSpanBlock chrono = new TimeSpanBlock($"{nameof(AerialGpxSample)} {dataSet.Name}", _logger))
             {
@@ -391,18 +388,10 @@ namespace SampleApp
 
                 Console.WriteLine($"{dataSet.Name} GenerateTriangleMesh...");
                 //hMap = _elevationService.GetHeightMap(bbox, _dataSet);
-                if (generateTIN)
-                {
-
-                    model = TINGeneration.GenerateTIN(hMap, tinPrecision, _sharpGltfService, pbrTexture, outputSrid);
-
-                }
-                else
-                {
-                    // generate mesh with texture
-                    model = _sharpGltfService.AddTerrainMesh(model, hMap, pbrTexture, reduceFactor: 0.75f);
-                }
-
+                
+                // generate mesh with texture
+                model = _sharpGltfService.AddTerrainMesh(model, hMap, pbrTexture, reduceFactor: 0.75f);
+                
                 return model;
             }
 

@@ -70,13 +70,6 @@ namespace SampleApp
             {
                 rasterService.SetLocalDirectory(DATA_FILES_PATH);
             }
-            using (_logger.BeginScope($"Running {nameof(LandscapeSample)}.."))
-            {
-                var sample = services.GetService<LandscapeSample>();
-                sample.Run();
-                _logger.LogInformation($"Sample {sample.GetType().Name} done. Press any key to run the next sample...");
-                if (pauseAfterEachSample) Console.ReadLine();
-            }
             using (_logger.BeginScope($"Running {nameof(PolygonMaskSample)}.."))
             {
                 var sample = services.GetService<PolygonMaskSample>();
@@ -84,10 +77,17 @@ namespace SampleApp
                 _logger.LogInformation($"Sample {sample.GetType().Name} done. Press any key to run the next sample...");
                 if (pauseAfterEachSample) Console.ReadLine();
             }            
+            using (_logger.BeginScope($"Running {nameof(LandscapeSample)}.."))
+            {
+                var sample = services.GetService<LandscapeSample>();
+                sample.Run();
+                _logger.LogInformation($"Sample {sample.GetType().Name} done. Press any key to run the next sample...");
+                if (pauseAfterEachSample) Console.ReadLine();
+            }
             using (_logger.BeginScope($"Running {nameof(Gpx3DSamples)}.."))
             {
                 var gpx3DSamples = services.GetService<Gpx3DSamples>();
-                gpx3DSamples.Run(DEMDataSet.SRTM_GL3, true, false, Reprojection.SRID_PROJECTED_MERCATOR);
+                gpx3DSamples.Run(DEMDataSet.SRTM_GL3, true, Reprojection.SRID_PROJECTED_MERCATOR);
                 _logger.LogInformation($"Sample {gpx3DSamples.GetType().Name} done. Press any key to run the next sample...");
                 if (pauseAfterEachSample) Console.ReadLine();
             }

@@ -61,7 +61,7 @@ namespace SampleApp
         }
 
 
-        internal void Run(DEMDataSet dataSet, bool trackIn3D = true, bool generateTIN = false, int outputSrid = Reprojection.SRID_PROJECTED_LAMBERT_93)
+        internal void Run(DEMDataSet dataSet, bool trackIn3D = true, int outputSrid = Reprojection.SRID_PROJECTED_LAMBERT_93)
         {
             try
             {
@@ -168,20 +168,9 @@ namespace SampleApp
 
                 Console.WriteLine("GenerateTriangleMesh...");
                 //hMap = _elevationService.GetHeightMap(bbox, _dataSet);
-                ModelRoot model = null;
-                if (generateTIN)
-                {
-
-                    model = TINGeneration.GenerateTIN(hMap, 10d, _sharpGltfService, pbrTexture, outputSrid);
-
-                }
-                else
-                {
-                    //hMap = hMap.CenterOnOrigin().ZScale(Z_FACTOR);
-                    // generate mesh with texture
-                    model = _sharpGltfService.CreateTerrainMesh(hMap, pbrTexture, reduceFactor: reduceFactor);
-                }
-
+                // generate mesh with texture
+                ModelRoot model = _sharpGltfService.CreateTerrainMesh(hMap, pbrTexture, reduceFactor: reduceFactor);
+                
                 if (trackIn3D)
                 {
                     // take 1 point evert nth
@@ -199,7 +188,7 @@ namespace SampleApp
 
                 // model export
                 Console.WriteLine("GenerateModel...");
-                model.SaveGLB(Path.Combine(Directory.GetCurrentDirectory(), $"{GetType().Name} dst{dataSet.Name} TIN{generateTIN} Srid{outputSrid}.glb"));
+                model.SaveGLB(Path.Combine(Directory.GetCurrentDirectory(), $"{GetType().Name} dst{dataSet.Name} Srid{outputSrid}.glb"));
             }
             catch (Exception ex)
             {

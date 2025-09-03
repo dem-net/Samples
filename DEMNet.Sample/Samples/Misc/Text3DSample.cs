@@ -1,19 +1,12 @@
 ﻿using DEM.Net.Core;
 using DEM.Net.Core.Imagery;
-using DEM.Net.Core.Model;
-using DEM.Net.Core.Voronoi;
 using DEM.Net.glTF.SharpglTF;
 using Microsoft.Extensions.Logging;
 using SharpGLTF.Schema2;
 using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Drawing;
-using System.Drawing.Drawing2D;
 using System.IO;
-using System.Linq;
 using System.Numerics;
-using System.Text;
 
 namespace SampleApp
 {
