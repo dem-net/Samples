@@ -61,13 +61,13 @@ namespace SampleApp
             try
             {
 
-                int TEXTURE_TILES = 4; // 4: med, 8: high
+                int TEXTURE_TILES = 16; // 4: med, 8: high
 
                 //_rasterService.GenerateDirectoryMetadata(dataset, false);
                 Stopwatch sw = Stopwatch.StartNew();
-                string modelName = $"MontBlanc_{dataset.Name}";
+                string modelName = $"Dolomites_{dataset.Name}";
                 string outputDir = Directory.GetCurrentDirectory();
-                ImageryProvider provider = ImageryProvider.EsriWorldImagery;// new TileDebugProvider(new GeoPoint(43.5,5.5));
+                ImageryProvider provider = ImageryProvider.MapTilerSatellite;// new TileDebugProvider(new GeoPoint(43.5,5.5));
 
 
                 //// You can get your boox from https://geojson.net/ (save as WKT)
@@ -81,7 +81,11 @@ namespace SampleApp
                 //var bbox = GeometryService.GetBoundingBox(bboxWKT);
 
                 // DjebelMarra
-                var bbox = new BoundingBox(24.098067346557492, 24.42468219234563, 12.7769822830208, 13.087504129660111);
+                //var bbox = new BoundingBox(24.098067346557492, 24.42468219234563, 12.7769822830208, 13.087504129660111);
+
+                // Dolomites
+                var bbox = GeometryService.GetBoundingBox("POLYGON ((12.309158326668324 46.452834489592334, 12.309158326668324 46.19110950009852, 12.784644435942425 46.19110950009852, 12.784644435942425 46.452834489592334, 12.309158326668324 46.452834489592334))");
+                bbox = bbox.ReprojectTo(4326, dataset.SRID); 
 
                 // MontBlanc
                 //var bbox = GeometryService.GetBoundingBox("POLYGON((6.618804355541963 45.9658287141746,7.052764316479463 45.9658287141746,7.052764316479463 45.72379929776474,6.618804355541963 45.72379929776474,6.618804355541963 45.9658287141746))");
@@ -91,15 +95,14 @@ namespace SampleApp
 
                 var heightMap = _elevationService.GetHeightMap(ref bbox, dataset);
                 ModelGenerationTransform transform = new ModelGenerationTransform(bbox,
-                    datasetSrid: Reprojection.SRID_GEODETIC,
+                    datasetSrid: dataset.SRID,
                     outputSrid: Reprojection.SRID_PROJECTED_MERCATOR,
                     centerOnOrigin: true,
                     zFactor: 1.5f,
                     centerOnZOrigin: true);
 
                 _logger.LogInformation($"Processing height map data ({heightMap.Count} coordinates)...");
-                heightMap = transform.TransformHeightMap(heightMap);
-
+                heightMap = transform.TransformHeightMap(heightMap).BakeCoordinates();
 
                 //=======================
                 // Textures
@@ -110,11 +113,13 @@ namespace SampleApp
 
 
                     Console.WriteLine("Download image tiles...");
-                    TileRange tiles = _imageryService.DownloadTiles(bbox, provider, TEXTURE_TILES);
+                    var bboxImagery = bbox.ReprojectTo(dataset.SRID, 4326);
+                    TileRange tiles = _imageryService.ComputeBoundingBoxTileRange(bboxImagery, provider, TEXTURE_TILES);
+                    tiles = _imageryService.DownloadTiles(tiles, provider);
                     string fileName = Path.Combine(outputDir, "Texture.jpg");
 
                     Console.WriteLine("Construct texture...");
-                    TextureInfo texInfo = _imageryService.ConstructTexture(tiles, bbox, fileName, TextureImageFormat.image_jpeg);
+                    TextureInfo texInfo = _imageryService.ConstructTexture(tiles, bboxImagery, fileName, TextureImageFormat.image_jpeg);
 
                     //
                     //=======================
@@ -125,9 +130,9 @@ namespace SampleApp
                     //float Z_FACTOR = 0.00002f;
 
                     //hMap = hMap.CenterOnOrigin().ZScale(Z_FACTOR);
-                    var normalMap = _imageryService.GenerateNormalMap(heightMap, outputDir);
+                    //var normalMap = _imageryService.GenerateNormalMap(heightMap, outputDir);
 
-                    pbrTexture = PBRTexture.Create(texInfo, normalMap);
+                    pbrTexture = PBRTexture.Create(texInfo);
 
                     //hMap = hMap.CenterOnOrigin(Z_FACTOR);
                     //
@@ -137,13 +142,13 @@ namespace SampleApp
                 // and add base and sides
                 _logger.LogInformation($"Triangulating height map and generating 3D mesh...");
 
-                var model = _sharpGltfService.CreateTerrainMesh(heightMap, pbrTexture, reduceFactor: 0.75f);
+                var model = _sharpGltfService.CreateTerrainMesh(heightMap, pbrTexture, reduceFactor: 0.075f);
                 model.SaveGLB(Path.Combine(Directory.GetCurrentDirectory(), modelName + ".glb"));
-                model.SaveAsWavefront(Path.Combine(Directory.GetCurrentDirectory(), modelName + ".obj"));
+                //model.SaveAsWavefront(Path.Combine(Directory.GetCurrentDirectory(), modelName + ".obj"));
 
-                model = _sharpGltfService.CreateTerrainMesh(heightMap, GenOptions.Normals | GenOptions.BoxedBaseElevationMin);
-                model.SaveGLB(Path.Combine(Directory.GetCurrentDirectory(), modelName + "_normalsBox.glb"));
-                model.SaveAsWavefront(Path.Combine(Directory.GetCurrentDirectory(), modelName + "_normalsBox.obj"));
+                //model = _sharpGltfService.CreateTerrainMesh(heightMap, GenOptions.Normals | GenOptions.BoxedBaseElevationMin);
+                //model.SaveGLB(Path.Combine(Directory.GetCurrentDirectory(), modelName + "_normalsBox.glb"));
+                //model.SaveAsWavefront(Path.Combine(Directory.GetCurrentDirectory(), modelName + "_normalsBox.obj"));
 
                 _logger.LogInformation($"Model exported as {Path.Combine(Directory.GetCurrentDirectory(), modelName + ".gltf")} and .glb");
 

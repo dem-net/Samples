@@ -70,13 +70,30 @@ namespace SampleApp
             {
                 rasterService.SetLocalDirectory(DATA_FILES_PATH);
             }
+            //rasterService.GenerateDirectoryMetadata(DEMDataSet.AW3D30, false);
+
+            using (_logger.BeginScope($"Running {nameof(glTF3DSamples)}.."))
+            {
+                var glTF3DSamples = services.GetService<glTF3DSamples>();
+                glTF3DSamples.Run(DEMDataSet.FABDEM, withTexture: true);
+                glTF3DSamples.Run(DEMDataSet.TINItaly, withTexture: true);
+                _logger.LogInformation($"Sample {glTF3DSamples.GetType().Name} done. Press any key to run the next sample...");
+                if (pauseAfterEachSample) Console.ReadLine();
+            }
             using (_logger.BeginScope($"Running {nameof(PolygonMaskSample)}.."))
             {
                 var sample = services.GetService<PolygonMaskSample>();
-                sample.Run(DEMDataSet.ETOPO1);
+                sample.Run(DEMDataSet.TINItaly);
                 _logger.LogInformation($"Sample {sample.GetType().Name} done. Press any key to run the next sample...");
                 if (pauseAfterEachSample) Console.ReadLine();
             }            
+            using (_logger.BeginScope($"Running {nameof(LandscapeSample)}.."))
+            {
+                var sample = services.GetService<LandscapeSample>();
+                sample.Run();
+                _logger.LogInformation($"Sample {sample.GetType().Name} done. Press any key to run the next sample...");
+                if (pauseAfterEachSample) Console.ReadLine();
+            }
             using (_logger.BeginScope($"Running {nameof(LandscapeSample)}.."))
             {
                 var sample = services.GetService<LandscapeSample>();
