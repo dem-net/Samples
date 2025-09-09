@@ -75,72 +75,72 @@ namespace SampleApp
             using (_logger.BeginScope($"Running {nameof(glTF3DSamples)}.."))
             {
                 var glTF3DSamples = services.GetService<glTF3DSamples>();
-                glTF3DSamples.Run(DEMDataSet.FABDEM, withTexture: true);
+                //glTF3DSamples.Run(DEMDataSet.NASADEM, withTexture: true);
                 glTF3DSamples.Run(DEMDataSet.TINItaly, withTexture: true);
                 _logger.LogInformation($"Sample {glTF3DSamples.GetType().Name} done. Press any key to run the next sample...");
                 if (pauseAfterEachSample) Console.ReadLine();
             }
-            using (_logger.BeginScope($"Running {nameof(PolygonMaskSample)}.."))
-            {
-                var sample = services.GetService<PolygonMaskSample>();
-                sample.Run(DEMDataSet.TINItaly);
-                _logger.LogInformation($"Sample {sample.GetType().Name} done. Press any key to run the next sample...");
-                if (pauseAfterEachSample) Console.ReadLine();
-            }            
-            using (_logger.BeginScope($"Running {nameof(LandscapeSample)}.."))
-            {
-                var sample = services.GetService<LandscapeSample>();
-                sample.Run();
-                _logger.LogInformation($"Sample {sample.GetType().Name} done. Press any key to run the next sample...");
-                if (pauseAfterEachSample) Console.ReadLine();
-            }
-            using (_logger.BeginScope($"Running {nameof(LandscapeSample)}.."))
-            {
-                var sample = services.GetService<LandscapeSample>();
-                sample.Run();
-                _logger.LogInformation($"Sample {sample.GetType().Name} done. Press any key to run the next sample...");
-                if (pauseAfterEachSample) Console.ReadLine();
-            }
-            using (_logger.BeginScope($"Running {nameof(Gpx3DSamples)}.."))
-            {
-                var gpx3DSamples = services.GetService<Gpx3DSamples>();
-                gpx3DSamples.Run(DEMDataSet.SRTM_GL3, true, Reprojection.SRID_PROJECTED_MERCATOR);
-                _logger.LogInformation($"Sample {gpx3DSamples.GetType().Name} done. Press any key to run the next sample...");
-                if (pauseAfterEachSample) Console.ReadLine();
-            }
-            using (_logger.BeginScope($"Running {nameof(OBJSamples)}.."))
-            {
-                var sample = services.GetRequiredService<OBJSamples>();
-                sample.Run();
-                _logger.LogInformation($"Sample {sample.GetType().Name} done. Press any key to run the next sample...");
-                if (pauseAfterEachSample) Console.ReadLine();
-            }
-            using (_logger.BeginScope($"Running {nameof(DownloaderSample)}.."))
-            {
-                var sample = services.GetRequiredService<DownloaderSample>();
+            //using (_logger.BeginScope($"Running {nameof(PolygonMaskSample)}.."))
+            //{
+            //    var sample = services.GetService<PolygonMaskSample>();
+            //    sample.Run(DEMDataSet.TINItaly);
+            //    _logger.LogInformation($"Sample {sample.GetType().Name} done. Press any key to run the next sample...");
+            //    if (pauseAfterEachSample) Console.ReadLine();
+            //}            
+            //using (_logger.BeginScope($"Running {nameof(LandscapeSample)}.."))
+            //{
+            //    var sample = services.GetService<LandscapeSample>();
+            //    sample.Run();
+            //    _logger.LogInformation($"Sample {sample.GetType().Name} done. Press any key to run the next sample...");
+            //    if (pauseAfterEachSample) Console.ReadLine();
+            //}
+            //using (_logger.BeginScope($"Running {nameof(LandscapeSample)}.."))
+            //{
+            //    var sample = services.GetService<LandscapeSample>();
+            //    sample.Run();
+            //    _logger.LogInformation($"Sample {sample.GetType().Name} done. Press any key to run the next sample...");
+            //    if (pauseAfterEachSample) Console.ReadLine();
+            //}
+            //using (_logger.BeginScope($"Running {nameof(Gpx3DSamples)}.."))
+            //{
+            //    var gpx3DSamples = services.GetService<Gpx3DSamples>();
+            //    gpx3DSamples.Run(DEMDataSet.SRTM_GL3, true, Reprojection.SRID_PROJECTED_MERCATOR);
+            //    _logger.LogInformation($"Sample {gpx3DSamples.GetType().Name} done. Press any key to run the next sample...");
+            //    if (pauseAfterEachSample) Console.ReadLine();
+            //}
+            //using (_logger.BeginScope($"Running {nameof(OBJSamples)}.."))
+            //{
+            //    var sample = services.GetRequiredService<OBJSamples>();
+            //    sample.Run();
+            //    _logger.LogInformation($"Sample {sample.GetType().Name} done. Press any key to run the next sample...");
+            //    if (pauseAfterEachSample) Console.ReadLine();
+            //}
+            //using (_logger.BeginScope($"Running {nameof(DownloaderSample)}.."))
+            //{
+            //    var sample = services.GetRequiredService<DownloaderSample>();
 
-                sample.Run(DEMDataSet.swissALTI3D2m);
-                rasterService.GenerateDirectoryMetadata(DEMDataSet.swissALTI3D50cm, force: true);
-                sample.ExtractCopernicEuDem(@"C:\Data\EuDEM");
-                sample.DeduplicateCopernicEuDem(@"C:\Data\EuDEM");
-                //sample.PrepareIgn5_2_AfterDezip_MoveAndCompressAsc(@"C:\Users\admin\Downloads\IGN5\France");
+            //    sample.Run(DEMDataSet.swissALTI3D2m);
+            //    rasterService.GenerateDirectoryMetadata(DEMDataSet.swissALTI3D50cm, force: true);
+            //    sample.ExtractCopernicEuDem(@"C:\Data\EuDEM");
+            //    sample.DeduplicateCopernicEuDem(@"C:\Data\EuDEM");
+            //    //sample.PrepareIgn5_2_AfterDezip_MoveAndCompressAsc(@"C:\Users\admin\Downloads\IGN5\France");
 
                 
-                rasterService.GenerateDirectoryMetadata(DEMDataSet.FABDEM, force: false);
-                rasterService.GenerateDirectoryMetadata(DEMDataSet.IGN_5m, force: true);
-                rasterService.GenerateDirectoryMetadata(DEMDataSet.IGN_1m, force: true);
-                //sample.Run(DEMDataSet.swissALTI3D2m);
-                //sample.Run(DEMDataSet.swissALTI3D50cm);
+            //    rasterService.GenerateDirectoryMetadata(DEMDataSet.FABDEM, force: false);
+            //    rasterService.GenerateDirectoryMetadata(DEMDataSet.IGN_5m, force: true);
+            //    rasterService.GenerateDirectoryMetadata(DEMDataSet.IGN_1m, force: true);
+            //    //sample.Run(DEMDataSet.swissALTI3D2m);
+            //    //sample.Run(DEMDataSet.swissALTI3D50cm);
 
-                //IGN
-                //sample.PrepareIgn5_2_AfterDezip_MoveAndCompressAsc(@"E:\Perso\data\RGE_Alti5m\DEM.Net\IGN_5m");
-                //sample.PrepareIgn5_1_Deduplicate_DezipManualAfter();
-                //sample.Generate_Ign5_Metadata();
+            //    //IGN
+            //    //sample.PrepareIgn5_2_AfterDezip_MoveAndCompressAsc(@"E:\Perso\data\RGE_Alti5m\DEM.Net\IGN_5m");
+            //    //sample.PrepareIgn5_1_Deduplicate_DezipManualAfter();
+            //    //sample.Generate_Ign5_Metadata();
 
 
-                _logger.LogInformation($"Sample {sample.GetType().Name} done. Press any key to run the next sample...");
-                if (pauseAfterEachSample) Console.ReadLine();
-            }
+            //    _logger.LogInformation($"Sample {sample.GetType().Name} done. Press any key to run the next sample...");
+            //    if (pauseAfterEachSample) Console.ReadLine();
+            //}
            
             //using (_logger.BeginScope($"Running {nameof(Gpx3DSamples)}.."))
             //{
