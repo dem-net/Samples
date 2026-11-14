@@ -67,6 +67,14 @@ namespace SampleApp
 
             var services = serviceCollection.BuildServiceProvider();
 
+            // Server maintenance: dotnet DEMNet.Sample.dll repair [AW3D30,NASADEM|all] [--data-dir path] [--dry-run] [--no-download] [--parallel n]
+            if (args.Length > 0 && args[0].Equals("repair", StringComparison.OrdinalIgnoreCase))
+            {
+                Environment.ExitCode = services.GetRequiredService<DatasetRepairSample>().RunFromCommandLine(args);
+                services.Dispose(); // flushes console logs
+                return;
+            }
+
             services.GetService<SampleApplication>().Start(services);
         }
 
@@ -94,6 +102,7 @@ namespace SampleApp
                     .AddTransient<OBJSamples>()
                     .AddTransient<PolygonMaskSample>()
                     .AddTransient<LandscapeSample>()
+                    .AddTransient<DatasetRepairSample>()
                     ;
 
             services.AddTransient<SampleApplication>();
