@@ -67,7 +67,7 @@ namespace SampleApp
                 Stopwatch sw = Stopwatch.StartNew();
                 string modelName = $"MontBlanc_{dataset.Name}";
                 string outputDir = Directory.GetCurrentDirectory();
-                ImageryProvider provider = ImageryProvider.EsriWorldImagery;// new TileDebugProvider(new GeoPoint(43.5,5.5));
+                ImageryProvider provider = ImageryProvider.MapBoxSatellite;// new TileDebugProvider(new GeoPoint(43.5,5.5));
 
 
                 //// You can get your boox from https://geojson.net/ (save as WKT)

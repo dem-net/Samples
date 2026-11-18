@@ -76,7 +76,7 @@ namespace SampleApp
                 int zoomLevel = 12;
                 int resolution = 1024;
 
-                ImageryProvider provider = ImageryProvider.EsriWorldImagery; // new TileDebugProvider(null, maxDegreeOfParallelism: 1);//  ImageryProvider.MapBoxSatellite;
+                ImageryProvider provider = ImageryProvider.MapBoxSatellite; // new TileDebugProvider(null, maxDegreeOfParallelism: 1);//  ImageryProvider.MapBoxSatellite;
 
                 string outputDir = Path.GetFullPath(".");
 

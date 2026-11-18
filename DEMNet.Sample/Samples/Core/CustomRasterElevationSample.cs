@@ -171,7 +171,7 @@ namespace SampleApp
                 //// zoom zone FAU
                 //bboxWkt = "POLYGON((6.374880326536019 43.009262752246585,6.379128945615609 43.009262752246585,6.379128945615609 43.00643834657017,6.374880326536019 43.00643834657017,6.374880326536019 43.009262752246585))";
 
-                GenerateModel(bboxWkt, litto3DDataset, ImageryProvider.EsriWorldImagery, zFactor, withTexture: true, withboat: false, withWaterSurface: true, fallbackDataset: gebco2020);
+                GenerateModel(bboxWkt, litto3DDataset, ImageryProvider.MapBoxSatellite, zFactor, withTexture: true, withboat: false, withWaterSurface: true, fallbackDataset: gebco2020);
                 GenerateModel(bboxWkt, litto3DDataset, ImageryProvider.MapBoxSatellite, zFactor, withTexture: true, withboat: true, withWaterSurface: true);
                 GenerateModel(bboxWkt, litto3DDataset, ImageryProvider.ThunderForestLandscape);
                 GenerateModel(bboxWkt, litto3DDataset, ImageryProvider.OpenTopoMap);

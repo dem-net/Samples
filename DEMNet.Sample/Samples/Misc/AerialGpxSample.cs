@@ -181,7 +181,7 @@ namespace SampleApp
             //                                , generateTIN: false
             //                                , tinPrecision: 50d
             //                                , drawGpxOnTexture: true
-            //                                , ImageryProvider.EsriWorldImagery);
+            //                                , ImageryProvider.MapBoxSatellite);
 
 
             //    var gpxPoints = geoPoints.ReprojectGeodeticToCartesian().ZScale(Z_FACTOR);
@@ -252,7 +252,7 @@ namespace SampleApp
                                             , bboxScale: (1.3, 1.5)
                                             , zFactor: Z_FACTOR
                                             , drawGpxOnTexture: true
-                                            , ImageryProvider.EsriWorldImagery);
+                                            , ImageryProvider.MapBoxSatellite);
 
 
                 var gpxPoints = geoPoints.ReprojectGeodeticToCartesian().ZScale(Z_FACTOR);
